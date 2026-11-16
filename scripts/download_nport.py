@@ -52,11 +52,11 @@ best = sorted(originals, key=lambda s: s["file_date"], reverse=True)[0]
 accession_dashes  = best["adsh"]          # e.g. "0002071691-26-019760"
 accession_nodash  = accession_dashes.replace("-", "")
 filing_date       = best["file_date"]
-xsl               = best.get("xsl", "xslFormNPORT-P_X01")
-
+# The EFTS `xsl` field is EDGAR's inline HTML viewer path, not the data file.
+# The actual schema-valid XML always lives at primary_doc.xml in the filing root.
 xml_url = (
     f"https://www.sec.gov/Archives/edgar/data/{CIK_NUM}"
-    f"/{accession_nodash}/{xsl}/primary_doc.xml"
+    f"/{accession_nodash}/primary_doc.xml"
 )
 
 print(f"\nMost recent NPORT-P confirmed by EFTS:")
