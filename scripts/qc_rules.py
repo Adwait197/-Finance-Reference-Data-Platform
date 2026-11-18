@@ -7,6 +7,10 @@ Rules applied
   R3  valusd is negative
   R4  Non-null cusip value appears on more than one row (duplicate)
   R5  assetcat OR issuercat is blank / null
+  R6  balance is within 1% of valUSD (ratio 0.99–1.01), indicating a
+      $1-per-unit money-market or cash instrument that may be miscategorized
+      as an equity holding; derived from the IsolationForest finding for
+      id=415 (BlackRock Funds III, CUSIP 066922477)
 
 A row that fails multiple rules is listed once with every failing rule noted
 in the 'rules_failed' column (pipe-separated).
@@ -86,6 +90,12 @@ def apply_rules(df: pd.DataFrame) -> pd.DataFrame:
 
     # R5 — blank assetcat or issuercat
     masks["R5_category_blank"] = is_blank(df["assetcat"]) | is_blank(df["issuercat"])
+
+    # R6 — possible cash/money-market instrument: balance ≈ valUSD (ratio within 1%)
+    # Both values must be positive and finite for the ratio to be meaningful.
+    both_positive = df["balance"].notna() & df["valusd"].notna() & (df["valusd"] > 0) & (df["balance"] > 0)
+    ratio = df["balance"] / df["valusd"]
+    masks["R6_possible_cash_mm"] = both_positive & (ratio >= 0.99) & (ratio <= 1.01)
 
     # Build rules_failed column
     def _rules_for_row(idx):

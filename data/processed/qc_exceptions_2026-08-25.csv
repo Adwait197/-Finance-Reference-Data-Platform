@@ -1,5 +1,6 @@
 id,name,lei,title,cusip,isin,balance,units,curcd,valusd,pctval,payoffprofile,assetcat,issuercat,invcountry,isrestrictedsec,fairvallevel,iscashcollateral,rules_failed
 93,,,S&P 500 E-Mini Index,,,3722.000000,NC,USD,13915610.940000,0.001567,,DE,,US,N,1,N,R1_no_identifier | R5_category_blank
-91,BlackRock Funds III,549300JDHS1T46VWOG19,"BlackRock Cash Funds: Institutional, SL Agency Shares",066922519,US0669225197,1486172742.356000,NS,USD,1486618594.180000,0.167388,Long,STIV,RF,US,N,1,,R4_duplicate_cusip
-347,BlackRock Funds III,549300JDHS1T46VWOG19,"BlackRock Cash Funds: Institutional, SL Agency Shares",066922519,US0669225197,2.000000,NS,USD,2.000000,0.000000,Long,STIV,RF,US,N,1,N,R4_duplicate_cusip
+91,BlackRock Funds III,549300JDHS1T46VWOG19,"BlackRock Cash Funds: Institutional, SL Agency Shares",066922519,US0669225197,1486172742.356000,NS,USD,1486618594.180000,0.167388,Long,STIV,RF,US,N,1,,R4_duplicate_cusip | R6_possible_cash_mm
+347,BlackRock Funds III,549300JDHS1T46VWOG19,"BlackRock Cash Funds: Institutional, SL Agency Shares",066922519,US0669225197,2.000000,NS,USD,2.000000,0.000000,Long,STIV,RF,US,N,1,N,R4_duplicate_cusip | R6_possible_cash_mm
 260,"Hologic, Inc.",549300DYP6F5ZJL0LB74,"Hologic, Inc., CVR",436CVR021,US436CVR0216,2843388.000000,NS,USD,28433.880000,0.000003,Long,,CORP,US,N,2,N,R5_category_blank
+415,BlackRock Funds III,5493005PQV5UQG4OSI49,"BlackRock Cash Funds: Treasury, SL Agency Shares",066922477,US0669224778,1025979283.840000,NS,USD,1025979283.840000,0.115521,Long,STIV,RF,US,N,1,N,R6_possible_cash_mm
