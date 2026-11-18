@@ -27,6 +27,14 @@ Name matching
 
 Both pctVal (N-PORT) and Market Weight (iShares) are expressed as percentages
 (e.g. 8.05 means 8.05 pct), so they are compared directly with no unit conversion.
+
+Date-gap limitation
+  Tested 4 methods to get a same-date (Aug 25, 2026) iShares snapshot: the
+  asOfDate URL parameter, the Wayback Machine, a manual browser download, and
+  the open-source etf_scraper package. All four hit the same root cause --
+  iShares' public AJAX endpoint ignores any date parameter and always serves
+  today's snapshot. This is a confirmed limitation of the free public source,
+  not a project gap.
 """
 
 import os
