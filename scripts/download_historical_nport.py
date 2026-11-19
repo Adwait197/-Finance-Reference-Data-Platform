@@ -143,6 +143,23 @@ def txt(el, tag):
     return child.text.strip() if child is not None and child.text else None
 
 
+def txt_or_cond(el, tag, cond_tag, attr):
+    """
+    Try direct child element text; fall back to an attribute on a conditional
+    sibling.  Used for assetCat / issuerCat which the N-PORT schema sometimes
+    encodes as <assetConditional assetCat="..."/> or <issuerConditional
+    issuerCat="..."/> instead of plain text children.
+    """
+    val = txt(el, tag)
+    if val:
+        return val
+    cond = el.find(f"{N}{cond_tag}")
+    if cond is not None:
+        v = cond.get(attr)
+        return v.strip() if v else None
+    return None
+
+
 def parse_xml_to_df(xml_bytes: bytes) -> pd.DataFrame:
     """Parse N-PORT XML bytes into a holdings DataFrame."""
     root = ET.fromstring(xml_bytes)
@@ -171,8 +188,8 @@ def parse_xml_to_df(xml_bytes: bytes) -> pd.DataFrame:
             "valUSD":           txt(sec, "valUSD"),
             "pctVal":           txt(sec, "pctVal"),
             "payoffProfile":    txt(sec, "payoffProfile"),
-            "assetCat":         txt(sec, "assetCat"),
-            "issuerCat":        txt(sec, "issuerCat"),
+            "assetCat":         txt_or_cond(sec, "assetCat",  "assetConditional",  "assetCat"),
+            "issuerCat":        txt_or_cond(sec, "issuerCat", "issuerConditional", "issuerCat"),
             "invCountry":       txt(sec, "invCountry"),
             "isRestrictedSec":  txt(sec, "isRestrictedSec"),
             "fairValLevel":     txt(sec, "fairValLevel"),

@@ -2,15 +2,20 @@
 Module 3: Automated QC rule engine — deterministic checks on security_master.
 
 Rules applied
-  R1  Both cusip AND isin are blank / null
-  R2  pctval is negative or greater than 100
-  R3  valusd is negative
+  R1  Both cusip AND isin are blank / null           (equity/debt rows only)
+  R2  pctval is negative or greater than 100         (equity/debt rows only)
+  R3  valusd is negative                             (equity/debt rows only)
   R4  Non-null cusip value appears on more than one row (duplicate)
   R5  assetcat OR issuercat is blank / null
   R6  balance is within 1% of valUSD (ratio 0.99–1.01), indicating a
       $1-per-unit money-market or cash instrument that may be miscategorized
       as an equity holding; derived from the IsolationForest finding for
       id=415 (BlackRock Funds III, CUSIP 066922477)
+  D1  Derivative row (assetCat starts with 'D') — expected, review only.
+      Derivatives are EXCLUDED from R1/R2/R3 because exchange-traded futures
+      have no CUSIP or ISIN (they are contractual rights, not issued
+      securities), and their valUSD represents unrealised P&L which can
+      legitimately be negative when the position is marked against the fund.
 
 A row that fails multiple rules is listed once with every failing rule noted
 in the 'rules_failed' column (pipe-separated).
@@ -67,21 +72,26 @@ def load_data() -> pd.DataFrame:
 
 def apply_rules(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Evaluate all rules and return df with a 'rules_failed' column.
-    Rows that pass every rule have an empty string in 'rules_failed'.
+    Evaluate all rules and return df with 'rules_failed' and 'reason' columns.
+    Rows that pass every rule have empty strings in both columns.
     """
     masks = {}
 
-    # R1 — both identifier fields blank
-    masks["R1_no_identifier"] = is_blank(df["cusip"]) & is_blank(df["isin"])
+    # Derivatives (assetCat starts with 'D', e.g. 'DE' for Exchange-Traded).
+    # Exchange-traded futures have no CUSIP/ISIN and their valUSD is unrealised
+    # P&L which can be negative — applying R1/R2/R3 to them is a false positive.
+    is_derivative = df["assetcat"].fillna("").str.upper().str.startswith("D")
 
-    # R2 — pctval out of valid range [0, 100]
+    # R1 — both identifier fields blank (derivatives excluded)
+    masks["R1_no_identifier"] = is_blank(df["cusip"]) & is_blank(df["isin"]) & ~is_derivative
+
+    # R2 — pctval out of valid range [0, 100] (derivatives excluded)
     masks["R2_pctval_range"] = df["pctval"].notna() & (
         (df["pctval"] < 0) | (df["pctval"] > 100)
-    )
+    ) & ~is_derivative
 
-    # R3 — negative valUSD
-    masks["R3_valusd_negative"] = df["valusd"].notna() & (df["valusd"] < 0)
+    # R3 — negative valUSD (derivatives excluded)
+    masks["R3_valusd_negative"] = df["valusd"].notna() & (df["valusd"] < 0) & ~is_derivative
 
     # R4 — duplicate non-blank cusip
     non_blank_cusip = df["cusip"][~is_blank(df["cusip"])]
@@ -97,12 +107,25 @@ def apply_rules(df: pd.DataFrame) -> pd.DataFrame:
     ratio = df["balance"] / df["valusd"]
     masks["R6_possible_cash_mm"] = both_positive & (ratio >= 0.99) & (ratio <= 1.01)
 
+    # D1 — derivative row: flagged for review, not counted as a data error
+    masks["D1_derivative_review"] = is_derivative
+
     # Build rules_failed column
     def _rules_for_row(idx):
         return " | ".join(rule for rule, mask in masks.items() if mask.iloc[idx])
 
+    # Build reason column (explanatory note for D1 rows)
+    def _reason_for_row(idx):
+        if masks["D1_derivative_review"].iloc[idx]:
+            return (
+                "Exchange-traded derivative (futures contract): "
+                "no CUSIP/ISIN by design; valUSD = unrealised P&L (can be negative)"
+            )
+        return ""
+
     df = df.copy()
     df["rules_failed"] = [_rules_for_row(i) for i in range(len(df))]
+    df["reason"]       = [_reason_for_row(i) for i in range(len(df))]
 
     return df, masks
 
