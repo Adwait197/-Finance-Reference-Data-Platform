@@ -5,9 +5,10 @@ Creates security_master_history in the finance_platform database and
 loads all 6 quarterly IVV N-PORT holdings CSVs into it.
 
 Schema: identical to security_master (surrogate SERIAL pk + 17 data
-columns) plus a filing_date DATE column that tags each row with the
-N-PORT filing date.  The original per-CSV 'id' column is NOT carried
-over — the SERIAL here is an independent sequence across all 6 loads.
+columns) plus filing_date DATE (SEC filing date) and period_end_date
+DATE (quarter-end date from repPdDate in the N-PORT XML).  The original
+per-CSV 'id' column is NOT carried over — the SERIAL here is an
+independent sequence across all 6 loads.
 """
 
 import csv
@@ -29,6 +30,16 @@ PGPASSWORD = os.getenv("PGPASSWORD", "")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PROC_DIR  = REPO_ROOT / "data" / "processed"
+
+# repPdDate extracted from each XML: maps SEC filing_date -> quarter-end period_end_date
+PERIOD_END_MAP = {
+    "2025-05-27": "2025-03-31",
+    "2025-08-28": "2025-06-30",
+    "2025-11-26": "2025-09-30",
+    "2026-02-25": "2025-12-31",
+    "2026-05-28": "2026-03-31",
+    "2026-08-25": "2026-06-30",
+}
 
 # 6 quarterly filings in chronological order
 FILINGS = [
@@ -53,6 +64,7 @@ CREATE_TABLE_SQL = """
 CREATE TABLE security_master_history (
     id               SERIAL PRIMARY KEY,
     filing_date      DATE        NOT NULL,
+    period_end_date  DATE        NOT NULL,
     name             TEXT,
     lei              TEXT,
     title            TEXT,
@@ -76,6 +88,7 @@ CREATE TABLE security_master_history (
 # COPY target columns (must match CREATE TABLE order, excluding SERIAL id)
 COPY_COLS = [
     "filing_date",
+    "period_end_date",
     "name", "lei", "title", "cusip", "isin",
     "balance", "units", "curcd", "valusd", "pctval",
     "payoffprofile", "assetcat", "issuercat", "invcountry",
@@ -91,7 +104,7 @@ def connect():
 
 
 def load_filing(cur, filing_date: str, csv_path: Path) -> int:
-    """Read one CSV, add filing_date, bulk-load via COPY. Returns row count."""
+    """Read one CSV, add filing_date + period_end_date, bulk-load via COPY. Returns row count."""
     df = pd.read_csv(csv_path, dtype=str)
     df_load = df[DATA_COLS].copy()
 
@@ -102,8 +115,10 @@ def load_filing(cur, filing_date: str, csv_path: Path) -> int:
         col_lc = col.lower()
         df_load[col_lc] = pd.to_numeric(df_load[col_lc], errors="coerce")
 
-    # Insert filing_date as the first column
+    # Insert filing_date and period_end_date as the first two columns
+    period_end_date = PERIOD_END_MAP[filing_date]
     df_load.insert(0, "filing_date", filing_date)
+    df_load.insert(1, "period_end_date", period_end_date)
 
     buf = StringIO()
     df_load.to_csv(buf, index=False, header=False, quoting=csv.QUOTE_MINIMAL)

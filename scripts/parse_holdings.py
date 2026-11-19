@@ -21,6 +21,24 @@ def txt(el, tag):
     child = el.find(f"{N}{tag}")
     return child.text.strip() if child is not None and child.text else None
 
+
+def txt_or_cond(el, tag, cond_tag, attr):
+    """
+    Try direct child element text first, then fall back to an attribute on a
+    conditional sibling element.  Used for assetCat / issuerCat which the
+    N-PORT schema sometimes encodes as <assetConditional assetCat="..."/> or
+    <issuerConditional issuerCat="..."/> instead of plain text children.
+    """
+    val = txt(el, tag)
+    if val:
+        return val
+    cond = el.find(f"{N}{cond_tag}")
+    if cond is not None:
+        v = cond.get(attr)
+        return v.strip() if v else None
+    return None
+
+
 rows = []
 for sec in holdings_parent.findall(f"{N}invstOrSec"):
     # isin lives as an attribute on <identifiers><isin value="..."/></identifiers>
@@ -44,8 +62,8 @@ for sec in holdings_parent.findall(f"{N}invstOrSec"):
         "valUSD":            txt(sec, "valUSD"),
         "pctVal":            txt(sec, "pctVal"),
         "payoffProfile":     txt(sec, "payoffProfile"),
-        "assetCat":          txt(sec, "assetCat"),
-        "issuerCat":         txt(sec, "issuerCat"),
+        "assetCat":          txt_or_cond(sec, "assetCat",  "assetConditional",  "assetCat"),
+        "issuerCat":         txt_or_cond(sec, "issuerCat", "issuerConditional", "issuerCat"),
         "invCountry":        txt(sec, "invCountry"),
         "isRestrictedSec":   txt(sec, "isRestrictedSec"),
         "fairValLevel":      txt(sec, "fairValLevel"),
