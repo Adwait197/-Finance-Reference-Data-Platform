@@ -5,17 +5,17 @@ Rules applied
   R1  Both cusip AND isin are blank / null           (equity/debt rows only)
   R2  pctval is negative or greater than 100         (equity/debt rows only)
   R3  valusd is negative                             (equity/debt rows only)
-  R4  Non-null cusip value appears on more than one row (duplicate)
+  R4  Duplicate non-blank CUSIP within the same isCashCollateral bucket
   R5  assetcat OR issuercat is blank / null
-  R6  balance is within 1% of valUSD (ratio 0.99–1.01), indicating a
-      $1-per-unit money-market or cash instrument that may be miscategorized
-      as an equity holding; derived from the IsolationForest finding for
-      id=415 (BlackRock Funds III, CUSIP 066922477)
-  D1  Derivative row (assetCat starts with 'D') — expected, review only.
-      Derivatives are EXCLUDED from R1/R2/R3 because exchange-traded futures
-      have no CUSIP or ISIN (they are contractual rights, not issued
-      securities), and their valUSD represents unrealised P&L which can
-      legitimately be negative when the position is marked against the fund.
+  R6  balance within 1% of valUSD for non-STIV rows
+
+Expected labels (from data/reference/expected_exceptions.csv):
+  D1  Reviewed derivative — exchange-traded futures, no CUSIP/ISIN by design
+  E1  Reviewed STIV — money-market fund / reinvested cash collateral
+
+New label:
+  N1  Unreviewed STIV or derivative — not yet in expected_exceptions.csv;
+      treated as Open until manually reviewed and added to the file.
 
 A row that fails multiple rules is listed once with every failing rule noted
 in the 'rules_failed' column (pipe-separated).
@@ -38,8 +38,9 @@ PGDATABASE = os.getenv("PGDATABASE", "finance_platform")
 PGUSER     = os.getenv("PGUSER", "postgres")
 PGPASSWORD = os.getenv("PGPASSWORD", "")
 
-REPO_ROOT  = Path(__file__).resolve().parent.parent
-OUTPUT_CSV = REPO_ROOT / "data" / "processed" / "qc_exceptions_2026-08-25.csv"
+REPO_ROOT     = Path(__file__).resolve().parent.parent
+OUTPUT_CSV    = REPO_ROOT / "data" / "processed" / "qc_exceptions_2026-08-25.csv"
+EXPECTED_CSV  = REPO_ROOT / "data" / "reference" / "expected_exceptions.csv"
 
 EXAMPLE_ROWS = 3   # how many example rows to print per rule
 
@@ -51,6 +52,51 @@ def is_blank(s: pd.Series) -> pd.Series:
     nulls  = s.isna()
     blanks = s.fillna("").astype(str).str.strip().isin(["", "N/A", "n/a", "NA"])
     return nulls | blanks
+
+
+def load_reviewed_lookup(csv_path: Path = EXPECTED_CSV) -> dict:
+    """
+    Load expected_exceptions.csv into a lookup dict keyed by:
+      ("cusip", cusip, iscashcollateral)  — for rows with a non-blank cusip
+      ("assetcat", assetcat)              — for rows with blank cusip (e.g. derivatives)
+    Value: {"label": "D1"|"E1", "reason": "..."}
+    """
+    if not csv_path.exists():
+        return {}
+    df = pd.read_csv(csv_path, keep_default_na=False)
+    for col in ("cusip", "isCashCollateral", "assetcat"):
+        if col not in df.columns:
+            df[col] = ""
+        df[col] = df[col].str.strip()
+    lookup = {}
+    for _, row in df.iterrows():
+        cusip    = row["cusip"]
+        iscash   = row["isCashCollateral"]
+        assetcat = row.get("assetcat", "")
+        if cusip:
+            key = ("cusip", cusip, iscash)
+        elif assetcat:
+            key = ("assetcat", assetcat)
+        else:
+            continue
+        lookup[key] = {"label": row["label"], "reason": row["reason"]}
+    return lookup
+
+
+def find_reviewed(lookup: dict, cusip_val, iscash_val, assetcat_val):
+    """Return reviewed record {"label", "reason"} or None if not in the reviewed list."""
+    c = str(cusip_val    or "").strip()
+    i = str(iscash_val   or "").strip()
+    a = str(assetcat_val or "").strip()
+    if c and c.upper() not in ("N/A", "NA"):
+        m = lookup.get(("cusip", c, i))
+        if m:
+            return m
+    if a:
+        m = lookup.get(("assetcat", a))
+        if m:
+            return m
+    return None
 
 
 # ── data loading ──────────────────────────────────────────────────────────────
@@ -76,22 +122,29 @@ def apply_rules(df: pd.DataFrame) -> pd.DataFrame:
 
     df gets three new columns:
       rules_failed  — pipe-separated internal rule keys for every rule that fired
-      status        — "Open" (R1-R6 violation needs action) | "Expected" (D1/E1) | ""
-      reason        — plain-English note for Expected rows
+      status        — "Open" (needs action) | "Expected" (reviewed) | ""
+      reason        — plain-English note for Expected and N1 rows
     """
+    reviewed_lookup = load_reviewed_lookup()
     masks = {}
 
-    # D1: derivatives (assetCat starting with 'D', e.g. 'DE' for exchange-traded futures).
-    # Futures have no CUSIP/ISIN and their valUSD is unrealised P&L (can be negative)
-    # — R1/R2/R3 are false positives for them.
     is_derivative = df["assetcat"].fillna("").str.upper().str.startswith("D")
+    is_stiv       = df["assetcat"].fillna("") == "STIV"
+    is_candidate  = is_derivative | is_stiv   # may become D1/E1 or N1
 
-    # E1: STIV (Short-Term Investment Vehicle) = money-market fund or reinvested cash
-    # collateral from securities lending.  IVV lends stocks and reinvests the received
-    # cash in STIV instruments — this is intentional fund structure, not a data error.
-    # Previously caught by old R4 (cross-bucket CUSIP duplicate) and old R6 (balance ≈
-    # valUSD on a $1-NAV fund); now reclassified as Expected so the rules don't fire.
-    is_stiv = df["assetcat"].fillna("") == "STIV"
+    # Per-row: check each STIV / derivative against the reviewed-exceptions file
+    review_matches = [
+        find_reviewed(reviewed_lookup, row.get("cusip"), row.get("iscashcollateral"), row.get("assetcat"))
+        for _, row in df.iterrows()
+    ]
+    is_reviewed = pd.Series([m is not None for m in review_matches], index=df.index)
+
+    # D1: reviewed derivatives — excluded from R1/R2/R3
+    masks["D1_derivative_review"] = is_derivative & is_reviewed
+    # E1: reviewed STIV — excluded from R4/R6
+    masks["E1_cash_collateral_mm"] = is_stiv & is_reviewed
+    # N1: unreviewed STIV or derivative — counts as Open
+    masks["N1_new_needs_review"] = is_candidate & ~is_reviewed
 
     # R1 — both identifier fields blank (derivatives excluded)
     masks["R1_no_identifier"] = is_blank(df["cusip"]) & is_blank(df["isin"]) & ~is_derivative
@@ -104,11 +157,7 @@ def apply_rules(df: pd.DataFrame) -> pd.DataFrame:
     # R3 — negative valUSD (derivatives excluded)
     masks["R3_valusd_negative"] = df["valusd"].notna() & (df["valusd"] < 0) & ~is_derivative
 
-    # R4 — duplicate non-blank CUSIP within the same isCashCollateral bucket.
-    # An index ETF can legitimately hold the same security twice: once as a direct
-    # portfolio position (isCashCollateral=N) and once as reinvested cash collateral
-    # (isCashCollateral=Y).  Cross-bucket pairs are intentional; only same-bucket
-    # duplicates are real errors.
+    # R4 — duplicate non-blank CUSIP within the same isCashCollateral bucket
     bucket   = df["iscashcollateral"].fillna("unknown")
     comp_key = df["cusip"].fillna("") + "||" + bucket
     nonblank_key = comp_key[~is_blank(df["cusip"])]
@@ -118,45 +167,35 @@ def apply_rules(df: pd.DataFrame) -> pd.DataFrame:
     # R5 — blank assetcat or issuercat
     masks["R5_category_blank"] = is_blank(df["assetcat"]) | is_blank(df["issuercat"])
 
-    # R6 — balance within 1% of valUSD for non-STIV rows.
-    # STIV money-market funds have $1-NAV so balance = valUSD by design — R6 would
-    # fire on every STIV row and produce only false positives.
+    # R6 — balance within 1% of valUSD for non-STIV rows
     both_positive = df["balance"].notna() & df["valusd"].notna() & (df["valusd"] > 0) & (df["balance"] > 0)
     ratio = df["balance"] / df["valusd"].replace(0, float("nan"))
     masks["R6_possible_cash_mm"] = both_positive & (ratio >= 0.99) & (ratio <= 1.01) & ~is_stiv
 
-    # D1 — derivative row: Expected, excluded from error totals
-    masks["D1_derivative_review"] = is_derivative
-
-    # E1 — STIV money-market / cash collateral: Expected, excluded from error totals
-    masks["E1_cash_collateral_mm"] = is_stiv
-
+    is_expected = is_candidate & is_reviewed
     any_open = (
         masks["R1_no_identifier"] | masks["R2_pctval_range"] | masks["R3_valusd_negative"]
         | masks["R4_duplicate_cusip"] | masks["R5_category_blank"] | masks["R6_possible_cash_mm"]
+        | masks["N1_new_needs_review"]
     )
 
     def _rules_for_row(idx):
         return " | ".join(rule for rule, mask in masks.items() if mask.iloc[idx])
 
     def _status_for_row(idx):
-        if masks["D1_derivative_review"].iloc[idx] or masks["E1_cash_collateral_mm"].iloc[idx]:
+        if is_expected.iloc[idx]:
             return "Expected"
         if any_open.iloc[idx]:
             return "Open"
         return ""
 
     def _reason_for_row(idx):
-        if masks["D1_derivative_review"].iloc[idx]:
+        if is_expected.iloc[idx]:
+            return review_matches[idx]["reason"]
+        if masks["N1_new_needs_review"].iloc[idx]:
             return (
-                "Exchange-traded derivative (futures contract): "
-                "no CUSIP/ISIN by design; valUSD = unrealised P&L (can be negative)"
-            )
-        if masks["E1_cash_collateral_mm"].iloc[idx]:
-            return (
-                "Short-Term Investment Vehicle (STIV): money-market fund or reinvested "
-                "cash collateral from securities lending — expected fund structure for "
-                "a large index ETF"
+                "New unreviewed STIV or derivative — add to "
+                "data/reference/expected_exceptions.csv after review"
             )
         return ""
 
@@ -184,13 +223,14 @@ def print_rule_detail(rule_name: str, mask: pd.Series, df: pd.DataFrame) -> None
 
 
 def print_summary(masks: dict, df: pd.DataFrame) -> None:
-    open_rules = ["R1_no_identifier", "R2_pctval_range", "R3_valusd_negative",
-                  "R4_duplicate_cusip", "R5_category_blank", "R6_possible_cash_mm"]
-    any_open    = pd.concat([masks[r] for r in open_rules if r in masks], axis=1).any(axis=1)
+    open_keys  = ["R1_no_identifier", "R2_pctval_range", "R3_valusd_negative",
+                  "R4_duplicate_cusip", "R5_category_blank", "R6_possible_cash_mm",
+                  "N1_new_needs_review"]
+    any_open   = pd.concat([masks[r] for r in open_keys if r in masks], axis=1).any(axis=1)
     is_expected = masks.get("D1_derivative_review", pd.Series(False, index=df.index)) | \
                   masks.get("E1_cash_collateral_mm", pd.Series(False, index=df.index))
 
-    n_open     = int((any_open & ~is_expected).sum())
+    n_open     = int(any_open.sum())
     n_expected = int(is_expected.sum())
 
     print()

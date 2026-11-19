@@ -173,6 +173,21 @@ def parse_xml_to_df(xml_bytes: bytes) -> pd.DataFrame:
         isin_el = identifiers.find(f"{N}isin") if identifiers is not None else None
         isin = isin_el.get("value") if isin_el is not None else None
 
+        # Derivative name: <name> is "N/A" for exchange-traded futures.
+        # Fall back to <title> + "Future Ticker" from <identifiers>, e.g. "S&P 500 E-Mini Index (ESU6)".
+        raw_name = txt(sec, "name")
+        if not raw_name or raw_name == "N/A":
+            title = txt(sec, "title")
+            if title and title != "N/A":
+                ticker = None
+                if identifiers is not None:
+                    for other in identifiers.findall(f"{N}other"):
+                        if other.get("otherDesc") == "Future Ticker":
+                            ticker = other.get("value", "").replace(" Index", "").strip()
+                            break
+                raw_name = f"{title} ({ticker})" if ticker else title
+        deriv_name = raw_name
+
         sec_lending = sec.find(f"{N}securityLending")
         # isCashCollateral is either a plain text child (<isCashCollateral>N</isCashCollateral>)
         # or an attribute on <cashCollateralCondition isCashCollateral="Y" /> — same pattern as
@@ -180,7 +195,7 @@ def parse_xml_to_df(xml_bytes: bytes) -> pd.DataFrame:
         is_cash_collateral = txt_or_cond(sec_lending, "isCashCollateral", "cashCollateralCondition", "isCashCollateral") if sec_lending is not None else None
 
         rows.append({
-            "name":             txt(sec, "name"),
+            "name":             deriv_name,
             "lei":              txt(sec, "lei"),
             "title":            txt(sec, "title"),
             "cusip":            txt(sec, "cusip"),

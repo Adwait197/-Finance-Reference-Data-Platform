@@ -46,6 +46,23 @@ for sec in holdings_parent.findall(f"{N}invstOrSec"):
     isin_el = identifiers.find(f"{N}isin") if identifiers is not None else None
     isin = isin_el.get("value") if isin_el is not None else None
 
+    # Derivative name: <name> is "N/A" for exchange-traded futures.
+    # Fall back to <title> + "Future Ticker" from <identifiers>, giving e.g.
+    # "S&P 500 E-Mini Index (ESU6)".  This is stored in the DB so it appears
+    # in the drill-down table without any dashboard-level patching.
+    raw_name = txt(sec, "name")
+    if not raw_name or raw_name == "N/A":
+        title = txt(sec, "title")
+        if title and title != "N/A":
+            ticker = None
+            if identifiers is not None:
+                for other in identifiers.findall(f"{N}other"):
+                    if other.get("otherDesc") == "Future Ticker":
+                        ticker = other.get("value", "").replace(" Index", "").strip()
+                        break
+            raw_name = f"{title} ({ticker})" if ticker else title
+    name = raw_name
+
     # isCashCollateral lives under <securityLending> — either as a text child
     # <isCashCollateral>Y</isCashCollateral> (direct holding) or as an attribute on
     # <cashCollateralCondition isCashCollateral="Y" /> (securities-lending reinvestment).
@@ -53,7 +70,7 @@ for sec in holdings_parent.findall(f"{N}invstOrSec"):
     is_cash_collateral = txt_or_cond(sec_lending, "isCashCollateral", "cashCollateralCondition", "isCashCollateral") if sec_lending is not None else None
 
     rows.append({
-        "name":              txt(sec, "name"),
+        "name":              name,
         "lei":               txt(sec, "lei"),
         "title":             txt(sec, "title"),
         "cusip":             txt(sec, "cusip"),

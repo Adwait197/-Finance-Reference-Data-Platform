@@ -30,8 +30,9 @@ PGDATABASE = os.getenv("PGDATABASE", "finance_platform")
 PGUSER     = os.getenv("PGUSER", "postgres")
 PGPASSWORD = os.getenv("PGPASSWORD", "")
 
-REPO_ROOT  = Path(__file__).resolve().parent.parent
-OUTPUT_CSV = REPO_ROOT / "data" / "processed" / "qc_trend_by_quarter.csv"
+REPO_ROOT     = Path(__file__).resolve().parent.parent
+OUTPUT_CSV    = REPO_ROOT / "data" / "processed" / "qc_trend_by_quarter.csv"
+EXPECTED_CSV  = REPO_ROOT / "data" / "reference" / "expected_exceptions.csv"
 
 
 # ── helpers ────────────────────────────────────────────────────────────────────
@@ -42,16 +43,73 @@ def is_blank(s: pd.Series) -> pd.Series:
     return nulls | blanks
 
 
+def load_reviewed_lookup(csv_path: Path = EXPECTED_CSV) -> dict:
+    if not csv_path.exists():
+        return {}
+    df = pd.read_csv(csv_path, keep_default_na=False)
+    for col in ("cusip", "isCashCollateral", "assetcat"):
+        if col not in df.columns:
+            df[col] = ""
+        df[col] = df[col].str.strip()
+    lookup = {}
+    for _, row in df.iterrows():
+        cusip    = row["cusip"]
+        iscash   = row["isCashCollateral"]
+        assetcat = row.get("assetcat", "")
+        if cusip:
+            key = ("cusip", cusip, iscash)
+        elif assetcat:
+            key = ("assetcat", assetcat)
+        else:
+            continue
+        lookup[key] = {"label": row["label"], "reason": row["reason"]}
+    return lookup
+
+
+def find_reviewed(lookup: dict, cusip_val, iscash_val, assetcat_val):
+    c = str(cusip_val    or "").strip()
+    i = str(iscash_val   or "").strip()
+    a = str(assetcat_val or "").strip()
+    if c and c.upper() not in ("N/A", "NA"):
+        m = lookup.get(("cusip", c, i))
+        if m:
+            return m
+    if a:
+        m = lookup.get(("assetcat", a))
+        if m:
+            return m
+    return None
+
+
+_reviewed_lookup_cache = None
+
 def apply_rules_to_group(grp: pd.DataFrame) -> dict:
     """
     Run all rules on a single filing_date partition.
     Returns a dict of {rule_key: count_flagged}.
 
-    D1 (derivatives) and E1 (STIV / cash collateral) are counted separately
-    and excluded from total_unique_exceptions, which reports Open errors only.
+    D1 (reviewed derivatives) and E1 (reviewed STIV) are counted separately and
+    excluded from total_unique_exceptions.  N1 (unreviewed candidates) counts as Open.
     """
+    global _reviewed_lookup_cache
+    if _reviewed_lookup_cache is None:
+        _reviewed_lookup_cache = load_reviewed_lookup()
+    reviewed_lookup = _reviewed_lookup_cache
+
     is_derivative = grp["assetcat"].fillna("").str.upper().str.startswith("D")
     is_stiv       = grp["assetcat"].fillna("") == "STIV"
+    is_candidate  = is_derivative | is_stiv
+
+    # Per-row reviewed check
+    review_matches = [
+        find_reviewed(reviewed_lookup, row.get("cusip"), row.get("iscashcollateral"), row.get("assetcat"))
+        for _, row in grp.iterrows()
+    ]
+    is_reviewed = pd.Series([m is not None for m in review_matches], index=grp.index)
+
+    d1 = is_derivative & is_reviewed   # reviewed derivatives
+    e1 = is_stiv       & is_reviewed   # reviewed STIV
+    n1 = is_candidate  & ~is_reviewed  # unreviewed — counts as Open
 
     r1 = is_blank(grp["cusip"]) & is_blank(grp["isin"]) & ~is_derivative
     r2 = grp["pctval"].notna() & (
@@ -59,9 +117,7 @@ def apply_rules_to_group(grp: pd.DataFrame) -> dict:
     ) & ~is_derivative
     r3 = grp["valusd"].notna() & (grp["valusd"] < 0) & ~is_derivative
 
-    # R4: duplicate non-blank CUSIP within the same isCashCollateral bucket.
-    # Cross-bucket pairs (direct portfolio vs cash collateral reinvestment) are
-    # intentional — only same-bucket duplicates are real data errors.
+    # R4: same isCashCollateral bucket only
     bucket   = grp["iscashcollateral"].fillna("unknown")
     comp_key = grp["cusip"].fillna("") + "||" + bucket
     nonblank_key = comp_key[~is_blank(grp["cusip"])]
@@ -75,14 +131,9 @@ def apply_rules_to_group(grp: pd.DataFrame) -> dict:
         & (grp["valusd"] > 0) & (grp["balance"] > 0)
     )
     ratio = grp["balance"] / grp["valusd"].replace(0, float("nan"))
-    # R6 excludes STIV: $1-NAV money-market funds have balance = valUSD by design.
     r6 = both_pos & (ratio >= 0.99) & (ratio <= 1.01) & ~is_stiv
 
-    d1 = is_derivative   # Expected — derivative review only
-    e1 = is_stiv         # Expected — STIV / cash collateral
-
-    # Open exceptions: R1-R6 violations on non-Expected rows
-    any_open = (r1 | r2 | r3 | r4 | r5 | r6) & ~d1 & ~e1
+    any_open = r1 | r2 | r3 | r4 | r5 | r6 | n1
 
     return {
         "r1_count": int(r1.sum()),
@@ -93,6 +144,7 @@ def apply_rules_to_group(grp: pd.DataFrame) -> dict:
         "r6_count": int(r6.sum()),
         "d1_count": int(d1.sum()),
         "e1_count": int(e1.sum()),
+        "n1_count": int(n1.sum()),
         "total_unique_exceptions": int(any_open.sum()),
     }
 
@@ -122,7 +174,7 @@ def main():
         "filing_date",
         "r1_count", "r2_count", "r3_count",
         "r4_count", "r5_count", "r6_count",
-        "d1_count", "e1_count",
+        "d1_count", "e1_count", "n1_count",
         "total_unique_exceptions",
     ]
     trend_df = pd.DataFrame(records)[out_cols].sort_values("filing_date").reset_index(drop=True)
@@ -141,9 +193,9 @@ def main():
     print("QC EXCEPTION TREND — security_master_history (6 quarters)  [AFTER FIX]")
     print("=" * 78)
     hdr = (f"  {'Filing date':<14}  {'R1':>4}  {'R2':>4}  {'R3':>4}"
-           f"  {'R4':>4}  {'R5':>4}  {'R6':>4}  {'D1':>4}  {'E1':>4}  {'Open total':>11}")
+           f"  {'R4':>4}  {'R5':>4}  {'R6':>4}  {'D1':>4}  {'E1':>4}  {'N1':>4}  {'Open total':>11}")
     print(hdr)
-    print("  " + "-" * 78)
+    print("  " + "-" * 85)
     for _, row in trend_df.iterrows():
         print(
             f"  {row['filing_date']:<14}"
@@ -155,9 +207,10 @@ def main():
             f"  {row['r6_count']:>4}"
             f"  {row['d1_count']:>4}"
             f"  {row['e1_count']:>4}"
+            f"  {row['n1_count']:>4}"
             f"  {row['total_unique_exceptions']:>11}"
         )
-    print("=" * 84)
+    print("=" * 91)
 
     # ── before/after comparison ───────────────────────────────────────────────
     if old_df is not None and "total_unique_exceptions" in old_df.columns:
@@ -188,6 +241,7 @@ def main():
     print("  R6 balance ~= valUSD for non-STIV rows      (excludes $1-NAV money-market funds)")
     print("  D1 Derivative — Expected, review only       (NOT counted in total_unique_exceptions)")
     print("  E1 STIV / cash collateral — Expected        (NOT counted in total_unique_exceptions)")
+    print("  N1 Unreviewed STIV or derivative            (IS counted in total_unique_exceptions)")
 
     # ── save ──────────────────────────────────────────────────────────────────
     OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)

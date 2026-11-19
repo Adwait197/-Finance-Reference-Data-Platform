@@ -1,0 +1,5 @@
+cusip,isCashCollateral,assetcat,label,reason,reviewed_by,reviewed_date
+066922477,N,STIV,E1,Direct portfolio holding of BlackRock Funds III money-market STIV (assetCat=STIV) — balance equals valUSD at $1 NAV by design; not a data error,Adwait Gaur,2026-11-18
+066922519,N,STIV,E1,Direct portfolio holding of BlackRock Funds III money-market STIV (assetCat=STIV) — balance equals valUSD at $1 NAV by design; not a data error,Adwait Gaur,2026-11-18
+066922519,Y,STIV,E1,Reinvested cash collateral from IVV securities lending program held in BlackRock Funds III STIV money-market fund — isCashCollateral=Y confirms securities-lending cash position; expected fund structure,Adwait Gaur,2026-11-18
+,N,DE,D1,S&P 500 E-Mini Index futures contract (exchange-traded derivative; assetCat=DE) — no CUSIP/ISIN by design; valUSD is unrealised P&L and can be negative or positive; matched by assetCat,Adwait Gaur,2026-11-18

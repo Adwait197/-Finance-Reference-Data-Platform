@@ -88,7 +88,7 @@ def load_qc_trend():
     )
     df = df.sort_values("period_end_date").reset_index(drop=True)
     # Backfill missing columns from older CSV versions
-    for col in ("d1_count", "e1_count"):
+    for col in ("d1_count", "e1_count", "n1_count"):
         if col not in df.columns:
             df[col] = 0
     return df
@@ -103,28 +103,92 @@ ERROR_RULE_PLAIN = {
     "R4_duplicate_cusip":  "Duplicate CUSIP (R4)",
     "R5_category_blank":   "Missing category (R5)",
     "R6_possible_cash_mm": "Possible cash instrument (R6)",
+    "N1_new_needs_review": "New unreviewed STIV/derivative (N1)",
 }
 
 DISPLAY_COLS = [
-    "name", "cusip", "isin", "assetcat", "issuercat", "iscashcollateral",
-    "balance", "valusd", "pctval", "status", "rules_tripped", "reason",
+    "name", "status", "reason",
+    "cusip", "isin", "assetcat", "issuercat", "iscashcollateral",
+    "balance", "valusd", "pctval",
 ]
 DISPLAY_RENAME = {
     "assetcat": "assetCat", "issuercat": "issuerCat",
     "iscashcollateral": "isCashCollateral",
     "valusd": "valUSD", "pctval": "pctVal",
-    "status": "Status",
-    "rules_tripped": "Rules tripped", "reason": "Reason",
+    "status": "Status", "reason": "Reason",
 }
-DISPLAY_COL_CFG = {
-    "valUSD":  st.column_config.NumberColumn(format="$,.2f"),
-    "pctVal":  st.column_config.NumberColumn(format="%.6f"),
-    "balance": st.column_config.NumberColumn(format=",.2f"),
-}
+DISPLAY_COL_CFG: dict = {}   # all formatting done in Python before display
 
 
 def _is_blank_col(s: pd.Series) -> pd.Series:
     return s.isna() | s.fillna("").astype(str).str.strip().isin(["", "N/A", "n/a", "NA"])
+
+
+@st.cache_data
+def _load_reviewed_lookup() -> dict:
+    csv_path = REPO_ROOT / "data" / "reference" / "expected_exceptions.csv"
+    if not csv_path.exists():
+        return {}
+    df = pd.read_csv(csv_path, keep_default_na=False)
+    for col in ("cusip", "isCashCollateral", "assetcat"):
+        if col not in df.columns:
+            df[col] = ""
+        df[col] = df[col].str.strip()
+    lookup = {}
+    for _, row in df.iterrows():
+        cusip    = row.get("cusip", "")
+        iscash   = row.get("isCashCollateral", "")
+        assetcat = row.get("assetcat", "")
+        if cusip:
+            key = ("cusip", cusip, iscash)
+        elif assetcat:
+            key = ("assetcat", assetcat)
+        else:
+            continue
+        lookup[key] = {"label": row["label"], "reason": row["reason"]}
+    return lookup
+
+
+def _find_reviewed(lookup: dict, cusip_val, iscash_val, assetcat_val):
+    c = str(cusip_val    or "").strip()
+    i = str(iscash_val   or "").strip()
+    a = str(assetcat_val or "").strip()
+    if c and c.upper() not in ("N/A", "NA"):
+        m = lookup.get(("cusip", c, i))
+        if m:
+            return m
+    if a:
+        m = lookup.get(("assetcat", a))
+        if m:
+            return m
+    return None
+
+
+def _fmt_display(df: pd.DataFrame) -> pd.DataFrame:
+    """Pre-format numeric columns and replace empty identifiers with '—'."""
+    df = df.copy()
+    if "balance" in df.columns:
+        df["balance"] = df["balance"].apply(
+            lambda x: f"{x:,.2f}" if pd.notna(x) else "—"
+        )
+    if "valusd" in df.columns:
+        df["valusd"] = df["valusd"].apply(
+            lambda x: f"${x:,.2f}" if pd.notna(x) else "—"
+        )
+    if "pctval" in df.columns:
+        df["pctval"] = df["pctval"].apply(
+            lambda x: f"{x:.4f}%" if pd.notna(x) else "—"
+        )
+    for col in ("cusip", "isin", "iscashcollateral"):
+        if col in df.columns:
+            df[col] = (
+                df[col]
+                .fillna("")
+                .astype(str)
+                .str.strip()
+                .replace({"": "—", "N/A": "—", "n/a": "—", "NA": "—"})
+            )
+    return df
 
 
 @st.cache_data(ttl=300)
@@ -150,14 +214,26 @@ def flag_exceptions(df: pd.DataFrame):
     """
     Apply QC rules; return (error_df, expected_df).
 
-    error_df    — Open rows: R1-R6 violations on non-Expected rows.
-    expected_df — Expected rows: derivatives (D1) + STIV / cash collateral (E1).
-    Both DataFrames carry 'status' (Open / Expected) and 'reason' columns.
+    error_df    — Open rows: R1-R6 violations + N1 (unreviewed STIV/derivative).
+    expected_df — Expected rows from the reviewed-exceptions list (D1 + E1).
+    Both DataFrames carry 'status' and 'reason' columns.
     """
-    is_deriv = df["assetcat"].fillna("").str.upper().str.startswith("D")
-    is_stiv  = df["assetcat"].fillna("") == "STIV"
+    reviewed_lookup = _load_reviewed_lookup()
 
-    # R4: same isCashCollateral bucket only (cross-bucket = intentional)
+    is_deriv    = df["assetcat"].fillna("").str.upper().str.startswith("D")
+    is_stiv     = df["assetcat"].fillna("") == "STIV"
+    is_candidate = is_deriv | is_stiv
+
+    # Per-row reviewed check
+    review_matches = [
+        _find_reviewed(reviewed_lookup, row.get("cusip"), row.get("iscashcollateral"), row.get("assetcat"))
+        for _, row in df.iterrows()
+    ]
+    is_reviewed = pd.Series([m is not None for m in review_matches], index=df.index)
+    is_expected = is_candidate & is_reviewed
+    is_n1       = is_candidate & ~is_reviewed
+
+    # R4: same isCashCollateral bucket only
     bucket   = df["iscashcollateral"].fillna("unknown")
     comp_key = df["cusip"].fillna("") + "||" + bucket
     nonblank_key = comp_key[~_is_blank_col(df["cusip"])]
@@ -177,31 +253,31 @@ def flag_exceptions(df: pd.DataFrame):
         "R4_duplicate_cusip":  comp_key.isin(dup_keys) & ~_is_blank_col(df["cusip"]),
         "R5_category_blank":   _is_blank_col(df["assetcat"]) | _is_blank_col(df["issuercat"]),
         "R6_possible_cash_mm": both_pos & (ratio >= 0.99) & (ratio <= 1.01) & ~is_stiv,
+        "N1_new_needs_review": is_n1,
     }
 
     def _rules_tripped(idx):
-        return ", ".join(ERROR_RULE_PLAIN[r] for r, m in masks.items() if m.iloc[idx])
+        return ", ".join(
+            ERROR_RULE_PLAIN.get(r, r) for r, m in masks.items() if m.iloc[idx]
+        )
 
     df = df.copy()
     df["rules_tripped"] = [_rules_tripped(i) for i in range(len(df))]
     df["status"] = ""
     df["reason"] = ""
 
-    is_expected = is_deriv | is_stiv
-    any_open    = pd.concat(list(masks.values()), axis=1).any(axis=1)
+    any_open = pd.concat(list(masks.values()), axis=1).any(axis=1)
 
     df.loc[any_open & ~is_expected, "status"] = "Open"
     df.loc[is_expected, "status"] = "Expected"
 
-    # Expected reason: D1 takes precedence, then E1
-    df.loc[is_deriv, "reason"] = (
-        "Exchange-traded derivative (futures contract): "
-        "no CUSIP/ISIN by design; valUSD = unrealised P&L (can be negative)"
-    )
-    df.loc[is_stiv & ~is_deriv, "reason"] = (
-        "Short-Term Investment Vehicle (STIV): money-market fund or reinvested "
-        "cash collateral from securities lending — expected fund structure for "
-        "a large index ETF"
+    # Reasons from reviewed list for Expected rows; N1 gets a warning reason
+    for i, row in enumerate(review_matches):
+        if is_expected.iloc[i] and row:
+            df.iloc[i, df.columns.get_loc("reason")] = row["reason"]
+    df.loc[is_n1, "reason"] = (
+        "New unreviewed STIV or derivative — add to "
+        "data/reference/expected_exceptions.csv after review"
     )
 
     error_df    = df[df["status"] == "Open"].reset_index(drop=True)
@@ -264,25 +340,39 @@ st.subheader("Data quality exceptions over time")
 qc = load_qc_trend()
 x_dates = qc["period_end_date"]
 
+expected_total = qc["d1_count"] + qc["e1_count"]
+
 fig_exc = go.Figure()
 fig_exc.add_trace(go.Scatter(
     x=x_dates,
     y=qc["total_unique_exceptions"],
+    name="Open (R1–R6 + N1)",
     mode="lines+markers",
     line=dict(width=2.5, color="#d62728"),
     marker=dict(size=9),
-    hovertemplate="<b>%{x|%b %Y}</b><br>Total exceptions: %{y}<extra></extra>",
+    hovertemplate="<b>%{x|%b %Y}</b><br>Open: %{y}<extra></extra>",
+))
+fig_exc.add_trace(go.Scatter(
+    x=x_dates,
+    y=expected_total,
+    name="Expected (D1 + E1)",
+    mode="lines+markers",
+    line=dict(width=2, color="#78909c", dash="dot"),
+    marker=dict(size=7),
+    hovertemplate="<b>%{x|%b %Y}</b><br>Expected: %{y}<extra></extra>",
 ))
 fig_exc.update_layout(
     xaxis_title="Holdings as of",
-    yaxis_title="Unique rows flagged",
-    yaxis=dict(rangemode="tozero", dtick=1),
+    yaxis_title="Rows",
+    yaxis=dict(range=[0, 5], dtick=1),
     hovermode="x unified",
-    margin=dict(t=20, b=20),
+    margin=dict(t=20, b=50),
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
 )
 st.plotly_chart(fig_exc, use_container_width=True)
 st.caption(
-    "Each flagged row is counted once, even if it breaks more than one rule.  "
+    "Red = open exceptions (R1–R6 violations + any N1 unreviewed rows, needs action).  "
+    "Grey dotted = expected rows matched in data/reference/expected_exceptions.csv (D1 + E1).  "
     + DATE_RANGE_CAPTION
 )
 
@@ -404,21 +494,13 @@ t3.metric("Expected (D1 + E1)",    len(expected_df))
 # ── Exception table (R1–R6) ───────────────────────────────────────────────────
 
 if len(error_df) == 0:
-    st.success("No open R1–R6 exceptions for this quarter.")
+    st.success("No open exceptions for this quarter.")
 else:
     st.markdown(
-        f"**{len(error_df)} open exception{'s' if len(error_df) != 1 else ''} — R1–R6 rules**"
+        f"**{len(error_df)} open exception{'s' if len(error_df) != 1 else ''} — R1–R6 + N1**"
     )
-    show_err = (
-        error_df[DISPLAY_COLS]
-        .rename(columns=DISPLAY_RENAME)
-    )
-    st.dataframe(
-        show_err,
-        use_container_width=True,
-        hide_index=True,
-        column_config=DISPLAY_COL_CFG,
-    )
+    show_err = _fmt_display(error_df[DISPLAY_COLS]).rename(columns=DISPLAY_RENAME)
+    st.dataframe(show_err, use_container_width=True, hide_index=True)
 
 # ── Expected rows (D1 + E1) ───────────────────────────────────────────────────
 
@@ -428,13 +510,5 @@ if len(expected_df) > 0:
         f"— {len(expected_df)} row{'s' if len(expected_df) != 1 else ''}",
         expanded=False,
     ):
-        show_exp = (
-            expected_df[DISPLAY_COLS]
-            .rename(columns=DISPLAY_RENAME)
-        )
-        st.dataframe(
-            show_exp,
-            use_container_width=True,
-            hide_index=True,
-            column_config=DISPLAY_COL_CFG,
-        )
+        show_exp = _fmt_display(expected_df[DISPLAY_COLS]).rename(columns=DISPLAY_RENAME)
+        st.dataframe(show_exp, use_container_width=True, hide_index=True)
