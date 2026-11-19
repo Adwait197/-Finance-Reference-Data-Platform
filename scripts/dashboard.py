@@ -92,6 +92,105 @@ def load_qc_trend():
     return df
 
 
+# ── drill-down helpers ────────────────────────────────────────────────────────
+
+ERROR_RULE_PLAIN = {
+    "R1_no_identifier":    "No identifier (R1)",
+    "R2_pctval_range":     "Weight out of range (R2)",
+    "R3_valusd_negative":  "Negative value (R3)",
+    "R4_duplicate_cusip":  "Duplicate CUSIP (R4)",
+    "R5_category_blank":   "Missing category (R5)",
+    "R6_possible_cash_mm": "Possible cash instrument (R6)",
+}
+
+DISPLAY_COLS = [
+    "name", "cusip", "isin", "assetcat", "issuercat", "iscashcollateral",
+    "balance", "valusd", "pctval", "rules_tripped", "reason",
+]
+DISPLAY_RENAME = {
+    "assetcat": "assetCat", "issuercat": "issuerCat",
+    "iscashcollateral": "isCashCollateral",
+    "valusd": "valUSD", "pctval": "pctVal",
+    "rules_tripped": "Rules tripped", "reason": "Reason",
+}
+DISPLAY_COL_CFG = {
+    "valUSD":  st.column_config.NumberColumn(format="$,.2f"),
+    "pctVal":  st.column_config.NumberColumn(format="%.6f"),
+    "balance": st.column_config.NumberColumn(format=",.2f"),
+}
+
+
+def _is_blank_col(s: pd.Series) -> pd.Series:
+    return s.isna() | s.fillna("").astype(str).str.strip().isin(["", "N/A", "n/a", "NA"])
+
+
+@st.cache_data(ttl=300)
+def load_quarter_detail(period_end_date: str) -> pd.DataFrame:
+    engine = get_engine()
+    with engine.connect() as conn:
+        df = pd.read_sql(
+            sqlalchemy.text(
+                "SELECT name, cusip, isin, assetcat, issuercat, iscashcollateral, "
+                "       balance, valusd, pctval "
+                "FROM security_master_history WHERE period_end_date = :ped "
+                "ORDER BY ABS(valusd) DESC NULLS LAST"
+            ),
+            conn,
+            params={"ped": period_end_date},
+        )
+    for col in ("balance", "valusd", "pctval"):
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df
+
+
+def flag_exceptions(df: pd.DataFrame):
+    """
+    Apply QC rules; return (error_df, d1_df).
+    Derivatives (assetCat starting with 'D') are excluded from R1/R2/R3
+    and labelled D1.  D1 rows are NOT included in error_df.
+    """
+    is_deriv = df["assetcat"].fillna("").str.upper().str.startswith("D")
+
+    non_blank = df["cusip"][~_is_blank_col(df["cusip"])]
+    dup_cusips = non_blank[non_blank.duplicated(keep=False)].unique()
+
+    both_pos = (
+        df["balance"].notna() & df["valusd"].notna()
+        & (df["valusd"] > 0) & (df["balance"] > 0)
+    )
+    safe_denom = df["valusd"].replace(0, np.nan)
+    ratio = df["balance"] / safe_denom
+
+    masks = {
+        "R1_no_identifier":    _is_blank_col(df["cusip"]) & _is_blank_col(df["isin"]) & ~is_deriv,
+        "R2_pctval_range":     df["pctval"].notna() & ((df["pctval"] < 0) | (df["pctval"] > 100)) & ~is_deriv,
+        "R3_valusd_negative":  df["valusd"].notna() & (df["valusd"] < 0) & ~is_deriv,
+        "R4_duplicate_cusip":  df["cusip"].isin(dup_cusips),
+        "R5_category_blank":   _is_blank_col(df["assetcat"]) | _is_blank_col(df["issuercat"]),
+        "R6_possible_cash_mm": both_pos & (ratio >= 0.99) & (ratio <= 1.01),
+    }
+
+    def _rules_tripped(idx):
+        return ", ".join(ERROR_RULE_PLAIN[r] for r, m in masks.items() if m.iloc[idx])
+
+    df = df.copy()
+    df["rules_tripped"] = [_rules_tripped(i) for i in range(len(df))]
+    df["reason"] = ""
+
+    any_error = pd.concat(list(masks.values()), axis=1).any(axis=1)
+    error_df = df[any_error & ~is_deriv].reset_index(drop=True)
+
+    d1_df = df[is_deriv].copy()
+    d1_df["rules_tripped"] = "Derivative — review only"
+    d1_df["reason"] = (
+        "Exchange-traded derivative (futures contract): "
+        "no CUSIP/ISIN by design; valUSD = unrealised P&L (can be negative)"
+    )
+    d1_df = d1_df.reset_index(drop=True)
+
+    return error_df, d1_df
+
+
 # ── layout ────────────────────────────────────────────────────────────────────
 
 st.title("Finance Reference Data Platform — Quality Dashboard")
@@ -246,3 +345,65 @@ st.caption(
     "amber = changed from previous quarter · steel grey = derivative (D1, not an error).  "
     + DATE_RANGE_CAPTION
 )
+
+st.divider()
+
+# ── Drill-down: Quarter detail ────────────────────────────────────────────────
+
+st.subheader("Quarter drill-down — flagged rows")
+
+quarter_opts = {d.strftime("%b %Y"): d.strftime("%Y-%m-%d") for d in x_dates}
+selected_q = st.selectbox(
+    "Holdings as of",
+    list(quarter_opts.keys()),
+    index=len(quarter_opts) - 1,
+    key="drill_down_quarter",
+)
+selected_ped = quarter_opts[selected_q]
+
+detail_df           = load_quarter_detail(selected_ped)
+error_df, d1_df     = flag_exceptions(detail_df)
+
+# ── Number tiles ──────────────────────────────────────────────────────────────
+
+t1, t2, t3 = st.columns(3)
+t1.metric("Total holdings",            len(detail_df))
+t2.metric("Exceptions (R1–R6)",        len(error_df))
+t3.metric("Derivatives under review",  len(d1_df))
+
+# ── Exception table (R1–R6) ───────────────────────────────────────────────────
+
+if len(error_df) == 0:
+    st.success("No R1–R6 exceptions for this quarter.")
+else:
+    st.markdown(
+        f"**{len(error_df)} exception{'s' if len(error_df) != 1 else ''} — R1–R6 rules**"
+    )
+    show_err = (
+        error_df[DISPLAY_COLS]
+        .rename(columns=DISPLAY_RENAME)
+    )
+    st.dataframe(
+        show_err,
+        use_container_width=True,
+        hide_index=True,
+        column_config=DISPLAY_COL_CFG,
+    )
+
+# ── D1 derivative table ───────────────────────────────────────────────────────
+
+if len(d1_df) > 0:
+    with st.expander(
+        f"Derivatives — expected, review only ({len(d1_df)} row{'s' if len(d1_df) != 1 else ''})",
+        expanded=False,
+    ):
+        show_d1 = (
+            d1_df[DISPLAY_COLS]
+            .rename(columns=DISPLAY_RENAME)
+        )
+        st.dataframe(
+            show_d1,
+            use_container_width=True,
+            hide_index=True,
+            column_config=DISPLAY_COL_CFG,
+        )
