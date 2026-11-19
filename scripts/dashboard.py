@@ -49,10 +49,11 @@ RULE_LABELS = [
     "R4 · Duplicate CUSIP",
     "R5 · Missing category",
     "R6 · Possible cash instrument",
+    "E1 · Cash collateral / money-market",
     "D1 · Derivative (review only)",
 ]
-RULE_COLS = ["r1_count", "r2_count", "r3_count", "r4_count", "r5_count", "r6_count", "d1_count"]
-ERROR_COLS = ["r1_count", "r2_count", "r3_count", "r4_count", "r5_count", "r6_count"]   # D1 excluded
+RULE_COLS  = ["r1_count", "r2_count", "r3_count", "r4_count", "r5_count", "r6_count", "e1_count", "d1_count"]
+ERROR_COLS = ["r1_count", "r2_count", "r3_count", "r4_count", "r5_count", "r6_count"]   # Open only
 
 
 @st.cache_resource
@@ -86,9 +87,10 @@ def load_qc_trend():
         df["filing_date"].dt.strftime("%Y-%m-%d").map(PERIOD_END_MAP)
     )
     df = df.sort_values("period_end_date").reset_index(drop=True)
-    # Backfill d1_count if column missing from older CSV versions
-    if "d1_count" not in df.columns:
-        df["d1_count"] = 0
+    # Backfill missing columns from older CSV versions
+    for col in ("d1_count", "e1_count"):
+        if col not in df.columns:
+            df[col] = 0
     return df
 
 
@@ -105,12 +107,13 @@ ERROR_RULE_PLAIN = {
 
 DISPLAY_COLS = [
     "name", "cusip", "isin", "assetcat", "issuercat", "iscashcollateral",
-    "balance", "valusd", "pctval", "rules_tripped", "reason",
+    "balance", "valusd", "pctval", "status", "rules_tripped", "reason",
 ]
 DISPLAY_RENAME = {
     "assetcat": "assetCat", "issuercat": "issuerCat",
     "iscashcollateral": "isCashCollateral",
     "valusd": "valUSD", "pctval": "pctVal",
+    "status": "Status",
     "rules_tripped": "Rules tripped", "reason": "Reason",
 }
 DISPLAY_COL_CFG = {
@@ -145,14 +148,20 @@ def load_quarter_detail(period_end_date: str) -> pd.DataFrame:
 
 def flag_exceptions(df: pd.DataFrame):
     """
-    Apply QC rules; return (error_df, d1_df).
-    Derivatives (assetCat starting with 'D') are excluded from R1/R2/R3
-    and labelled D1.  D1 rows are NOT included in error_df.
+    Apply QC rules; return (error_df, expected_df).
+
+    error_df    — Open rows: R1-R6 violations on non-Expected rows.
+    expected_df — Expected rows: derivatives (D1) + STIV / cash collateral (E1).
+    Both DataFrames carry 'status' (Open / Expected) and 'reason' columns.
     """
     is_deriv = df["assetcat"].fillna("").str.upper().str.startswith("D")
+    is_stiv  = df["assetcat"].fillna("") == "STIV"
 
-    non_blank = df["cusip"][~_is_blank_col(df["cusip"])]
-    dup_cusips = non_blank[non_blank.duplicated(keep=False)].unique()
+    # R4: same isCashCollateral bucket only (cross-bucket = intentional)
+    bucket   = df["iscashcollateral"].fillna("unknown")
+    comp_key = df["cusip"].fillna("") + "||" + bucket
+    nonblank_key = comp_key[~_is_blank_col(df["cusip"])]
+    dup_keys = nonblank_key[nonblank_key.duplicated(keep=False)].unique()
 
     both_pos = (
         df["balance"].notna() & df["valusd"].notna()
@@ -165,9 +174,9 @@ def flag_exceptions(df: pd.DataFrame):
         "R1_no_identifier":    _is_blank_col(df["cusip"]) & _is_blank_col(df["isin"]) & ~is_deriv,
         "R2_pctval_range":     df["pctval"].notna() & ((df["pctval"] < 0) | (df["pctval"] > 100)) & ~is_deriv,
         "R3_valusd_negative":  df["valusd"].notna() & (df["valusd"] < 0) & ~is_deriv,
-        "R4_duplicate_cusip":  df["cusip"].isin(dup_cusips),
+        "R4_duplicate_cusip":  comp_key.isin(dup_keys) & ~_is_blank_col(df["cusip"]),
         "R5_category_blank":   _is_blank_col(df["assetcat"]) | _is_blank_col(df["issuercat"]),
-        "R6_possible_cash_mm": both_pos & (ratio >= 0.99) & (ratio <= 1.01),
+        "R6_possible_cash_mm": both_pos & (ratio >= 0.99) & (ratio <= 1.01) & ~is_stiv,
     }
 
     def _rules_tripped(idx):
@@ -175,20 +184,30 @@ def flag_exceptions(df: pd.DataFrame):
 
     df = df.copy()
     df["rules_tripped"] = [_rules_tripped(i) for i in range(len(df))]
+    df["status"] = ""
     df["reason"] = ""
 
-    any_error = pd.concat(list(masks.values()), axis=1).any(axis=1)
-    error_df = df[any_error & ~is_deriv].reset_index(drop=True)
+    is_expected = is_deriv | is_stiv
+    any_open    = pd.concat(list(masks.values()), axis=1).any(axis=1)
 
-    d1_df = df[is_deriv].copy()
-    d1_df["rules_tripped"] = "Derivative — review only"
-    d1_df["reason"] = (
+    df.loc[any_open & ~is_expected, "status"] = "Open"
+    df.loc[is_expected, "status"] = "Expected"
+
+    # Expected reason: D1 takes precedence, then E1
+    df.loc[is_deriv, "reason"] = (
         "Exchange-traded derivative (futures contract): "
         "no CUSIP/ISIN by design; valUSD = unrealised P&L (can be negative)"
     )
-    d1_df = d1_df.reset_index(drop=True)
+    df.loc[is_stiv & ~is_deriv, "reason"] = (
+        "Short-Term Investment Vehicle (STIV): money-market fund or reinvested "
+        "cash collateral from securities lending — expected fund structure for "
+        "a large index ETF"
+    )
 
-    return error_df, d1_df
+    error_df    = df[df["status"] == "Open"].reset_index(drop=True)
+    expected_df = df[is_expected].reset_index(drop=True)
+
+    return error_df, expected_df
 
 
 # ── layout ────────────────────────────────────────────────────────────────────
@@ -279,11 +298,12 @@ n_rules    = len(RULE_COLS)
 counts = qc[RULE_COLS].values.T   # row = rule, col = quarter
 
 # Encode color semantics (not the raw count):
-#   0 → zero count            → white   (#fafafa)
-#   1 → non-zero, structural  → muted grey-blue  (#b0bec5)
-#   2 → non-zero, changed from previous quarter → amber (#ff8f00)
-#   3 → D1 informational row  → steel grey (#78909c)  (always, any count)
-D1_ROW_IDX = n_rules - 1   # last row is always D1
+#   0 → zero count                    → white   (#fafafa)
+#   1 → non-zero, structural/stable   → muted grey-blue  (#b0bec5)
+#   2 → non-zero, changed quarter-over-quarter → amber (#ff8f00)
+#   3 → Expected row (E1/D1)          → steel grey (#78909c)  (always, any count)
+# E1 is second-to-last row; D1 is last row — both always grey.
+EXPECTED_ROW_INDICES = {n_rules - 2, n_rules - 1}
 
 z_color = np.zeros((n_rules, n_quarters), dtype=float)
 for ri in range(n_rules):
@@ -291,8 +311,8 @@ for ri in range(n_rules):
     all_same   = len(set(row_counts)) == 1
     for qi in range(n_quarters):
         v = row_counts[qi]
-        if ri == D1_ROW_IDX:
-            z_color[ri, qi] = 3                 # always D1 grey
+        if ri in EXPECTED_ROW_INDICES:
+            z_color[ri, qi] = 3                 # always grey (Expected label)
         elif v == 0:
             z_color[ri, qi] = 0                 # white
         elif all_same:
@@ -324,7 +344,7 @@ fig_heat = go.Figure(go.Heatmap(
     y=RULE_LABELS,
     text=text_ann,
     texttemplate="%{text}",
-    textfont=dict(size=14),
+    textfont=dict(size=14, color="#444444"),   # uniform text color across all backgrounds
     colorscale=colorscale,
     zmin=0,
     zmax=3,
@@ -335,14 +355,24 @@ fig_heat = go.Figure(go.Heatmap(
 ))
 fig_heat.update_layout(
     xaxis_title="Holdings as of",
-    yaxis=dict(autorange="reversed"),   # R1 at top
-    margin=dict(t=20, b=20, l=220),
-    height=370,
+    yaxis=dict(autorange="reversed"),   # R1 at top, D1 at bottom
+    margin=dict(t=20, b=20, l=240),
+    height=400,
+)
+# Thin divider between R6 (index 5) and E1 (index 6): separates Open from Expected rows.
+# y=5.5 is the midpoint between categories at positions 5 and 6 in data coordinates.
+fig_heat.add_shape(
+    type="line",
+    xref="paper", yref="y",
+    x0=-0.02, x1=1.02,
+    y0=5.5, y1=5.5,
+    line=dict(color="#999999", width=1.5, dash="dot"),
 )
 st.plotly_chart(fig_heat, use_container_width=True)
 st.caption(
     "**Color key:** white = zero · grey-blue = same every quarter (structural) · "
-    "amber = changed from previous quarter · steel grey = derivative (D1, not an error).  "
+    "amber = changed from previous quarter · "
+    "steel grey = Expected label (E1 / D1, below divider, not counted as errors).  "
     + DATE_RANGE_CAPTION
 )
 
@@ -361,23 +391,23 @@ selected_q = st.selectbox(
 )
 selected_ped = quarter_opts[selected_q]
 
-detail_df           = load_quarter_detail(selected_ped)
-error_df, d1_df     = flag_exceptions(detail_df)
+detail_df                = load_quarter_detail(selected_ped)
+error_df, expected_df   = flag_exceptions(detail_df)
 
 # ── Number tiles ──────────────────────────────────────────────────────────────
 
 t1, t2, t3 = st.columns(3)
-t1.metric("Total holdings",            len(detail_df))
-t2.metric("Exceptions (R1–R6)",        len(error_df))
-t3.metric("Derivatives under review",  len(d1_df))
+t1.metric("Total holdings",        len(detail_df))
+t2.metric("Open exceptions (R1–R6)", len(error_df))
+t3.metric("Expected (D1 + E1)",    len(expected_df))
 
 # ── Exception table (R1–R6) ───────────────────────────────────────────────────
 
 if len(error_df) == 0:
-    st.success("No R1–R6 exceptions for this quarter.")
+    st.success("No open R1–R6 exceptions for this quarter.")
 else:
     st.markdown(
-        f"**{len(error_df)} exception{'s' if len(error_df) != 1 else ''} — R1–R6 rules**"
+        f"**{len(error_df)} open exception{'s' if len(error_df) != 1 else ''} — R1–R6 rules**"
     )
     show_err = (
         error_df[DISPLAY_COLS]
@@ -390,19 +420,20 @@ else:
         column_config=DISPLAY_COL_CFG,
     )
 
-# ── D1 derivative table ───────────────────────────────────────────────────────
+# ── Expected rows (D1 + E1) ───────────────────────────────────────────────────
 
-if len(d1_df) > 0:
+if len(expected_df) > 0:
     with st.expander(
-        f"Derivatives — expected, review only ({len(d1_df)} row{'s' if len(d1_df) != 1 else ''})",
+        f"Expected — reviewed (D1 derivatives + E1 cash collateral / STIV) "
+        f"— {len(expected_df)} row{'s' if len(expected_df) != 1 else ''}",
         expanded=False,
     ):
-        show_d1 = (
-            d1_df[DISPLAY_COLS]
+        show_exp = (
+            expected_df[DISPLAY_COLS]
             .rename(columns=DISPLAY_RENAME)
         )
         st.dataframe(
-            show_d1,
+            show_exp,
             use_container_width=True,
             hide_index=True,
             column_config=DISPLAY_COL_CFG,

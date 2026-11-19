@@ -174,7 +174,10 @@ def parse_xml_to_df(xml_bytes: bytes) -> pd.DataFrame:
         isin = isin_el.get("value") if isin_el is not None else None
 
         sec_lending = sec.find(f"{N}securityLending")
-        is_cash_collateral = txt(sec_lending, "isCashCollateral") if sec_lending is not None else None
+        # isCashCollateral is either a plain text child (<isCashCollateral>N</isCashCollateral>)
+        # or an attribute on <cashCollateralCondition isCashCollateral="Y" /> — same pattern as
+        # issuerConditional/assetConditional.
+        is_cash_collateral = txt_or_cond(sec_lending, "isCashCollateral", "cashCollateralCondition", "isCashCollateral") if sec_lending is not None else None
 
         rows.append({
             "name":             txt(sec, "name"),

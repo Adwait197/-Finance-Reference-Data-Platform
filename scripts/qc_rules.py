@@ -72,15 +72,26 @@ def load_data() -> pd.DataFrame:
 
 def apply_rules(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Evaluate all rules and return df with 'rules_failed' and 'reason' columns.
-    Rows that pass every rule have empty strings in both columns.
+    Evaluate all rules; return (df_with_annotations, masks).
+
+    df gets three new columns:
+      rules_failed  — pipe-separated internal rule keys for every rule that fired
+      status        — "Open" (R1-R6 violation needs action) | "Expected" (D1/E1) | ""
+      reason        — plain-English note for Expected rows
     """
     masks = {}
 
-    # Derivatives (assetCat starts with 'D', e.g. 'DE' for Exchange-Traded).
-    # Exchange-traded futures have no CUSIP/ISIN and their valUSD is unrealised
-    # P&L which can be negative — applying R1/R2/R3 to them is a false positive.
+    # D1: derivatives (assetCat starting with 'D', e.g. 'DE' for exchange-traded futures).
+    # Futures have no CUSIP/ISIN and their valUSD is unrealised P&L (can be negative)
+    # — R1/R2/R3 are false positives for them.
     is_derivative = df["assetcat"].fillna("").str.upper().str.startswith("D")
+
+    # E1: STIV (Short-Term Investment Vehicle) = money-market fund or reinvested cash
+    # collateral from securities lending.  IVV lends stocks and reinvests the received
+    # cash in STIV instruments — this is intentional fund structure, not a data error.
+    # Previously caught by old R4 (cross-bucket CUSIP duplicate) and old R6 (balance ≈
+    # valUSD on a $1-NAV fund); now reclassified as Expected so the rules don't fire.
+    is_stiv = df["assetcat"].fillna("") == "STIV"
 
     # R1 — both identifier fields blank (derivatives excluded)
     masks["R1_no_identifier"] = is_blank(df["cusip"]) & is_blank(df["isin"]) & ~is_derivative
@@ -93,38 +104,65 @@ def apply_rules(df: pd.DataFrame) -> pd.DataFrame:
     # R3 — negative valUSD (derivatives excluded)
     masks["R3_valusd_negative"] = df["valusd"].notna() & (df["valusd"] < 0) & ~is_derivative
 
-    # R4 — duplicate non-blank cusip
-    non_blank_cusip = df["cusip"][~is_blank(df["cusip"])]
-    dup_cusips      = non_blank_cusip[non_blank_cusip.duplicated(keep=False)].unique()
-    masks["R4_duplicate_cusip"] = df["cusip"].isin(dup_cusips)
+    # R4 — duplicate non-blank CUSIP within the same isCashCollateral bucket.
+    # An index ETF can legitimately hold the same security twice: once as a direct
+    # portfolio position (isCashCollateral=N) and once as reinvested cash collateral
+    # (isCashCollateral=Y).  Cross-bucket pairs are intentional; only same-bucket
+    # duplicates are real errors.
+    bucket   = df["iscashcollateral"].fillna("unknown")
+    comp_key = df["cusip"].fillna("") + "||" + bucket
+    nonblank_key = comp_key[~is_blank(df["cusip"])]
+    dup_keys = nonblank_key[nonblank_key.duplicated(keep=False)].unique()
+    masks["R4_duplicate_cusip"] = comp_key.isin(dup_keys) & ~is_blank(df["cusip"])
 
     # R5 — blank assetcat or issuercat
     masks["R5_category_blank"] = is_blank(df["assetcat"]) | is_blank(df["issuercat"])
 
-    # R6 — possible cash/money-market instrument: balance ≈ valUSD (ratio within 1%)
-    # Both values must be positive and finite for the ratio to be meaningful.
+    # R6 — balance within 1% of valUSD for non-STIV rows.
+    # STIV money-market funds have $1-NAV so balance = valUSD by design — R6 would
+    # fire on every STIV row and produce only false positives.
     both_positive = df["balance"].notna() & df["valusd"].notna() & (df["valusd"] > 0) & (df["balance"] > 0)
-    ratio = df["balance"] / df["valusd"]
-    masks["R6_possible_cash_mm"] = both_positive & (ratio >= 0.99) & (ratio <= 1.01)
+    ratio = df["balance"] / df["valusd"].replace(0, float("nan"))
+    masks["R6_possible_cash_mm"] = both_positive & (ratio >= 0.99) & (ratio <= 1.01) & ~is_stiv
 
-    # D1 — derivative row: flagged for review, not counted as a data error
+    # D1 — derivative row: Expected, excluded from error totals
     masks["D1_derivative_review"] = is_derivative
 
-    # Build rules_failed column
+    # E1 — STIV money-market / cash collateral: Expected, excluded from error totals
+    masks["E1_cash_collateral_mm"] = is_stiv
+
+    any_open = (
+        masks["R1_no_identifier"] | masks["R2_pctval_range"] | masks["R3_valusd_negative"]
+        | masks["R4_duplicate_cusip"] | masks["R5_category_blank"] | masks["R6_possible_cash_mm"]
+    )
+
     def _rules_for_row(idx):
         return " | ".join(rule for rule, mask in masks.items() if mask.iloc[idx])
 
-    # Build reason column (explanatory note for D1 rows)
+    def _status_for_row(idx):
+        if masks["D1_derivative_review"].iloc[idx] or masks["E1_cash_collateral_mm"].iloc[idx]:
+            return "Expected"
+        if any_open.iloc[idx]:
+            return "Open"
+        return ""
+
     def _reason_for_row(idx):
         if masks["D1_derivative_review"].iloc[idx]:
             return (
                 "Exchange-traded derivative (futures contract): "
                 "no CUSIP/ISIN by design; valUSD = unrealised P&L (can be negative)"
             )
+        if masks["E1_cash_collateral_mm"].iloc[idx]:
+            return (
+                "Short-Term Investment Vehicle (STIV): money-market fund or reinvested "
+                "cash collateral from securities lending — expected fund structure for "
+                "a large index ETF"
+            )
         return ""
 
     df = df.copy()
     df["rules_failed"] = [_rules_for_row(i) for i in range(len(df))]
+    df["status"]       = [_status_for_row(i) for i in range(len(df))]
     df["reason"]       = [_reason_for_row(i) for i in range(len(df))]
 
     return df, masks
@@ -145,19 +183,28 @@ def print_rule_detail(rule_name: str, mask: pd.Series, df: pd.DataFrame) -> None
         print(f"  ... and {len(flagged) - EXAMPLE_ROWS} more row(s)")
 
 
-def print_summary(masks: dict) -> None:
-    total_flagged = sum(1 for i in range(len(next(iter(masks.values())))) if any(m.iloc[i] for m in masks.values()))
+def print_summary(masks: dict, df: pd.DataFrame) -> None:
+    open_rules = ["R1_no_identifier", "R2_pctval_range", "R3_valusd_negative",
+                  "R4_duplicate_cusip", "R5_category_blank", "R6_possible_cash_mm"]
+    any_open    = pd.concat([masks[r] for r in open_rules if r in masks], axis=1).any(axis=1)
+    is_expected = masks.get("D1_derivative_review", pd.Series(False, index=df.index)) | \
+                  masks.get("E1_cash_collateral_mm", pd.Series(False, index=df.index))
+
+    n_open     = int((any_open & ~is_expected).sum())
+    n_expected = int(is_expected.sum())
+
     print()
-    print("=" * 50)
+    print("=" * 56)
     print("QC SUMMARY — security_master (2026-08-25)")
-    print("=" * 50)
-    print(f"  {'Rule':<30}  {'Rows Flagged':>12}")
-    print("  " + "-" * 44)
+    print("=" * 56)
+    print(f"  {'Rule':<34}  {'Rows Flagged':>12}")
+    print("  " + "-" * 50)
     for rule, mask in masks.items():
-        print(f"  {rule:<30}  {mask.sum():>12,}")
-    print("  " + "-" * 44)
-    print(f"  {'TOTAL UNIQUE FLAGGED ROWS':<30}  {total_flagged:>12,}")
-    print("=" * 50)
+        print(f"  {rule:<34}  {mask.sum():>12,}")
+    print("  " + "-" * 50)
+    print(f"  {'OPEN (R1–R6, need action)':<34}  {n_open:>12,}")
+    print(f"  {'EXPECTED (D1+E1, reviewed)':<34}  {n_expected:>12,}")
+    print("=" * 56)
 
 
 # ── main ──────────────────────────────────────────────────────────────────────
@@ -170,7 +217,7 @@ def main():
     for rule_name, mask in masks.items():
         print_rule_detail(rule_name, mask, df)
 
-    print_summary(masks)
+    print_summary(masks, df)
 
     # Save flagged rows only
     flagged = df[df["rules_failed"] != ""].copy()

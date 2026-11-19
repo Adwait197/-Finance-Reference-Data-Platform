@@ -46,11 +46,12 @@ def apply_rules_to_group(grp: pd.DataFrame) -> dict:
     """
     Run all rules on a single filing_date partition.
     Returns a dict of {rule_key: count_flagged}.
-    D1 rows are counted separately and excluded from total_unique_exceptions.
+
+    D1 (derivatives) and E1 (STIV / cash collateral) are counted separately
+    and excluded from total_unique_exceptions, which reports Open errors only.
     """
-    # Derivatives: exchange-traded futures have no CUSIP/ISIN and their valUSD
-    # is unrealised P&L (can be negative) — R1/R2/R3 are false positives for them.
     is_derivative = grp["assetcat"].fillna("").str.upper().str.startswith("D")
+    is_stiv       = grp["assetcat"].fillna("") == "STIV"
 
     r1 = is_blank(grp["cusip"]) & is_blank(grp["isin"]) & ~is_derivative
     r2 = grp["pctval"].notna() & (
@@ -58,10 +59,14 @@ def apply_rules_to_group(grp: pd.DataFrame) -> dict:
     ) & ~is_derivative
     r3 = grp["valusd"].notna() & (grp["valusd"] < 0) & ~is_derivative
 
-    # R4: duplicate non-blank cusip within this filing_date only
-    non_blank = grp["cusip"][~is_blank(grp["cusip"])]
-    dup_cusips = non_blank[non_blank.duplicated(keep=False)].unique()
-    r4 = grp["cusip"].isin(dup_cusips)
+    # R4: duplicate non-blank CUSIP within the same isCashCollateral bucket.
+    # Cross-bucket pairs (direct portfolio vs cash collateral reinvestment) are
+    # intentional — only same-bucket duplicates are real data errors.
+    bucket   = grp["iscashcollateral"].fillna("unknown")
+    comp_key = grp["cusip"].fillna("") + "||" + bucket
+    nonblank_key = comp_key[~is_blank(grp["cusip"])]
+    dup_keys = nonblank_key[nonblank_key.duplicated(keep=False)].unique()
+    r4 = comp_key.isin(dup_keys) & ~is_blank(grp["cusip"])
 
     r5 = is_blank(grp["assetcat"]) | is_blank(grp["issuercat"])
 
@@ -69,13 +74,15 @@ def apply_rules_to_group(grp: pd.DataFrame) -> dict:
         grp["balance"].notna() & grp["valusd"].notna()
         & (grp["valusd"] > 0) & (grp["balance"] > 0)
     )
-    ratio = grp["balance"] / grp["valusd"]
-    r6 = both_pos & (ratio >= 0.99) & (ratio <= 1.01)
+    ratio = grp["balance"] / grp["valusd"].replace(0, float("nan"))
+    # R6 excludes STIV: $1-NAV money-market funds have balance = valUSD by design.
+    r6 = both_pos & (ratio >= 0.99) & (ratio <= 1.01) & ~is_stiv
 
-    # D1: derivative rows — informational, not counted as errors
-    d1 = is_derivative
+    d1 = is_derivative   # Expected — derivative review only
+    e1 = is_stiv         # Expected — STIV / cash collateral
 
-    any_error = r1 | r2 | r3 | r4 | r5 | r6   # D1 excluded from error total
+    # Open exceptions: R1-R6 violations on non-Expected rows
+    any_open = (r1 | r2 | r3 | r4 | r5 | r6) & ~d1 & ~e1
 
     return {
         "r1_count": int(r1.sum()),
@@ -85,7 +92,8 @@ def apply_rules_to_group(grp: pd.DataFrame) -> dict:
         "r5_count": int(r5.sum()),
         "r6_count": int(r6.sum()),
         "d1_count": int(d1.sum()),
-        "total_unique_exceptions": int(any_error.sum()),
+        "e1_count": int(e1.sum()),
+        "total_unique_exceptions": int(any_open.sum()),
     }
 
 
@@ -114,7 +122,7 @@ def main():
         "filing_date",
         "r1_count", "r2_count", "r3_count",
         "r4_count", "r5_count", "r6_count",
-        "d1_count",
+        "d1_count", "e1_count",
         "total_unique_exceptions",
     ]
     trend_df = pd.DataFrame(records)[out_cols].sort_values("filing_date").reset_index(drop=True)
@@ -133,9 +141,9 @@ def main():
     print("QC EXCEPTION TREND — security_master_history (6 quarters)  [AFTER FIX]")
     print("=" * 78)
     hdr = (f"  {'Filing date':<14}  {'R1':>4}  {'R2':>4}  {'R3':>4}"
-           f"  {'R4':>4}  {'R5':>4}  {'R6':>4}  {'D1':>4}  {'Total errors':>13}")
+           f"  {'R4':>4}  {'R5':>4}  {'R6':>4}  {'D1':>4}  {'E1':>4}  {'Open total':>11}")
     print(hdr)
-    print("  " + "-" * 72)
+    print("  " + "-" * 78)
     for _, row in trend_df.iterrows():
         print(
             f"  {row['filing_date']:<14}"
@@ -146,38 +154,40 @@ def main():
             f"  {row['r5_count']:>4}"
             f"  {row['r6_count']:>4}"
             f"  {row['d1_count']:>4}"
-            f"  {row['total_unique_exceptions']:>13}"
+            f"  {row['e1_count']:>4}"
+            f"  {row['total_unique_exceptions']:>11}"
         )
-    print("=" * 78)
+    print("=" * 84)
 
     # ── before/after comparison ───────────────────────────────────────────────
     if old_df is not None and "total_unique_exceptions" in old_df.columns:
         print()
-        print("BEFORE vs AFTER (total_unique_exceptions):")
-        print(f"  {'Filing date':<14}  {'Before':>8}  {'After':>8}  {'Delta':>8}")
-        print("  " + "-" * 42)
+        print("BEFORE vs AFTER  (R4/R6 scope fix + E1 classification):")
+        print(f"  {'Filing date':<14}  {'Old open':>10}  {'New open':>10}  {'Expected':>10}")
+        print("  " + "-" * 50)
         for _, row in trend_df.iterrows():
             fd = row["filing_date"]
-            new_total = row["total_unique_exceptions"]
+            new_open     = row["total_unique_exceptions"]
+            new_expected = row["d1_count"] + row["e1_count"]
             old_row = old_df[old_df["filing_date"].astype(str).str[:10] == fd]
             if not old_row.empty:
                 old_total = int(old_row["total_unique_exceptions"].iloc[0])
-                delta = new_total - old_total
-                delta_str = f"{delta:+d}" if delta != 0 else "  —"
+                delta_str = f"{old_total}"
             else:
                 old_total = "n/a"
                 delta_str = ""
-            print(f"  {fd:<14}  {str(old_total):>8}  {new_total:>8}  {delta_str:>8}")
+            print(f"  {fd:<14}  {str(old_total):>10}  {new_open:>10}  {new_expected:>10}")
 
     print()
     print("Rule key:")
     print("  R1 Both cusip AND isin blank/null           (equity/debt only)")
     print("  R2 pctVal out of range [0, 100]             (equity/debt only)")
     print("  R3 valUSD negative                          (equity/debt only)")
-    print("  R4 Duplicate non-blank cusip (within same quarter)")
+    print("  R4 Duplicate cusip within same isCashCollateral bucket")
     print("  R5 assetCat or issuerCat blank/null")
-    print("  R6 balance ~= valUSD (possible $1-per-unit money-market instrument)")
-    print("  D1 Derivative row — expected, review only (NOT counted in total errors)")
+    print("  R6 balance ~= valUSD for non-STIV rows      (excludes $1-NAV money-market funds)")
+    print("  D1 Derivative — Expected, review only       (NOT counted in total_unique_exceptions)")
+    print("  E1 STIV / cash collateral — Expected        (NOT counted in total_unique_exceptions)")
 
     # ── save ──────────────────────────────────────────────────────────────────
     OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
