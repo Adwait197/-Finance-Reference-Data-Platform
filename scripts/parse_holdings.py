@@ -46,9 +46,11 @@ for sec in holdings_parent.findall(f"{N}invstOrSec"):
     isin_el = identifiers.find(f"{N}isin") if identifiers is not None else None
     isin = isin_el.get("value") if isin_el is not None else None
 
-    # isCashCollateral lives under <securityLending>
+    # isCashCollateral lives under <securityLending> — either as a text child
+    # <isCashCollateral>Y</isCashCollateral> (direct holding) or as an attribute on
+    # <cashCollateralCondition isCashCollateral="Y" /> (securities-lending reinvestment).
     sec_lending = sec.find(f"{N}securityLending")
-    is_cash_collateral = txt(sec_lending, "isCashCollateral") if sec_lending is not None else None
+    is_cash_collateral = txt_or_cond(sec_lending, "isCashCollateral", "cashCollateralCondition", "isCashCollateral") if sec_lending is not None else None
 
     rows.append({
         "name":              txt(sec, "name"),
