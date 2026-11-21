@@ -432,9 +432,6 @@ fig_heat = go.Figure(go.Heatmap(
     z=z_color.tolist(),
     x=x_labels,
     y=RULE_LABELS,
-    text=text_ann,
-    texttemplate="%{text}",
-    textfont=dict(size=14, color="#444444"),   # uniform text color across all backgrounds
     colorscale=colorscale,
     zmin=0,
     zmax=3,
@@ -443,6 +440,20 @@ fig_heat = go.Figure(go.Heatmap(
     customdata=counts.tolist(),
     hovertemplate="<b>%{y}</b><br>%{x}<br>Count: %{customdata}<extra></extra>",
 ))
+
+# Per-cell annotations: white text on dark-grey Expected cells, #444444 on all others.
+# Using annotations instead of heatmap texttemplate/textfont avoids Plotly's
+# browser-side auto-contrast override which causes text to alternate blue/orange.
+for ri in range(n_rules):
+    for qi in range(n_quarters):
+        font_color = "#ffffff" if z_color[ri, qi] == 3 else "#444444"
+        fig_heat.add_annotation(
+            x=x_labels[qi],
+            y=RULE_LABELS[ri],
+            text=str(int(counts[ri, qi])),
+            showarrow=False,
+            font=dict(size=14, color=font_color),
+        )
 fig_heat.update_layout(
     xaxis_title="Holdings as of",
     yaxis=dict(autorange="reversed"),   # R1 at top, D1 at bottom
@@ -488,7 +499,7 @@ error_df, expected_df   = flag_exceptions(detail_df)
 
 t1, t2, t3 = st.columns(3)
 t1.metric("Total holdings",        len(detail_df))
-t2.metric("Open exceptions (R1–R6)", len(error_df))
+t2.metric("Open exceptions (R1–R6 + N1)", len(error_df))
 t3.metric("Expected (D1 + E1)",    len(expected_df))
 
 # ── Exception table (R1–R6) ───────────────────────────────────────────────────
