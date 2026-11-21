@@ -4,15 +4,12 @@ Module 4: QC exception trend across 6 quarterly N-PORT filings.
 Applies the same rules as qc_rules.py to security_master_history, grouped
 by filing_date.  R4 (duplicate cusip) is evaluated within each partition.
 
-Derivative scoping (matches qc_rules.py):
-  Rows with assetCat starting with 'D' (exchange-traded derivatives) are
-  excluded from R1/R2/R3 — futures have no CUSIP/ISIN and their valUSD is
-  unrealised P&L which can be negative.  They are counted separately as D1.
-  D1 rows are NOT added to total_unique_exceptions (not data errors).
+Besides the CSV, this script writes three objects to PostgreSQL that act as
+the single reporting source for both Streamlit and Power BI:
 
-Output: data/processed/qc_trend_by_quarter.csv
-  Columns: filing_date, r1_count, r2_count, r3_count, r4_count,
-           r5_count, r6_count, d1_count, total_unique_exceptions
+  reporting.qc_exceptions  — one row per flagged holding per quarter
+  reporting.qc_trend       — one row per quarter with open/expected/total counts
+  reporting.v_fund_size    — view: quarter, total_holdings, total_value_usd_bn
 """
 
 import os
@@ -30,9 +27,27 @@ PGDATABASE = os.getenv("PGDATABASE", "finance_platform")
 PGUSER     = os.getenv("PGUSER", "postgres")
 PGPASSWORD = os.getenv("PGPASSWORD", "")
 
-REPO_ROOT     = Path(__file__).resolve().parent.parent
-OUTPUT_CSV    = REPO_ROOT / "data" / "processed" / "qc_trend_by_quarter.csv"
-EXPECTED_CSV  = REPO_ROOT / "data" / "reference" / "expected_exceptions.csv"
+REPO_ROOT    = Path(__file__).resolve().parent.parent
+OUTPUT_CSV   = REPO_ROOT / "data" / "processed" / "qc_trend_by_quarter.csv"
+EXPECTED_CSV = REPO_ROOT / "data" / "reference" / "expected_exceptions.csv"
+
+# Primary rule code picked when multiple rules fire on the same row.
+# D1/E1 (Expected) take precedence; N1 is last (Open but unreviewed).
+RULE_CODE_PRIORITY = ["D1", "E1", "R1", "R2", "R3", "R4", "R5", "R6", "N1"]
+
+RULE_CODE_NAMES = {
+    "R1": "Both cusip AND isin blank/null",
+    "R2": "pctVal out of range [0, 100]",
+    "R3": "valUSD negative",
+    "R4": "Duplicate cusip within same isCashCollateral bucket",
+    "R5": "assetCat or issuerCat blank/null",
+    "R6": "balance ~= valUSD for non-STIV rows",
+    "D1": "Reviewed derivative (exchange-traded futures)",
+    "E1": "Reviewed STIV (money-market fund / cash collateral)",
+    "N1": "Unreviewed STIV or derivative — needs review",
+}
+
+EXPECTED_CODES = {"D1", "E1"}
 
 
 # ── helpers ────────────────────────────────────────────────────────────────────
@@ -83,13 +98,14 @@ def find_reviewed(lookup: dict, cusip_val, iscash_val, assetcat_val):
 
 _reviewed_lookup_cache = None
 
-def apply_rules_to_group(grp: pd.DataFrame) -> dict:
-    """
-    Run all rules on a single filing_date partition.
-    Returns a dict of {rule_key: count_flagged}.
 
-    D1 (reviewed derivatives) and E1 (reviewed STIV) are counted separately and
-    excluded from total_unique_exceptions.  N1 (unreviewed candidates) counts as Open.
+def _run_rules(grp: pd.DataFrame):
+    """
+    Evaluate all QC rules on one quarter group.
+    Returns (named_masks, review_matches, any_open).
+      named_masks   — dict of {code: boolean Series}
+      review_matches — list of reviewed-lookup hits, one per row (None if not found)
+      any_open      — boolean Series: True where status is Open
     """
     global _reviewed_lookup_cache
     if _reviewed_lookup_cache is None:
@@ -100,16 +116,15 @@ def apply_rules_to_group(grp: pd.DataFrame) -> dict:
     is_stiv       = grp["assetcat"].fillna("") == "STIV"
     is_candidate  = is_derivative | is_stiv
 
-    # Per-row reviewed check
     review_matches = [
         find_reviewed(reviewed_lookup, row.get("cusip"), row.get("iscashcollateral"), row.get("assetcat"))
         for _, row in grp.iterrows()
     ]
     is_reviewed = pd.Series([m is not None for m in review_matches], index=grp.index)
 
-    d1 = is_derivative & is_reviewed   # reviewed derivatives
-    e1 = is_stiv       & is_reviewed   # reviewed STIV
-    n1 = is_candidate  & ~is_reviewed  # unreviewed — counts as Open
+    d1 = is_derivative & is_reviewed
+    e1 = is_stiv       & is_reviewed
+    n1 = is_candidate  & ~is_reviewed
 
     r1 = is_blank(grp["cusip"]) & is_blank(grp["isin"]) & ~is_derivative
     r2 = grp["pctval"].notna() & (
@@ -117,7 +132,6 @@ def apply_rules_to_group(grp: pd.DataFrame) -> dict:
     ) & ~is_derivative
     r3 = grp["valusd"].notna() & (grp["valusd"] < 0) & ~is_derivative
 
-    # R4: same isCashCollateral bucket only
     bucket   = grp["iscashcollateral"].fillna("unknown")
     comp_key = grp["cusip"].fillna("") + "||" + bucket
     nonblank_key = comp_key[~is_blank(grp["cusip"])]
@@ -135,19 +149,170 @@ def apply_rules_to_group(grp: pd.DataFrame) -> dict:
 
     any_open = r1 | r2 | r3 | r4 | r5 | r6 | n1
 
+    named_masks = {
+        "R1": r1, "R2": r2, "R3": r3, "R4": r4, "R5": r5, "R6": r6,
+        "D1": d1, "E1": e1, "N1": n1,
+    }
+    return named_masks, review_matches, any_open
+
+
+def apply_rules_to_group(grp: pd.DataFrame) -> dict:
+    """
+    Run all rules on a single filing_date partition.
+    Returns a dict of {rule_key: count_flagged}.
+    """
+    named_masks, _review_matches, any_open = _run_rules(grp)
     return {
-        "r1_count": int(r1.sum()),
-        "r2_count": int(r2.sum()),
-        "r3_count": int(r3.sum()),
-        "r4_count": int(r4.sum()),
-        "r5_count": int(r5.sum()),
-        "r6_count": int(r6.sum()),
-        "d1_count": int(d1.sum()),
-        "e1_count": int(e1.sum()),
-        "n1_count": int(n1.sum()),
+        "r1_count": int(named_masks["R1"].sum()),
+        "r2_count": int(named_masks["R2"].sum()),
+        "r3_count": int(named_masks["R3"].sum()),
+        "r4_count": int(named_masks["R4"].sum()),
+        "r5_count": int(named_masks["R5"].sum()),
+        "r6_count": int(named_masks["R6"].sum()),
+        "d1_count": int(named_masks["D1"].sum()),
+        "e1_count": int(named_masks["E1"].sum()),
+        "n1_count": int(named_masks["N1"].sum()),
         "total_unique_exceptions": int(any_open.sum()),
     }
 
+
+def build_exceptions_df(grp: pd.DataFrame, filing_date: str, period_end_date: str) -> pd.DataFrame:
+    """
+    One row per flagged holding (Open or Expected) for one quarter.
+    rule_code is the primary code picked by RULE_CODE_PRIORITY when multiple fire.
+    """
+    named_masks, review_matches, any_open = _run_rules(grp)
+    all_flagged = any_open | named_masks["D1"] | named_masks["E1"]
+
+    rows = []
+    for pos, (idx, row) in enumerate(grp.iterrows()):
+        if not all_flagged.loc[idx]:
+            continue
+
+        fired_codes = [c for c in RULE_CODE_PRIORITY if named_masks[c].loc[idx]]
+        if not fired_codes:
+            continue
+
+        primary = fired_codes[0]
+        status  = "Expected" if primary in EXPECTED_CODES else "Open"
+
+        rm = review_matches[pos] if pos < len(review_matches) else None
+        if rm:
+            reason = rm["reason"]
+        elif primary == "N1":
+            reason = (
+                "New unreviewed STIV or derivative — add to "
+                "data/reference/expected_exceptions.csv after review"
+            )
+        else:
+            reason = ""
+
+        rows.append({
+            "period_end_date":   period_end_date,
+            "filing_date":       filing_date,
+            "name":              row.get("name"),
+            "cusip":             row.get("cusip"),
+            "isin":              row.get("isin"),
+            "assetcat":          row.get("assetcat"),
+            "issuercat":         row.get("issuercat"),
+            "iscashcollateral":  row.get("iscashcollateral"),
+            "balance":           row.get("balance"),
+            "valusd":            row.get("valusd"),
+            "pctval":            row.get("pctval"),
+            "rule_code":         primary,
+            "rule_name":         RULE_CODE_NAMES.get(primary, primary),
+            "status":            status,
+            "reason":            reason,
+        })
+
+    return pd.DataFrame(rows) if rows else pd.DataFrame(columns=[
+        "period_end_date", "filing_date", "name", "cusip", "isin",
+        "assetcat", "issuercat", "iscashcollateral", "balance", "valusd",
+        "pctval", "rule_code", "rule_name", "status", "reason",
+    ])
+
+
+# ── reporting layer ────────────────────────────────────────────────────────────
+
+def write_reporting_tables(engine, exceptions_df: pd.DataFrame, trend_write_df: pd.DataFrame) -> None:
+    """
+    Write / replace three reporting objects in PostgreSQL:
+      reporting.qc_exceptions  — per-row exceptions
+      reporting.qc_trend       — per-quarter counts
+      reporting.v_fund_size    — view on security_master_history
+    """
+    print("\nWriting reporting schema to PostgreSQL ...")
+
+    with engine.connect() as conn:
+        conn.execute(sqlalchemy.text("CREATE SCHEMA IF NOT EXISTS reporting"))
+        conn.commit()
+
+    exceptions_df.to_sql("qc_exceptions", engine, schema="reporting",
+                         if_exists="replace", index=False)
+    print(f"  reporting.qc_exceptions : {len(exceptions_df)} rows written")
+
+    trend_write_df.to_sql("qc_trend", engine, schema="reporting",
+                          if_exists="replace", index=False)
+    print(f"  reporting.qc_trend      : {len(trend_write_df)} rows written")
+
+    view_sql = """
+        CREATE OR REPLACE VIEW reporting.v_fund_size AS
+        SELECT
+            period_end_date,
+            COUNT(*)           AS total_holdings,
+            ROUND(SUM(valusd)::numeric / 1e9, 2)  AS total_value_usd_bn
+        FROM security_master_history
+        GROUP BY period_end_date
+        ORDER BY period_end_date
+    """
+    with engine.connect() as conn:
+        conn.execute(sqlalchemy.text(view_sql))
+        conn.commit()
+    print("  reporting.v_fund_size   : view created/updated")
+
+
+def print_reporting_tables(engine) -> None:
+    """Print the three reporting objects so results can be visually verified."""
+    with engine.connect() as conn:
+        exc_df = pd.read_sql(
+            "SELECT period_end_date, name, rule_code, status "
+            "FROM reporting.qc_exceptions ORDER BY period_end_date, status, name",
+            conn,
+        )
+        trend_df = pd.read_sql(
+            "SELECT period_end_date, total_holdings, open_count, expected_count, "
+            "       d1_count, e1_count, n1_count, total_unique_exceptions "
+            "FROM reporting.qc_trend ORDER BY period_end_date",
+            conn,
+        )
+        fs_df = pd.read_sql(
+            "SELECT * FROM reporting.v_fund_size ORDER BY period_end_date",
+            conn,
+        )
+
+    print()
+    print("=" * 70)
+    print("reporting.qc_exceptions")
+    print("=" * 70)
+    n_open = len(exc_df[exc_df["status"] == "Open"])
+    n_exp  = len(exc_df[exc_df["status"] == "Expected"])
+    print(f"  {len(exc_df)} rows total  |  Open: {n_open}  |  Expected: {n_exp}")
+    print(exc_df.to_string(index=False))
+
+    print()
+    print("=" * 70)
+    print("reporting.qc_trend")
+    print("=" * 70)
+    print(trend_df.to_string(index=False))
+
+    print()
+    print("=" * 70)
+    print("reporting.v_fund_size")
+    print("=" * 70)
+    print(fs_df.to_string(index=False))
+
+
+# ── main ──────────────────────────────────────────────────────────────────────
 
 def main():
     # ── load ──────────────────────────────────────────────────────────────────
@@ -161,37 +326,63 @@ def main():
     for col in ("valusd", "pctval", "balance"):
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    print(f"  {len(df)} rows loaded across {df['filing_date'].nunique()} filing dates.")
+    n_dates = df["filing_date"].nunique()
+    print(f"  {len(df)} rows loaded across {n_dates} filing dates.")
 
-    # ── apply rules per filing_date ───────────────────────────────────────────
-    records = []
-    for filing_date, grp in df.groupby("filing_date"):
+    # ── apply rules per quarter ───────────────────────────────────────────────
+    records       = []
+    exc_parts     = []
+
+    for (filing_date, period_end_date), grp in df.groupby(["filing_date", "period_end_date"]):
+        fd_str  = str(filing_date)[:10]
+        ped_str = str(period_end_date)[:10]
+
         result = apply_rules_to_group(grp)
-        result["filing_date"] = str(filing_date)[:10]   # keep only the date part
+        result["filing_date"]     = fd_str
+        result["period_end_date"] = ped_str
+        result["total_holdings"]  = len(grp)
+        result["open_count"]      = result["total_unique_exceptions"]
+        result["expected_count"]  = result["d1_count"] + result["e1_count"]
         records.append(result)
 
-    out_cols = [
+        exc_parts.append(build_exceptions_df(grp, fd_str, ped_str))
+
+    # ── trend DataFrame (CSV columns kept as before) ──────────────────────────
+    csv_cols = [
         "filing_date",
         "r1_count", "r2_count", "r3_count",
         "r4_count", "r5_count", "r6_count",
         "d1_count", "e1_count", "n1_count",
         "total_unique_exceptions",
     ]
-    trend_df = pd.DataFrame(records)[out_cols].sort_values("filing_date").reset_index(drop=True)
+    trend_df = (
+        pd.DataFrame(records)[csv_cols]
+        .sort_values("filing_date")
+        .reset_index(drop=True)
+    )
 
-    # ── load old CSV for before/after comparison ──────────────────────────────
-    old_df = None
-    if OUTPUT_CSV.exists():
-        try:
-            old_df = pd.read_csv(OUTPUT_CSV)
-        except Exception:
-            pass
+    # reporting.qc_trend has additional columns
+    trend_write_cols = [
+        "period_end_date", "filing_date",
+        "total_holdings", "open_count", "expected_count",
+        "r1_count", "r2_count", "r3_count",
+        "r4_count", "r5_count", "r6_count",
+        "d1_count", "e1_count", "n1_count",
+        "total_unique_exceptions",
+    ]
+    trend_write_df = (
+        pd.DataFrame(records)[trend_write_cols]
+        .sort_values("period_end_date")
+        .reset_index(drop=True)
+    )
 
-    # ── print new table ───────────────────────────────────────────────────────
+    exceptions_df = pd.concat(exc_parts, ignore_index=True) if exc_parts else pd.DataFrame()
+
+    # ── print trend table ─────────────────────────────────────────────────────
     print()
-    print("=" * 78)
-    print("QC EXCEPTION TREND — security_master_history (6 quarters)  [AFTER FIX]")
-    print("=" * 78)
+    print("=" * 91)
+    print("QC EXCEPTION TREND — security_master_history (6 quarters)")
+    print("=" * 91)
     hdr = (f"  {'Filing date':<14}  {'R1':>4}  {'R2':>4}  {'R3':>4}"
            f"  {'R4':>4}  {'R5':>4}  {'R6':>4}  {'D1':>4}  {'E1':>4}  {'N1':>4}  {'Open total':>11}")
     print(hdr)
@@ -212,25 +403,6 @@ def main():
         )
     print("=" * 91)
 
-    # ── before/after comparison ───────────────────────────────────────────────
-    if old_df is not None and "total_unique_exceptions" in old_df.columns:
-        print()
-        print("BEFORE vs AFTER  (R4/R6 scope fix + E1 classification):")
-        print(f"  {'Filing date':<14}  {'Old open':>10}  {'New open':>10}  {'Expected':>10}")
-        print("  " + "-" * 50)
-        for _, row in trend_df.iterrows():
-            fd = row["filing_date"]
-            new_open     = row["total_unique_exceptions"]
-            new_expected = row["d1_count"] + row["e1_count"]
-            old_row = old_df[old_df["filing_date"].astype(str).str[:10] == fd]
-            if not old_row.empty:
-                old_total = int(old_row["total_unique_exceptions"].iloc[0])
-                delta_str = f"{old_total}"
-            else:
-                old_total = "n/a"
-                delta_str = ""
-            print(f"  {fd:<14}  {str(old_total):>10}  {new_open:>10}  {new_expected:>10}")
-
     print()
     print("Rule key:")
     print("  R1 Both cusip AND isin blank/null           (equity/debt only)")
@@ -243,10 +415,14 @@ def main():
     print("  E1 STIV / cash collateral — Expected        (NOT counted in total_unique_exceptions)")
     print("  N1 Unreviewed STIV or derivative            (IS counted in total_unique_exceptions)")
 
-    # ── save ──────────────────────────────────────────────────────────────────
+    # ── save CSV ──────────────────────────────────────────────────────────────
     OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
     trend_df.to_csv(OUTPUT_CSV, index=False)
     print(f"\nSaved to {OUTPUT_CSV.relative_to(REPO_ROOT)}")
+
+    # ── write & verify reporting tables ───────────────────────────────────────
+    write_reporting_tables(engine, exceptions_df, trend_write_df)
+    print_reporting_tables(engine)
 
 
 if __name__ == "__main__":

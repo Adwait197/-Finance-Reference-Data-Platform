@@ -24,23 +24,12 @@ PGDATABASE = os.getenv("PGDATABASE", "finance_platform")
 PGUSER     = os.getenv("PGUSER", "postgres")
 PGPASSWORD = os.getenv("PGPASSWORD", "")
 
-REPO_ROOT    = Path(__file__).resolve().parent.parent
-QC_TREND_CSV = REPO_ROOT / "data" / "processed" / "qc_trend_by_quarter.csv"
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 DATE_RANGE_CAPTION = (
     "Mar 2025 – Jun 2026, one snapshot per fiscal quarter  "
     "(SEC N-PORT filings, series S000004310 / IVV)"
 )
-
-# repPdDate extracted from each XML file; maps filing_date -> period_end_date
-PERIOD_END_MAP = {
-    "2025-05-27": "2025-03-31",
-    "2025-08-28": "2025-06-30",
-    "2025-11-26": "2025-09-30",
-    "2026-02-25": "2025-12-31",
-    "2026-05-28": "2026-03-31",
-    "2026-08-25": "2026-06-30",
-}
 
 RULE_LABELS = [
     "R1 · No identifier",
@@ -69,42 +58,54 @@ def load_aum_trend():
     with engine.connect() as conn:
         df = pd.read_sql(
             sqlalchemy.text(
-                "SELECT period_end_date, SUM(valusd) AS total_valusd "
-                "FROM security_master_history "
-                "GROUP BY period_end_date ORDER BY period_end_date"
+                "SELECT period_end_date, total_holdings, total_value_usd_bn "
+                "FROM reporting.v_fund_size ORDER BY period_end_date"
             ),
             conn,
         )
     df["period_end_date"] = pd.to_datetime(df["period_end_date"])
-    df["total_valusd_bn"] = df["total_valusd"].astype(float) / 1e9
     return df
 
 
 @st.cache_data(ttl=300)
 def load_qc_trend():
-    df = pd.read_csv(QC_TREND_CSV, parse_dates=["filing_date"])
-    df["period_end_date"] = pd.to_datetime(
-        df["filing_date"].dt.strftime("%Y-%m-%d").map(PERIOD_END_MAP)
-    )
-    df = df.sort_values("period_end_date").reset_index(drop=True)
-    # Backfill missing columns from older CSV versions
-    for col in ("d1_count", "e1_count", "n1_count"):
-        if col not in df.columns:
-            df[col] = 0
+    engine = get_engine()
+    with engine.connect() as conn:
+        df = pd.read_sql(
+            sqlalchemy.text(
+                "SELECT period_end_date, filing_date, total_holdings, "
+                "       open_count, expected_count, "
+                "       r1_count, r2_count, r3_count, r4_count, r5_count, r6_count, "
+                "       d1_count, e1_count, n1_count, total_unique_exceptions "
+                "FROM reporting.qc_trend ORDER BY period_end_date"
+            ),
+            conn,
+        )
+    df["period_end_date"] = pd.to_datetime(df["period_end_date"])
     return df
 
 
-# ── drill-down helpers ────────────────────────────────────────────────────────
+@st.cache_data(ttl=300)
+def load_quarter_exceptions(period_end_date: str) -> pd.DataFrame:
+    engine = get_engine()
+    with engine.connect() as conn:
+        df = pd.read_sql(
+            sqlalchemy.text(
+                "SELECT name, cusip, isin, assetcat, issuercat, iscashcollateral, "
+                "       balance, valusd, pctval, rule_code, rule_name, status, reason "
+                "FROM reporting.qc_exceptions "
+                "WHERE period_end_date = :ped "
+                "ORDER BY status, name"
+            ),
+            conn,
+            params={"ped": period_end_date},
+        )
+    for col in ("balance", "valusd", "pctval"):
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df
 
-ERROR_RULE_PLAIN = {
-    "R1_no_identifier":    "No identifier (R1)",
-    "R2_pctval_range":     "Weight out of range (R2)",
-    "R3_valusd_negative":  "Negative value (R3)",
-    "R4_duplicate_cusip":  "Duplicate CUSIP (R4)",
-    "R5_category_blank":   "Missing category (R5)",
-    "R6_possible_cash_mm": "Possible cash instrument (R6)",
-    "N1_new_needs_review": "New unreviewed STIV/derivative (N1)",
-}
+
+# ── display helpers ───────────────────────────────────────────────────────────
 
 DISPLAY_COLS = [
     "name", "status", "reason",
@@ -117,51 +118,6 @@ DISPLAY_RENAME = {
     "valusd": "valUSD", "pctval": "pctVal",
     "status": "Status", "reason": "Reason",
 }
-DISPLAY_COL_CFG: dict = {}   # all formatting done in Python before display
-
-
-def _is_blank_col(s: pd.Series) -> pd.Series:
-    return s.isna() | s.fillna("").astype(str).str.strip().isin(["", "N/A", "n/a", "NA"])
-
-
-@st.cache_data
-def _load_reviewed_lookup() -> dict:
-    csv_path = REPO_ROOT / "data" / "reference" / "expected_exceptions.csv"
-    if not csv_path.exists():
-        return {}
-    df = pd.read_csv(csv_path, keep_default_na=False)
-    for col in ("cusip", "isCashCollateral", "assetcat"):
-        if col not in df.columns:
-            df[col] = ""
-        df[col] = df[col].str.strip()
-    lookup = {}
-    for _, row in df.iterrows():
-        cusip    = row.get("cusip", "")
-        iscash   = row.get("isCashCollateral", "")
-        assetcat = row.get("assetcat", "")
-        if cusip:
-            key = ("cusip", cusip, iscash)
-        elif assetcat:
-            key = ("assetcat", assetcat)
-        else:
-            continue
-        lookup[key] = {"label": row["label"], "reason": row["reason"]}
-    return lookup
-
-
-def _find_reviewed(lookup: dict, cusip_val, iscash_val, assetcat_val):
-    c = str(cusip_val    or "").strip()
-    i = str(iscash_val   or "").strip()
-    a = str(assetcat_val or "").strip()
-    if c and c.upper() not in ("N/A", "NA"):
-        m = lookup.get(("cusip", c, i))
-        if m:
-            return m
-    if a:
-        m = lookup.get(("assetcat", a))
-        if m:
-            return m
-    return None
 
 
 def _fmt_display(df: pd.DataFrame) -> pd.DataFrame:
@@ -189,101 +145,6 @@ def _fmt_display(df: pd.DataFrame) -> pd.DataFrame:
                 .replace({"": "—", "N/A": "—", "n/a": "—", "NA": "—"})
             )
     return df
-
-
-@st.cache_data(ttl=300)
-def load_quarter_detail(period_end_date: str) -> pd.DataFrame:
-    engine = get_engine()
-    with engine.connect() as conn:
-        df = pd.read_sql(
-            sqlalchemy.text(
-                "SELECT name, cusip, isin, assetcat, issuercat, iscashcollateral, "
-                "       balance, valusd, pctval "
-                "FROM security_master_history WHERE period_end_date = :ped "
-                "ORDER BY ABS(valusd) DESC NULLS LAST"
-            ),
-            conn,
-            params={"ped": period_end_date},
-        )
-    for col in ("balance", "valusd", "pctval"):
-        df[col] = pd.to_numeric(df[col], errors="coerce")
-    return df
-
-
-def flag_exceptions(df: pd.DataFrame):
-    """
-    Apply QC rules; return (error_df, expected_df).
-
-    error_df    — Open rows: R1-R6 violations + N1 (unreviewed STIV/derivative).
-    expected_df — Expected rows from the reviewed-exceptions list (D1 + E1).
-    Both DataFrames carry 'status' and 'reason' columns.
-    """
-    reviewed_lookup = _load_reviewed_lookup()
-
-    is_deriv    = df["assetcat"].fillna("").str.upper().str.startswith("D")
-    is_stiv     = df["assetcat"].fillna("") == "STIV"
-    is_candidate = is_deriv | is_stiv
-
-    # Per-row reviewed check
-    review_matches = [
-        _find_reviewed(reviewed_lookup, row.get("cusip"), row.get("iscashcollateral"), row.get("assetcat"))
-        for _, row in df.iterrows()
-    ]
-    is_reviewed = pd.Series([m is not None for m in review_matches], index=df.index)
-    is_expected = is_candidate & is_reviewed
-    is_n1       = is_candidate & ~is_reviewed
-
-    # R4: same isCashCollateral bucket only
-    bucket   = df["iscashcollateral"].fillna("unknown")
-    comp_key = df["cusip"].fillna("") + "||" + bucket
-    nonblank_key = comp_key[~_is_blank_col(df["cusip"])]
-    dup_keys = nonblank_key[nonblank_key.duplicated(keep=False)].unique()
-
-    both_pos = (
-        df["balance"].notna() & df["valusd"].notna()
-        & (df["valusd"] > 0) & (df["balance"] > 0)
-    )
-    safe_denom = df["valusd"].replace(0, np.nan)
-    ratio = df["balance"] / safe_denom
-
-    masks = {
-        "R1_no_identifier":    _is_blank_col(df["cusip"]) & _is_blank_col(df["isin"]) & ~is_deriv,
-        "R2_pctval_range":     df["pctval"].notna() & ((df["pctval"] < 0) | (df["pctval"] > 100)) & ~is_deriv,
-        "R3_valusd_negative":  df["valusd"].notna() & (df["valusd"] < 0) & ~is_deriv,
-        "R4_duplicate_cusip":  comp_key.isin(dup_keys) & ~_is_blank_col(df["cusip"]),
-        "R5_category_blank":   _is_blank_col(df["assetcat"]) | _is_blank_col(df["issuercat"]),
-        "R6_possible_cash_mm": both_pos & (ratio >= 0.99) & (ratio <= 1.01) & ~is_stiv,
-        "N1_new_needs_review": is_n1,
-    }
-
-    def _rules_tripped(idx):
-        return ", ".join(
-            ERROR_RULE_PLAIN.get(r, r) for r, m in masks.items() if m.iloc[idx]
-        )
-
-    df = df.copy()
-    df["rules_tripped"] = [_rules_tripped(i) for i in range(len(df))]
-    df["status"] = ""
-    df["reason"] = ""
-
-    any_open = pd.concat(list(masks.values()), axis=1).any(axis=1)
-
-    df.loc[any_open & ~is_expected, "status"] = "Open"
-    df.loc[is_expected, "status"] = "Expected"
-
-    # Reasons from reviewed list for Expected rows; N1 gets a warning reason
-    for i, row in enumerate(review_matches):
-        if is_expected.iloc[i] and row:
-            df.iloc[i, df.columns.get_loc("reason")] = row["reason"]
-    df.loc[is_n1, "reason"] = (
-        "New unreviewed STIV or derivative — add to "
-        "data/reference/expected_exceptions.csv after review"
-    )
-
-    error_df    = df[df["status"] == "Open"].reset_index(drop=True)
-    expected_df = df[is_expected].reset_index(drop=True)
-
-    return error_df, expected_df
 
 
 # ── layout ────────────────────────────────────────────────────────────────────
@@ -315,7 +176,7 @@ aum = load_aum_trend()
 fig_aum = go.Figure()
 fig_aum.add_trace(go.Scatter(
     x=aum["period_end_date"],
-    y=aum["total_valusd_bn"],
+    y=aum["total_value_usd_bn"],
     mode="lines+markers",
     line=dict(width=2.5, color="#1f77b4"),
     marker=dict(size=8),
@@ -492,17 +353,24 @@ selected_q = st.selectbox(
 )
 selected_ped = quarter_opts[selected_q]
 
-detail_df                = load_quarter_detail(selected_ped)
-error_df, expected_df   = flag_exceptions(detail_df)
+exc_all    = load_quarter_exceptions(selected_ped)
+error_df   = exc_all[exc_all["status"] == "Open"].reset_index(drop=True)
+expected_df = exc_all[exc_all["status"] == "Expected"].reset_index(drop=True)
+
+# Total holdings for the selected quarter from reporting.qc_trend
+total_holdings = int(
+    qc.loc[qc["period_end_date"].dt.strftime("%Y-%m-%d") == selected_ped, "total_holdings"]
+    .iloc[0]
+) if selected_ped in qc["period_end_date"].dt.strftime("%Y-%m-%d").values else len(exc_all)
 
 # ── Number tiles ──────────────────────────────────────────────────────────────
 
 t1, t2, t3 = st.columns(3)
-t1.metric("Total holdings",        len(detail_df))
+t1.metric("Total holdings",              total_holdings)
 t2.metric("Open exceptions (R1–R6 + N1)", len(error_df))
-t3.metric("Expected (D1 + E1)",    len(expected_df))
+t3.metric("Expected (D1 + E1)",           len(expected_df))
 
-# ── Exception table (R1–R6) ───────────────────────────────────────────────────
+# ── Exception table ───────────────────────────────────────────────────────────
 
 if len(error_df) == 0:
     st.success("No open exceptions for this quarter.")
