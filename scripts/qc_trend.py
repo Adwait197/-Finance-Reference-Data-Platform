@@ -272,7 +272,12 @@ def write_reporting_tables(engine, exceptions_df: pd.DataFrame, trend_write_df: 
                 period_end_date::date  AS period_end_date,
                 filing_date::date      AS filing_date,
                 to_char(period_end_date, 'Mon YYYY') AS quarter_label,
-                ROW_NUMBER() OVER (ORDER BY period_end_date)::integer AS quarter_sort
+                ROW_NUMBER() OVER (ORDER BY period_end_date)::integer AS quarter_sort,
+                CASE
+                    WHEN period_end_date = MAX(period_end_date) OVER ()
+                    THEN 'Latest quarter'
+                    ELSE to_char(period_end_date, 'Mon YYYY')
+                END AS slicer_label
             FROM (
                 SELECT DISTINCT period_end_date, filing_date
                 FROM security_master_history
