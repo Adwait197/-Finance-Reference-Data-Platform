@@ -38,15 +38,15 @@ EXPECTED_CSV = REPO_ROOT / "data" / "reference" / "expected_exceptions.csv"
 RULE_CODE_PRIORITY = ["D1", "E1", "R1", "R2", "R3", "R4", "R5", "R6", "N1"]
 
 RULE_CODE_NAMES = {
-    "R1": "Both cusip AND isin blank/null",
-    "R2": "pctVal out of range [0, 100]",
-    "R3": "valUSD negative",
-    "R4": "Duplicate cusip within same isCashCollateral bucket",
-    "R5": "assetCat or issuerCat blank/null",
-    "R6": "balance ~= valUSD for non-STIV rows",
-    "D1": "Reviewed derivative (exchange-traded futures)",
-    "E1": "Reviewed STIV (money-market fund / cash collateral)",
-    "N1": "Unreviewed STIV or derivative — needs review",
+    "R1": "No identifier",
+    "R2": "Weight out of range",
+    "R3": "Negative value",
+    "R4": "Duplicate CUSIP",
+    "R5": "Missing category",
+    "R6": "Possible cash instrument",
+    "N1": "New - needs review",
+    "E1": "Money-market / cash collateral (reviewed)",
+    "D1": "Derivative (reviewed)",
 }
 
 EXPECTED_CODES = {"D1", "E1"}
@@ -57,17 +57,17 @@ RULE_CODE_SORT = {
     "N1": 7, "E1": 8, "D1": 9,
 }
 
-# One plain-English sentence per rule describing what it checks.
+# Technical wording used in rule_description (the former RULE_CODE_NAMES values).
 RULE_CODE_DESCRIPTIONS = {
-    "R1": "Checks that at least one of CUSIP or ISIN is populated; both blank suggests a missing or unloaded identifier.",
-    "R2": "Checks that the portfolio weight (pctVal) is between 0 and 100; values outside this range indicate a calculation or upload error.",
-    "R3": "Checks that market value (valUSD) is not negative; negative values are invalid for equity and debt holdings.",
-    "R4": "Checks for duplicate CUSIPs within the same isCashCollateral bucket; same-bucket duplicates suggest a data-load error.",
-    "R5": "Checks that assetCat and issuerCat are both populated; blank categories break downstream aggregations and reporting.",
-    "R6": "Checks for non-STIV holdings where balance closely approximates valUSD; this pattern on a non-money-market row suggests a misclassified cash instrument.",
-    "D1": "Exchange-traded derivative (futures) reviewed and confirmed: no CUSIP/ISIN by design, and valUSD is unrealised P&L which can be negative.",
-    "E1": "Short-Term Investment Vehicle (STIV) reviewed and confirmed: balance equals valUSD at a $1 NAV by design; not a data error.",
-    "N1": "STIV or derivative not yet in expected_exceptions.csv; treat as Open until manually reviewed and added to the reviewed-exceptions list.",
+    "R1": "Both cusip AND isin blank/null",
+    "R2": "pctVal out of range [0, 100]",
+    "R3": "valUSD negative",
+    "R4": "Duplicate cusip within same isCashCollateral bucket",
+    "R5": "assetCat or issuerCat blank/null",
+    "R6": "balance ~= valUSD for non-STIV rows",
+    "N1": "Unreviewed STIV or derivative — needs review",
+    "E1": "Reviewed STIV (money-market fund / cash collateral)",
+    "D1": "Reviewed derivative (exchange-traded futures)",
 }
 
 
