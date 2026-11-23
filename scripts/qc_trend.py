@@ -255,20 +255,33 @@ def write_reporting_tables(engine, exceptions_df: pd.DataFrame, trend_write_df: 
                           if_exists="replace", index=False)
     print(f"  reporting.qc_trend      : {len(trend_write_df)} rows written")
 
-    view_sql = """
-        CREATE OR REPLACE VIEW reporting.v_fund_size AS
-        SELECT
-            period_end_date,
-            COUNT(*)           AS total_holdings,
-            ROUND(SUM(valusd)::numeric / 1e9, 2)  AS total_value_usd_bn
-        FROM security_master_history
-        GROUP BY period_end_date
-        ORDER BY period_end_date
-    """
     with engine.connect() as conn:
-        conn.execute(sqlalchemy.text(view_sql))
+        conn.execute(sqlalchemy.text("""
+            CREATE OR REPLACE VIEW reporting.v_fund_size AS
+            SELECT
+                period_end_date,
+                COUNT(*)                             AS total_holdings,
+                ROUND(SUM(valusd)::numeric / 1e9, 2) AS total_value_usd_bn
+            FROM security_master_history
+            GROUP BY period_end_date
+            ORDER BY period_end_date
+        """))
+        conn.execute(sqlalchemy.text("""
+            CREATE OR REPLACE VIEW reporting.dim_quarter AS
+            SELECT
+                period_end_date::date  AS period_end_date,
+                filing_date::date      AS filing_date,
+                to_char(period_end_date, 'Mon YYYY') AS quarter_label,
+                ROW_NUMBER() OVER (ORDER BY period_end_date)::integer AS quarter_sort
+            FROM (
+                SELECT DISTINCT period_end_date, filing_date
+                FROM security_master_history
+            ) sub
+            ORDER BY period_end_date
+        """))
         conn.commit()
     print("  reporting.v_fund_size   : view created/updated")
+    print("  reporting.dim_quarter   : view created/updated")
 
 
 def print_reporting_tables(engine) -> None:
