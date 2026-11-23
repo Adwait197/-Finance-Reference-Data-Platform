@@ -10,6 +10,8 @@ the single reporting source for both Streamlit and Power BI:
   reporting.qc_exceptions  — one row per flagged holding per quarter
   reporting.qc_trend       — one row per quarter with open/expected/total counts
   reporting.v_fund_size    — view: quarter, total_holdings, total_value_usd_bn
+  reporting.dim_quarter    — view: one row per quarter with label and sort key
+  reporting.dim_rule       — reference table: one row per rule code
 """
 
 import os
@@ -48,6 +50,25 @@ RULE_CODE_NAMES = {
 }
 
 EXPECTED_CODES = {"D1", "E1"}
+
+# Sort order for dim_rule; R1-R6 shown first (errors), then N1 (unreviewed), then Expected.
+RULE_CODE_SORT = {
+    "R1": 1, "R2": 2, "R3": 3, "R4": 4, "R5": 5, "R6": 6,
+    "N1": 7, "E1": 8, "D1": 9,
+}
+
+# One plain-English sentence per rule describing what it checks.
+RULE_CODE_DESCRIPTIONS = {
+    "R1": "Checks that at least one of CUSIP or ISIN is populated; both blank suggests a missing or unloaded identifier.",
+    "R2": "Checks that the portfolio weight (pctVal) is between 0 and 100; values outside this range indicate a calculation or upload error.",
+    "R3": "Checks that market value (valUSD) is not negative; negative values are invalid for equity and debt holdings.",
+    "R4": "Checks for duplicate CUSIPs within the same isCashCollateral bucket; same-bucket duplicates suggest a data-load error.",
+    "R5": "Checks that assetCat and issuerCat are both populated; blank categories break downstream aggregations and reporting.",
+    "R6": "Checks for non-STIV holdings where balance closely approximates valUSD; this pattern on a non-money-market row suggests a misclassified cash instrument.",
+    "D1": "Exchange-traded derivative (futures) reviewed and confirmed: no CUSIP/ISIN by design, and valUSD is unrealised P&L which can be negative.",
+    "E1": "Short-Term Investment Vehicle (STIV) reviewed and confirmed: balance equals valUSD at a $1 NAV by design; not a data error.",
+    "N1": "STIV or derivative not yet in expected_exceptions.csv; treat as Open until manually reviewed and added to the reviewed-exceptions list.",
+}
 
 
 # ── helpers ────────────────────────────────────────────────────────────────────
@@ -232,6 +253,27 @@ def build_exceptions_df(grp: pd.DataFrame, filing_date: str, period_end_date: st
     ])
 
 
+# ── dim_rule builder ──────────────────────────────────────────────────────────
+
+def build_dim_rule_df() -> pd.DataFrame:
+    """
+    Build the dim_rule reference DataFrame from the existing rule constants.
+    rule_name is taken directly from RULE_CODE_NAMES (single source of truth).
+    Rows ordered by RULE_CODE_PRIORITY so the DataFrame reflects the natural
+    priority; rule_sort supplies the numeric sort for Power BI.
+    """
+    rows = []
+    for code in RULE_CODE_PRIORITY:
+        rows.append({
+            "rule_code":        code,
+            "rule_name":        RULE_CODE_NAMES[code],
+            "rule_group":       "Expected" if code in EXPECTED_CODES else "Open",
+            "rule_description": RULE_CODE_DESCRIPTIONS[code],
+            "rule_sort":        RULE_CODE_SORT[code],
+        })
+    return pd.DataFrame(rows)
+
+
 # ── reporting layer ────────────────────────────────────────────────────────────
 
 def write_reporting_tables(engine, exceptions_df: pd.DataFrame, trend_write_df: pd.DataFrame) -> None:
@@ -254,6 +296,20 @@ def write_reporting_tables(engine, exceptions_df: pd.DataFrame, trend_write_df: 
     trend_write_df.to_sql("qc_trend", engine, schema="reporting",
                           if_exists="replace", index=False)
     print(f"  reporting.qc_trend      : {len(trend_write_df)} rows written")
+
+    dim_rule_df = build_dim_rule_df()
+    dim_rule_df.to_sql("dim_rule", engine, schema="reporting",
+                       if_exists="replace", index=False)
+    print(f"  reporting.dim_rule      : {len(dim_rule_df)} rows written")
+
+    # Cross-check: every rule_code that appears in qc_exceptions must be in dim_rule.
+    exc_codes = set(exceptions_df["rule_code"].dropna().unique())
+    dim_codes = set(dim_rule_df["rule_code"].unique())
+    missing   = exc_codes - dim_codes
+    if missing:
+        print(f"\n  ERROR: rule_code(s) in qc_exceptions missing from dim_rule: {sorted(missing)}")
+    else:
+        print(f"  Cross-check: all {len(exc_codes)} rule_code(s) in qc_exceptions present in dim_rule  [PASS]")
 
     with engine.connect() as conn:
         conn.execute(sqlalchemy.text("""
@@ -307,6 +363,11 @@ def print_reporting_tables(engine) -> None:
             "SELECT * FROM reporting.v_fund_size ORDER BY period_end_date",
             conn,
         )
+        rule_df = pd.read_sql(
+            "SELECT rule_sort, rule_code, rule_group, rule_name, rule_description "
+            "FROM reporting.dim_rule ORDER BY rule_sort",
+            conn,
+        )
 
     print()
     print("=" * 70)
@@ -328,6 +389,12 @@ def print_reporting_tables(engine) -> None:
     print("reporting.v_fund_size")
     print("=" * 70)
     print(fs_df.to_string(index=False))
+
+    print()
+    print("=" * 70)
+    print("reporting.dim_rule")
+    print("=" * 70)
+    print(rule_df.to_string(index=False))
 
 
 # ── main ──────────────────────────────────────────────────────────────────────
@@ -441,6 +508,29 @@ def main():
     # ── write & verify reporting tables ───────────────────────────────────────
     write_reporting_tables(engine, exceptions_df, trend_write_df)
     print_reporting_tables(engine)
+
+    # ── confirm powerbi_reader can SELECT reporting.dim_rule ──────────────────
+    pbi_pw = os.getenv("PBI_READER_PASSWORD", "")
+    if pbi_pw:
+        pbi_engine = sqlalchemy.create_engine(
+            f"postgresql+psycopg2://powerbi_reader:{pbi_pw}@{PGHOST}:{PGPORT}/{PGDATABASE}"
+        )
+        with pbi_engine.connect() as conn:
+            pbi_df = pd.read_sql(
+                sqlalchemy.text(
+                    "SELECT rule_sort, rule_code, rule_group, rule_name "
+                    "FROM reporting.dim_rule ORDER BY rule_sort"
+                ),
+                conn,
+            )
+        print()
+        print("=" * 70)
+        print("powerbi_reader SELECT reporting.dim_rule")
+        print("=" * 70)
+        print(f"  {len(pbi_df)} rows  [PASS]")
+        print(pbi_df.to_string(index=False))
+    else:
+        print("\n(PBI_READER_PASSWORD not set — skipping powerbi_reader test)")
 
 
 if __name__ == "__main__":
