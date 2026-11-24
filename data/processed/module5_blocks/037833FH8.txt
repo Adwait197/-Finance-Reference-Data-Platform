@@ -1,0 +1,128 @@
+DEAL:    2026-11-06
+FWP URL: https://www.sec.gov/Archives/edgar/data/320193/000114036126042173/ny20084621x3_fwp.htm
+HEADING: 5.100% Notes due 2033 (“2033 Fixed Rate Notes”)
+────────────────────────────────────────────────────────────
+Issuer:
+
+Apple Inc.
+
+Principal Amount:
+
+$1,250,000,000
+
+Maturity:
+
+November 9, 2033
+
+Interest:
+
+5.100%
+
+Price to Public:
+
+99.773%
+
+Interest Payment Dates:
+
+Interest on the 2033 Fixed Rate Notes will be paid semi-annually in arrears on May 9 and November 9, beginning on May 9, 2027, and on the maturity date.
+
+Day Count Convention:
+
+30/360
+
+Benchmark Treasury:
+
+4.875% due October 31, 2033
+
+Benchmark Treasury Yield:
+
+4.689%
+
+Spread to Benchmark Treasury:
+
+45 basis points
+
+Yield:
+
+5.139%
+
+14
+
+Redemption:
+
+Prior to September 9, 2033, the Issuer may, at its option, redeem the 2033 Fixed Rate Notes, at any time in whole or from time to time in part, on at least 10 days, but not more than 60 days, prior notice mailed or
+electronically delivered to the registered address of each holder of record of the 2033 Fixed Rate Notes, at a redemption price as calculated by the Issuer (expressed as a percentage of principal amount and rounded to three decimal places),
+equal to the greater of:
+
+(i) 100% of the principal amount of the 2033 Fixed Rate Notes being redeemed; and
+
+(ii) the sum of the present values of the remaining scheduled payments of principal and interest on the 2033 Fixed Rate Notes being redeemed (assuming the 2033 Fixed Rate Notes matured on September 9, 2033),
+exclusive of interest accrued to, but excluding, the date of redemption, discounted to the date of redemption on a semi-annual basis (assuming a 360-day year consisting of twelve 30-day months) at the applicable Treasury Rate (as defined in
+the 2033 Fixed Rate Notes) plus 10 basis points, plus, in each case, accrued and unpaid interest thereon to, but excluding, the date of redemption.
+
+On or after September 9, 2033, the Issuer may, at its option, redeem the 2033 Fixed Rate Notes, at any time in whole or from time to time in part, prior to their maturity, on at least 10 days, but not more than 60
+days, prior notice mailed or electronically delivered to the registered address of each holder of record of the 2033 Fixed Rate Notes, at a redemption price equal to 100% of the principal amount of the 2033 Fixed Rate Notes being redeemed,
+plus accrued and unpaid interest thereon to, but excluding, the date of redemption.
+
+Trade Date:
+
+November 5, 2026
+
+Settlement Date:
+
+November 9, 2026 (T+2)
+
+Denominations:
+
+$2,000 and any integral multiple of $1,000 in excess thereof
+
+Ratings:*
+
+Aaa (stable) by Moody’s Investors Service, Inc.
+
+AA+ (stable) by Standard & Poor’s Ratings Services
+
+Net Proceeds:
+
+Aggregate net proceeds from sale of all notes offered pursuant to this Pricing Term Sheet will be approximately $7.47 billion after deducting underwriting discounts and
+the Issuer’s offering expenses.
+
+15
+
+CUSIP/ISIN:
+
+037833 FH8 / US037833FH84
+
+Underwriters:
+
+Joint Book-Running Managers:
+
+Goldman Sachs & Co. LLC
+
+BofA Securities, Inc.
+
+Deutsche Bank Securities Inc.
+
+J.P. Morgan Securities LLC
+
+Barclays Capital Inc.
+
+HSBC Securities (USA) Inc.
+
+Morgan Stanley & Co. LLC
+
+Co-Managers:
+
+Academy Securities, Inc.
+
+Drexel Hamilton, LLC
+
+Loop Capital Markets LLC
+
+R. Seelaus & Co., LLC
+
+Samuel A. Ramirez & Company, Inc.
+
+Siebert Williams Shank & Co., LLC
+
+16

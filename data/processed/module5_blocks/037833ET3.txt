@@ -1,0 +1,115 @@
+DEAL:    2023-05-09
+FWP URL: https://www.sec.gov/Archives/edgar/data/320193/000114036123023544/ny20007635x2_fwp.htm
+HEADING: 4.000% Notes due 2028 (“2028 Notes”)
+────────────────────────────────────────────────────────────
+Issuer:
+
+Apple Inc.
+
+Principal Amount:
+
+$1,500,000,000
+
+Maturity:
+
+May 10, 2028
+
+Coupon:
+
+4.000%
+
+Price to Public:
+
+99.807%
+
+Interest Payment Dates:
+
+May 10 and November 10, commencing November 10, 2023
+
+Day Count Convention:
+
+30/360
+
+Benchmark Treasury:
+
+3.500% due April 30, 2028
+
+Benchmark Treasury Yield:
+
+3.493%
+
+Spread to Benchmark Treasury:
+
+55 basis points
+
+Yield:
+
+4.043%
+
+Redemption:
+
+Prior to April 10, 2028, Apple Inc. may at its option redeem the 2028 Notes, at any time in whole or from time to time in part, at a redemption price as calculated by Apple (expressed as a
+percentage of principal amount and rounded to three decimal places), equal to the greater of: (i) 100% of the principal amount of the 2028 Notes being redeemed; and (ii) the sum of the present values of the remaining scheduled payments of
+principal and interest on the 2028 Notes being redeemed (assuming that such notes matured on April 10, 2028), exclusive of interest accrued to, but excluding, the date of redemption, discounted to the date of redemption on a semi-annual basis
+(assuming a 360-day year consisting of twelve 30-day months) at the applicable Treasury Rate (as defined in the 2028 Notes) plus 10 basis points, plus, in each case, accrued and unpaid interest thereon to, but excluding, the date of
+redemption.
+
+On or after April 10, 2028, Apple Inc. may at its option redeem the 2028 Notes, at any time in whole or from time to time in part, prior to their maturity, at a redemption price equal to
+100% of the principal amount of the 2028 Notes being redeemed, plus accrued and unpaid interest thereon to, but excluding, the date of redemption.
+
+Trade Date:
+
+May 8, 2023
+
+Settlement Date:
+
+May 10, 2023 (T+2)
+
+Denominations:
+
+$2,000 and any integral multiple of $1,000 in excess thereof
+
+Ratings:*
+
+Aaa (stable) by Moody’s Investors Service, Inc.
+
+AA+ (stable) by Standard & Poor’s Ratings Services
+
+Net Proceeds:
+
+Aggregate net proceeds from sale of all notes offered pursuant to this Pricing Term Sheet will be approximately $5.22 billion after deducting underwriting discounts and Apple’s
+offering expenses.
+
+CUSIP/ISIN:
+
+037833 ET3 / US037833ET32
+
+Underwriters:
+
+Joint Book-Running Managers:
+
+Goldman Sachs & Co. LLC
+
+Barclays Capital Inc.
+
+J.P. Morgan Securities LLC
+
+BofA Securities, Inc.
+
+Deutsche Bank Securities Inc.
+
+Morgan Stanley & Co. LLC
+
+Co-Managers:
+
+Academy Securities, Inc.
+
+Cabrera Capital Markets LLC
+
+CastleOak Securities, L.P.
+
+Great Pacific Securities
+
+Loop Capital Markets LLC
+
+R. Seelaus & Co., LLC

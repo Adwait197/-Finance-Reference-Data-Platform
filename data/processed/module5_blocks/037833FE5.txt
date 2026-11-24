@@ -1,0 +1,120 @@
+DEAL:    2026-11-06
+FWP URL: https://www.sec.gov/Archives/edgar/data/320193/000114036126042173/ny20084621x3_fwp.htm
+HEADING: Floating Rate Notes due 2029 (“2029 Floating Rate Notes”)
+────────────────────────────────────────────────────────────
+Issuer:
+
+Apple Inc.
+
+Principal Amount:
+
+$750,000,000
+
+Maturity:
+
+November 9, 2029
+
+Interest:
+
+The interest rate for the initial interest period will be Compounded SOFR determined on February 5, 2027, plus 0.45%. Thereafter, the interest rate for any interest period will be Compounded SOFR, as determined on
+the applicable date that is the second U.S. Government Securities Business Day (as defined below) preceding such Floating Rate Interest Payment Date (the “Interest Determination Date”), plus 0.45%.
+
+“U.S. Government Securities Business Day” means any day except for a Saturday, Sunday or a day on which the Securities Industry and Financial Markets Association recommends that the fixed income departments of its
+members be closed for the entire day for purposes of trading in U.S. government securities.
+
+Price to Public:
+
+100.000%
+
+Interest Payment Dates:
+
+Interest on the 2029 Floating Rate Notes will be paid quarterly in arrears on February 9, May 9, August 9 and November 9 of each year, commencing on February 9, 2027, and on the maturity date (each, a
+“Floating Rate Interest Payment Date”). If February 9, May 9, August 9 or November 9 of any year is not a Business Day, then the next succeeding Business Day will
+be the applicable Floating Rate Interest Payment Date and interest on the 2029 Floating Rate Notes will be paid on such next succeeding Business Day (unless such next succeeding Business Day falls in the succeeding calendar month, in which case the applicable Floating Rate Interest Payment Date will be the Business Day immediately preceding such February 9, May 9,
+August 9 or November 9, and interest on the 2029 Floating Rate Notes will be paid on such immediately preceding Business Day). If the maturity date of the 2029 Floating Rate Notes is not a Business
+
+Day, the payment of principal of, and interest on, the 2029 Floating Rate Notes will be made on the next succeeding Business Day and no interest will accrue for the period
+from and after such maturity date.
+
+4
+
+Interest Period:
+
+The period from and including a Floating Rate Interest Payment Date (or, in the case of the initial interest period, the settlement date of the 2029 Floating Rate Notes) to, but excluding, the immediately succeeding
+Floating Rate Interest Payment Date (such succeeding Floating Rate Interest Payment Date, the “Latter Floating Rate Interest Payment Date”); provided that the final interest period for the 2029 Floating Rate Notes will be the period from and
+including the Floating Rate Interest Payment Date immediately preceding the maturity date of the 2029 Floating Rate Notes to, but excluding, the maturity date.
+
+Observation Period:
+
+The period from and including two U.S. Government Securities Business Days preceding the first date of such relevant interest period to but excluding two U.S. Government Securities Business Days preceding the Latter
+Floating Rate Interest Payment Date for such interest period; provided that the first Observation Period shall be the period from and including two U.S. Government Securities Business Days preceding the settlement date of the 2029 Floating
+Rate Notes to, but excluding, the two U.S. Government Securities Business Days preceding the first Floating Rate Interest Payment Date.
+
+Day Count Convention:
+
+Actual/360
+
+No Redemption:
+
+The 2029 Floating Rate Notes are not redeemable at the option of the Issuer prior to maturity.
+
+Trade Date:
+
+November 5, 2026
+
+Settlement Date:
+
+November 9, 2026 (T+2)
+
+Denominations:
+
+$2,000 and any integral multiple of $1,000 in excess thereof
+
+Ratings:*
+
+Aaa (stable) by Moody’s Investors Service, Inc.
+
+AA+ (stable) by Standard & Poor’s Ratings Services
+
+Net Proceeds:
+
+Aggregate net proceeds from sale of all notes offered pursuant to this Pricing Term Sheet will be approximately $7.47 billion after deducting underwriting discounts and
+the Issuer’s offering expenses.
+
+CUSIP/ISIN:
+
+037833 FE5 / US037833FE53
+
+Underwriters:
+
+Joint Book-Running Managers:
+
+Goldman Sachs & Co. LLC
+
+BofA Securities, Inc.
+
+Deutsche Bank Securities Inc.
+
+J.P. Morgan Securities LLC
+
+Barclays Capital Inc.
+
+HSBC Securities (USA) Inc.
+
+Morgan Stanley & Co. LLC
+
+Co-Managers:
+
+Academy Securities, Inc.
+
+Drexel Hamilton, LLC
+
+Loop Capital Markets LLC
+
+R. Seelaus & Co., LLC
+
+Samuel A. Ramirez & Company, Inc.
+
+Siebert Williams Shank & Co., LLC
+
+5
