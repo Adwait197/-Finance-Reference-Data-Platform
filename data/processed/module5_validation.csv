@@ -1,0 +1,97 @@
+cusip,bond_name,check,result,detail
+037833ES5,4.421% Notes due 2026 (“2026 Notes”),V1,pass,check digit 5 verified (sum=45)
+037833ES5,4.421% Notes due 2026 (“2026 Notes”),V2,pass,Luhn sum 70 ≡ 0 (mod 10)
+037833ES5,4.421% Notes due 2026 (“2026 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833ES5,4.421% Notes due 2026 (“2026 Notes”),V4,pass,|3.721+70.0/100−4.421| = 0.000000 ≤ 0.005
+037833ES5,4.421% Notes due 2026 (“2026 Notes”),V5,pass,"coupon=yield=4.4210%, price 100.0 within 0.01 of 100"
+037833ES5,4.421% Notes due 2026 (“2026 Notes”),V6,pass,"trade 2023-05-08 ≤ settlement 2023-05-10 < maturity 2026-05-08, year 2026 ✓"
+037833ET3,4.000% Notes due 2028 (“2028 Notes”),V1,pass,check digit 3 verified (sum=47)
+037833ET3,4.000% Notes due 2028 (“2028 Notes”),V2,pass,Luhn sum 70 ≡ 0 (mod 10)
+037833ET3,4.000% Notes due 2028 (“2028 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833ET3,4.000% Notes due 2028 (“2028 Notes”),V4,pass,|3.493+55.0/100−4.043| = 0.000000 ≤ 0.005
+037833ET3,4.000% Notes due 2028 (“2028 Notes”),V5,pass,"coupon 4.0% < yield 4.043%, price 99.807 < 100"
+037833ET3,4.000% Notes due 2028 (“2028 Notes”),V6,pass,"trade 2023-05-08 ≤ settlement 2023-05-10 < maturity 2028-05-10, year 2028 ✓"
+037833EU0,4.150% Notes due 2030 (“2030 Notes”),V1,pass,check digit 0 verified (sum=40)
+037833EU0,4.150% Notes due 2030 (“2030 Notes”),V2,pass,Luhn sum 60 ≡ 0 (mod 10)
+037833EU0,4.150% Notes due 2030 (“2030 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833EU0,4.150% Notes due 2030 (“2030 Notes”),V4,pass,|3.495+70.0/100−4.195| = 0.000000 ≤ 0.005
+037833EU0,4.150% Notes due 2030 (“2030 Notes”),V5,pass,"coupon 4.15% < yield 4.195%, price 99.729 < 100"
+037833EU0,4.150% Notes due 2030 (“2030 Notes”),V6,pass,"trade 2023-05-08 ≤ settlement 2023-05-10 < maturity 2030-05-10, year 2030 ✓"
+037833EV8,4.300% Notes due 2033 (“2033 Notes”),V1,pass,check digit 8 verified (sum=42)
+037833EV8,4.300% Notes due 2033 (“2033 Notes”),V2,pass,Luhn sum 70 ≡ 0 (mod 10)
+037833EV8,4.300% Notes due 2033 (“2033 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833EV8,4.300% Notes due 2033 (“2033 Notes”),V4,pass,|3.511+80.0/100−4.311| = 0.000000 ≤ 0.005
+037833EV8,4.300% Notes due 2033 (“2033 Notes”),V5,pass,"coupon 4.3% < yield 4.311%, price 99.911 < 100"
+037833EV8,4.300% Notes due 2033 (“2033 Notes”),V6,pass,"trade 2023-05-08 ≤ settlement 2023-05-10 < maturity 2033-05-10, year 2033 ✓"
+037833EW6,4.850% Notes due 2053 (“2053 Notes”),V1,pass,check digit 6 verified (sum=44)
+037833EW6,4.850% Notes due 2053 (“2053 Notes”),V2,pass,Luhn sum 60 ≡ 0 (mod 10)
+037833EW6,4.850% Notes due 2053 (“2053 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833EW6,4.850% Notes due 2053 (“2053 Notes”),V4,pass,|3.802+108.0/100−4.882| = 0.000000 ≤ 0.005
+037833EW6,4.850% Notes due 2053 (“2053 Notes”),V5,pass,"coupon 4.85% < yield 4.882%, price 99.499 < 100"
+037833EW6,4.850% Notes due 2053 (“2053 Notes”),V6,pass,"trade 2023-05-08 ≤ settlement 2023-05-10 < maturity 2053-05-10, year 2053 ✓"
+037833EY2,4.000% Notes due 2028 (“2028 Notes”),V1,pass,check digit 2 verified (sum=48)
+037833EY2,4.000% Notes due 2028 (“2028 Notes”),V2,pass,Luhn sum 70 ≡ 0 (mod 10)
+037833EY2,4.000% Notes due 2028 (“2028 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833EY2,4.000% Notes due 2028 (“2028 Notes”),V4,pass,|3.82+25.0/100−4.07| = 0.000000 ≤ 0.005
+037833EY2,4.000% Notes due 2028 (“2028 Notes”),V5,pass,"coupon 4.0% < yield 4.07%, price 99.804 < 100"
+037833EY2,4.000% Notes due 2028 (“2028 Notes”),V6,pass,"trade 2025-05-05 ≤ settlement 2025-05-12 < maturity 2028-05-12, year 2028 ✓"
+037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V1,pass,check digit 9 verified (sum=41)
+037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V2,pass,Luhn sum 70 ≡ 0 (mod 10)
+037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V4,pass,|3.938+30.0/100−4.238| = 0.000000 ≤ 0.005
+037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V5,pass,"coupon 4.2% < yield 4.238%, price 99.83 < 100"
+037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V6,pass,"trade 2025-05-05 ≤ settlement 2025-05-12 < maturity 2030-05-12, year 2030 ✓"
+037833FA3,4.500% Notes due 2032 (“2032 Notes”),V1,pass,check digit 3 verified (sum=37)
+037833FA3,4.500% Notes due 2032 (“2032 Notes”),V2,pass,Luhn sum 60 ≡ 0 (mod 10)
+037833FA3,4.500% Notes due 2032 (“2032 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833FA3,4.500% Notes due 2032 (“2032 Notes”),V4,pass,|4.127+40.0/100−4.527| = 0.000000 ≤ 0.005
+037833FA3,4.500% Notes due 2032 (“2032 Notes”),V5,pass,"coupon 4.5% < yield 4.527%, price 99.84 < 100"
+037833FA3,4.500% Notes due 2032 (“2032 Notes”),V6,pass,"trade 2025-05-05 ≤ settlement 2025-05-12 < maturity 2032-05-12, year 2032 ✓"
+037833FB1,4.750% Notes due 2035 (“2035 Notes”),V1,pass,check digit 1 verified (sum=39)
+037833FB1,4.750% Notes due 2035 (“2035 Notes”),V2,pass,Luhn sum 60 ≡ 0 (mod 10)
+037833FB1,4.750% Notes due 2035 (“2035 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833FB1,4.750% Notes due 2035 (“2035 Notes”),V4,pass,|4.334+50.0/100−4.834| = 0.000000 ≤ 0.005
+037833FB1,4.750% Notes due 2035 (“2035 Notes”),V5,pass,"coupon 4.75% < yield 4.834%, price 99.34 < 100"
+037833FB1,4.750% Notes due 2035 (“2035 Notes”),V6,pass,"trade 2025-05-05 ≤ settlement 2025-05-12 < maturity 2035-05-12, year 2035 ✓"
+037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V1,pass,check digit 9 verified (sum=41)
+037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V2,pass,Luhn sum 70 ≡ 0 (mod 10)
+037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V4,not applicable,floating-rate bond
+037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V5,not applicable,floating-rate bond
+037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V6,pass,"trade 2026-11-05 ≤ settlement 2026-11-09 < maturity 2028-11-09, year 2028 ✓"
+037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V1,pass,check digit 5 verified (sum=45)
+037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V2,pass,Luhn sum 60 ≡ 0 (mod 10)
+037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V4,not applicable,floating-rate bond
+037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V5,not applicable,floating-rate bond
+037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V6,pass,"trade 2026-11-05 ≤ settlement 2026-11-09 < maturity 2029-11-09, year 2029 ✓"
+037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V1,pass,check digit 7 verified (sum=43)
+037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V2,pass,Luhn sum 60 ≡ 0 (mod 10)
+037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V4,pass,|4.456+22.0/100−4.676| = 0.000000 ≤ 0.005
+037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V5,pass,"coupon 4.65% < yield 4.676%, price 99.951 < 100"
+037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V6,pass,"trade 2026-11-05 ≤ settlement 2026-11-09 < maturity 2028-11-09, year 2028 ✓"
+037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V1,pass,check digit 2 verified (sum=38)
+037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V2,pass,Luhn sum 70 ≡ 0 (mod 10)
+037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V4,pass,|4.52+27.0/100−4.79| = 0.000000 ≤ 0.005
+037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V5,pass,"coupon 4.75% < yield 4.79%, price 99.889 < 100"
+037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V6,pass,"trade 2026-11-05 ≤ settlement 2026-11-09 < maturity 2029-11-09, year 2029 ✓"
+037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V1,pass,check digit 0 verified (sum=40)
+037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V2,pass,Luhn sum 60 ≡ 0 (mod 10)
+037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V4,pass,|4.589+35.0/100−4.939| = 0.000000 ≤ 0.005
+037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V5,pass,"coupon 4.9% < yield 4.939%, price 99.829 < 100"
+037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V6,pass,"trade 2026-11-05 ≤ settlement 2026-11-09 < maturity 2031-11-09, year 2031 ✓"
+037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V1,pass,check digit 8 verified (sum=42)
+037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V2,pass,Luhn sum 70 ≡ 0 (mod 10)
+037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V4,pass,|4.689+45.0/100−5.139| = 0.000000 ≤ 0.005
+037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V5,pass,"coupon 5.1% < yield 5.139%, price 99.773 < 100"
+037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V6,pass,"trade 2026-11-05 ≤ settlement 2026-11-09 < maturity 2033-11-09, year 2033 ✓"
+037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V1,pass,check digit 4 verified (sum=46)
+037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V2,pass,Luhn sum 70 ≡ 0 (mod 10)
+037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
+037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V4,pass,|4.824+55.0/100−5.374| = 0.000000 ≤ 0.005
+037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V5,pass,"coupon 5.35% < yield 5.374%, price 99.816 < 100"
+037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V6,pass,"trade 2026-11-05 ≤ settlement 2026-11-09 < maturity 2036-11-09, year 2036 ✓"
