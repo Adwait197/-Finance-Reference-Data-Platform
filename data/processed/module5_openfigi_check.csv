@@ -1,0 +1,49 @@
+cusip,bond_name,field,openfigi_value,fwp_value,result,detail
+037833ES5,4.421% Notes due 2026 (“2026 Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833ES5,4.421% Notes due 2026 (“2026 Notes”),coupon_pct,4.421,4.421,match,4.421 = 4.421
+037833ES5,4.421% Notes due 2026 (“2026 Notes”),maturity_date,2026-05-08,2026-05-08,match,2026-05-08
+037833ET3,4.000% Notes due 2028 (“2028 Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833ET3,4.000% Notes due 2028 (“2028 Notes”),coupon_pct,4.0,4.0,match,4.0 = 4.0
+037833ET3,4.000% Notes due 2028 (“2028 Notes”),maturity_date,2028-05-10,2028-05-10,match,2028-05-10
+037833EU0,4.150% Notes due 2030 (“2030 Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833EU0,4.150% Notes due 2030 (“2030 Notes”),coupon_pct,4.15,4.15,match,4.15 = 4.15
+037833EU0,4.150% Notes due 2030 (“2030 Notes”),maturity_date,2030-05-10,2030-05-10,match,2030-05-10
+037833EV8,4.300% Notes due 2033 (“2033 Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833EV8,4.300% Notes due 2033 (“2033 Notes”),coupon_pct,4.3,4.3,match,4.3 = 4.3
+037833EV8,4.300% Notes due 2033 (“2033 Notes”),maturity_date,2033-05-10,2033-05-10,match,2033-05-10
+037833EW6,4.850% Notes due 2053 (“2053 Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833EW6,4.850% Notes due 2053 (“2053 Notes”),coupon_pct,4.85,4.85,match,4.85 = 4.85
+037833EW6,4.850% Notes due 2053 (“2053 Notes”),maturity_date,2053-05-10,2053-05-10,match,2053-05-10
+037833EY2,4.000% Notes due 2028 (“2028 Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833EY2,4.000% Notes due 2028 (“2028 Notes”),coupon_pct,4.0,4.0,match,4.0 = 4.0
+037833EY2,4.000% Notes due 2028 (“2028 Notes”),maturity_date,2028-05-12,2028-05-12,match,2028-05-12
+037833EZ9,4.200% Notes due 2030 (“2030 Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833EZ9,4.200% Notes due 2030 (“2030 Notes”),coupon_pct,4.2,4.2,match,4.2 = 4.2
+037833EZ9,4.200% Notes due 2030 (“2030 Notes”),maturity_date,2030-05-12,2030-05-12,match,2030-05-12
+037833FA3,4.500% Notes due 2032 (“2032 Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833FA3,4.500% Notes due 2032 (“2032 Notes”),coupon_pct,4.5,4.5,match,4.5 = 4.5
+037833FA3,4.500% Notes due 2032 (“2032 Notes”),maturity_date,2032-05-12,2032-05-12,match,2032-05-12
+037833FB1,4.750% Notes due 2035 (“2035 Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833FB1,4.750% Notes due 2035 (“2035 Notes”),coupon_pct,4.75,4.75,match,4.75 = 4.75
+037833FB1,4.750% Notes due 2035 (“2035 Notes”),maturity_date,2035-05-12,2035-05-12,match,2035-05-12
+037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),coupon_pct,Float,not_applicable,not_applicable,floating-rate bond; coupon not applicable
+037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),maturity_date,2028-11-09,2028-11-09,match,2028-11-09
+037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),coupon_pct,Float,not_applicable,not_applicable,floating-rate bond; coupon not applicable
+037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),maturity_date,2029-11-09,2029-11-09,match,2029-11-09
+037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),coupon_pct,4.65,4.65,match,4.65 = 4.65
+037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),maturity_date,2028-11-09,2028-11-09,match,2028-11-09
+037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),coupon_pct,4.75,4.75,match,4.75 = 4.75
+037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),maturity_date,2029-11-09,2029-11-09,match,2029-11-09
+037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),coupon_pct,4.9,4.9,match,4.9 = 4.9
+037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),maturity_date,2031-11-09,2031-11-09,match,2031-11-09
+037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),coupon_pct,5.1,5.1,match,5.1 = 5.1
+037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),maturity_date,2033-11-09,2033-11-09,match,2033-11-09
+037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),issuer,APPLE INC,APPLE INC,match,APPLE INC
+037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),coupon_pct,5.35,5.35,match,5.35 = 5.35
+037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),maturity_date,2036-11-09,2036-11-09,match,2036-11-09
