@@ -1,0 +1,1165 @@
+#!/usr/bin/env python3
+"""
+Module 5 — multi-company FWP term-sheet extractor (build set).
+Companies: Apple (from CSV), Eli Lilly, Microsoft, Alphabet, Johnson & Johnson.
+Output: data/processed/module5_build_tranches.csv  (one row per bond).
+
+Strategies:
+  Apple       — load existing module5_apple_tranches.csv
+  Eli Lilly   — block_u (<u> headings) + preamble prepend
+  Microsoft   — flat_labeled (all bonds listed with "YYYY Notes: VALUE" rows)
+  Alphabet    — block_b (<b> headings) for Nov 2025 USD; flat_labeled for rest
+  J&J         — flat_positional (bonds listed by position/column order)
+"""
+import html as _html
+import re
+from pathlib import Path
+import pandas as pd
+
+DOCS_CSV  = Path(__file__).parent.parent / "data" / "processed" / "module5_documents.csv"
+APPLE_CSV = Path(__file__).parent.parent / "data" / "processed" / "module5_apple_tranches.csv"
+OUT_CSV   = Path(__file__).parent.parent / "data" / "processed" / "module5_build_tranches.csv"
+RAW_DIR   = Path(__file__).parent.parent / "data" / "raw" / "prospectus"
+
+OUTPUT_COLUMNS = [
+    "issuer", "bond_name", "currency", "principal_amount",
+    "rate_type", "coupon_pct",
+    "floating_benchmark", "floating_spread_pct",
+    "maturity_date", "price_to_public_pct",
+    "benchmark_treasury_yield_pct", "spread_to_treasury_bps", "yield_pct",
+    "trade_date", "settlement_date", "day_count",
+    "rating_moodys", "rating_sp",
+    "cusip", "isin",
+    "missing_fields",
+]
+
+# ─── Terminal lookahead ───────────────────────────────────────────────────────
+_TERM = (
+    r"(?=\s*(?:"
+    r"Issuer:|Principal Amount(?: Offered)?:|Aggregate Principal Amount:|"
+    r"Maturity(?:\s+Date)?:|"
+    r"(?:Public Offering )?Price(?:\s+to(?:\s+the)?\s+Public)?[^:]{0,30}:|"
+    r"Benchmark(?:\s+Treasury|\s+Gilt|\s+Bund|\s+Bond|\s+Bond\s+Price)[^:]{0,40}:|"
+    r"Spread to(?:\s+Benchmark)?\s+(?:Treasury|Gilt|GoC|Mid-Swap|Bund)|"
+    r"Re-Offer Spread:|"
+    r"Yield(?:\s+to\s+Maturity)?(?:\s*\([^)]*\))?:|"
+    r"Coupon(?: \(Interest Rate\))?:|"
+    r"Trade Date:|Settlement Date:|Denominations?:|"
+    r"(?:Expected )?Ratings?(?:\s*\*{0,2})?:|"
+    r"Net Proceeds:|CUSIP|Underwriting|"
+    r"Day Count Convention:|Calculation Agent:|"
+    r"Par (?:call|Call):|Sinking|"
+    r"Title(?:\s+of\s+Securities)?:|Security:|Security Type:|"
+    r"Listing:|Ranking:|Optional Redemption:|Interest Payment[^:\n]{0,20}:|"
+    r"\Z"
+    r"))"
+)
+
+# ─── Regex patterns ───────────────────────────────────────────────────────────
+# CUSIP: handles optional bond-label prefix "2028 Notes: "
+_CUSIP_RE = re.compile(
+    r"CUSIP(?:\s*/\s*(?:Common\s+Code|ISIN))*(?:\s+No(?:mber)?\.?)?[\s:/#]+"
+    r"(?:[0-9A-Z][^:]{1,40}:\s*)?"
+    r"([0-9A-Z]{5,6}\s?[0-9A-Z]{2}\s?[0-9A-Z])\b",
+    re.IGNORECASE,
+)
+
+_ISIN_RE = re.compile(r"\b([A-Z]{2}[0-9A-Z]{10})\b")
+
+_APPLE_HDG  = re.compile(
+    r"\d+\.\d+%\s+Notes?\s+due\s+\d{4}|Floating\s+Rate\s+Notes?\s+due\s+\d{4}", re.I)
+_LILLY_HDG  = re.compile(r"The\s+\d{4}\s+(?:Floating\s+Rate\s+)?Notes?", re.I)
+_ALPHA_B_HDG = re.compile(
+    r"\d+\.\d+%\s+Notes?\s+due\s+\d{4}|Floating\s+Rate\s+Notes?\s+due\s+\d{4}", re.I)
+
+
+# ─── HTML helpers ─────────────────────────────────────────────────────────────
+def _unn(t):
+    t = _html.unescape(t)
+    return re.sub(r"[\xa0\u2009\u2002\u2003\u200b\u00ad]", " ", t)
+
+def html_to_flat(raw):
+    t = re.sub(r"<[^>]+>", " ", raw)
+    t = _unn(t)
+    return re.sub(r"\s+", " ", t).strip()
+
+def load_html(issuer, accession):
+    p = RAW_DIR / issuer / f"{accession}.htm"
+    if not p.exists():
+        return ""
+    raw = p.read_bytes()[:800_000]
+    # Windows-1252 files use 0x93/0x94 for curly quotes; detect and decode correctly
+    if b"\x93" in raw or b"\x94" in raw:
+        return raw.decode("cp1252", errors="replace")
+    return raw.decode("utf-8", errors="replace")
+
+
+# ─── Rating parser (handles forward/reversed/mixed formats) ───────────────────
+def parse_ratings(raw):
+    if not raw:
+        return None, None
+    t = raw
+
+    # Format 1: "Moody's: Aaa ..." or "S&P: AA+ ..."
+    mm = re.search(r"Moody'?s:?\s*(Aa?a|Aa[123]|A[123]|Baa[123]|Ba[123]|B[123]|Caa[123]|Ca|C)\b", t, re.I)
+    ms = re.search(r"S&?P:?\s*(AAA|AA[+\-]?|A[+\-]?|BBB[+\-]?|BB[+\-]?|B[+\-]?|CCC[+\-]?)\b", t, re.I)
+    if mm and ms:
+        return mm.group(1), ms.group(1)
+
+    # Format 2: reversed "Aaa (stable) Moody's" or "Aaa (stable) (Moody's)"
+    mm2 = re.search(
+        r"(Aa?a|Aa[123]|A[123]|Baa[123]|Ba[123]|B[123]|Caa[123])"
+        r"[^\n/]{0,40}?(?:Moody'?s|\(Moody)", t, re.I)
+    ms2 = re.search(
+        r"(AAA|AA[+\-]?|A[+\-]?|BBB[+\-]?|BB[+\-]?|B[+\-]?)"
+        r"[^\n/]{0,40}?(?:S&?P|Standard|\(S&)", t, re.I)
+    if mm2 or ms2:
+        return (mm2.group(1) if mm2 else None), (ms2.group(1) if ms2 else None)
+
+    # Format 3: Apple "Aaa\n(stable)" — distinguish by notation
+    mm3 = re.search(r"(Aa?a|Aa[123]|A[123]|Baa[123])\s*\([^)]+\)", t)
+    ms3 = re.search(r"(AAA|AA[+\-]?|A[+\-]?|BBB[+\-]?|BB[+\-]?)\s*\([^)]+\)", t)
+    return (mm3.group(1) if mm3 else None), (ms3.group(1) if ms3 else None)
+
+
+# ─── ISIN extractor ───────────────────────────────────────────────────────────
+def find_isin(text):
+    """Find ISIN (US/XS/GB/CA prefix, 12 chars) from CUSIP/ISIN line or standalone."""
+    # Prefer ISIN found after a CUSIP/ISIN label
+    m = re.search(
+        r"(?:CUSIP(?:\s*/\s*(?:Common\s+Code|ISIN))+\s*:\s*|ISIN\s*:\s*|/\s*)"
+        r"(?:[0-9A-Z][^/\n]{0,20}/\s*){0,2}"
+        r"([A-Z]{2}[0-9A-Z]{10})\b",
+        text, re.I,
+    )
+    if m:
+        return m.group(1)
+    # Fallback: standalone ISIN code
+    m2 = re.search(r"\b(US[0-9A-Z]{10}|XS[0-9A-Z]{10}|GB[0-9A-Z]{10}|CA[0-9A-Z]{10})\b", text)
+    return m2.group(1) if m2 else None
+
+
+# ─── Labeled value finder (flat_labeled documents) ───────────────────────────
+def find_field_section(doc_flat, field_re):
+    """Return the text of a labeled field's value section (first occurrence)."""
+    m = re.search(rf"(?i)(?:{field_re}):?\s*(.*?){_TERM}", doc_flat, re.DOTALL)
+    v = m.group(1) if m else None
+    return v.strip() if v is not None else None
+
+def find_all_field_sections(doc_flat, field_re):
+    """Return combined text of ALL occurrences of a labeled field's value section.
+    Needed when a document has separate tables for each bond group (e.g. Microsoft)."""
+    parts = [m.group(1).strip()
+             for m in re.finditer(rf"(?i)(?:{field_re}):?\s*(.*?){_TERM}", doc_flat, re.DOTALL)
+             if m.group(1).strip()]
+    return " ".join(parts) if parts else None
+
+def find_labeled_value(section, bond_label):
+    """Within a field section, find the value for bond_label."""
+    if not section or not bond_label:
+        return None
+    term = r"(?=\s+\d{4}\s+[A-Z][^:\n]{0,35}:|\s*$|\Z)"
+    lm = re.search(
+        rf"(?i){re.escape(bond_label)}\s*:\s*(.*?){term}",
+        section, re.DOTALL,
+    )
+    return lm.group(1).strip() if lm else None
+
+def find_cusip_labeled(doc_flat, bond_label):
+    """Find CUSIP for bond_label in a labeled CUSIP block."""
+    # Find ALL CUSIP sections (some docs split by bond group)
+    sec = find_all_field_sections(doc_flat, r"CUSIP(?:\s*/\s*(?:Common\s+Code|ISIN))*")
+    if not sec:
+        return None
+    term = r"(?=\s+\d{4}\s+(?:Notes?|Floating)|\Z)"
+    lm = re.search(
+        rf"(?i){re.escape(bond_label)}\s*:\s*(.*?){term}",
+        sec, re.DOTALL,
+    )
+    if not lm:
+        return None
+    piece = lm.group(1).strip()
+    cm = re.search(r"([0-9A-Z]{5,6}\s?[0-9A-Z]{2}\s?[0-9A-Z])\b", piece)
+    return cm.group(1) if cm else None
+
+def find_isin_labeled(doc_flat, bond_label):
+    """Find ISIN for bond_label in a labeled CUSIP/ISIN block."""
+    sec = find_all_field_sections(doc_flat, r"CUSIP(?:\s*/\s*(?:Common\s+Code|ISIN))*")
+    if not sec:
+        return None
+    term = r"(?=\s+\d{4}\s+(?:Notes?|Floating)|\Z)"
+    lm = re.search(
+        rf"(?i){re.escape(bond_label)}\s*:\s*(.*?){term}",
+        sec, re.DOTALL,
+    )
+    if not lm:
+        return None
+    piece = lm.group(1).strip()
+    return find_isin(piece)
+
+def detect_currency(text):
+    if re.search(r"C\$|C \$|\bCAD\b", text):
+        return "CAD"
+    if re.search(r"£|\bGBP\b", text):
+        return "GBP"
+    if re.search(r"€|\bEUR\b", text):
+        return "EUR"
+    return "USD"
+
+
+# ─── Block splitter ───────────────────────────────────────────────────────────
+def split_blocks(html, heading_re, tag="u"):
+    """Split HTML on <tag> headings matching heading_re.
+    Returns (preamble_html, [{heading, block_html}])."""
+    pat = re.compile(rf"<{tag}[^>]*>(.*?)</{tag}>", re.DOTALL | re.I)
+    sections = []
+    for m in pat.finditer(html):
+        inner = html_to_flat(m.group(1))
+        inner = re.sub(r"\s+", " ", inner).strip()
+        if heading_re.search(inner):
+            sections.append({"start": m.start(), "end": m.end(), "heading": inner})
+    if not sections:
+        return html, []
+    preamble = html[:sections[0]["start"]]
+    blocks = []
+    for i, sec in enumerate(sections):
+        nxt = sections[i + 1]["start"] if i + 1 < len(sections) else len(html)
+        blocks.append({"heading": sec["heading"],
+                       "block_html": html[sec["end"]:nxt]})
+    return preamble, blocks
+
+
+# ─── Block-level field extractor (Apple / Eli Lilly / Alphabet Nov2025) ───────
+def extract_fields_block(text, heading, doc_flat=None, bond_label=None):
+    """
+    Extract all OUTPUT_COLUMNS fields from one bond's flat text block.
+    text:       preamble + block flat text
+    heading:    bond heading string
+    doc_flat:   full doc flat (for labeled CUSIP fallback, Alphabet Nov 2025)
+    bond_label: short label "2028 Notes" (for labeled CUSIP fallback)
+    """
+    fields = {}
+    missing = []
+
+    def find_raw(label_re, src=None):
+        t = src if src is not None else text
+        m = re.search(rf"(?i)(?:{label_re}):?\s*(.*?){_TERM}", t, re.DOTALL)
+        v = m.group(1) if m else None
+        return v.strip() if v is not None else None
+
+    def req(k, v):
+        fields[k] = v if v else ""
+        if not v:
+            missing.append(k)
+
+    def opt(k, v):
+        fields[k] = v if v else ""
+
+    # ── Bond name & rate type ─────────────────────────────────────────────────
+    is_float = bool(re.search(r"[Ff]loating\s+[Rr]ate", heading))
+    cpn_in_hdg = re.search(r"(\d+\.\d+)%", heading)
+
+    if cpn_in_hdg and not is_float:
+        fields["rate_type"]  = "Fixed"
+        fields["coupon_pct"] = cpn_in_hdg.group(1)
+        # Strip parenthetical "(the ...)" from Alphabet headings
+        fields["bond_name"]  = re.sub(r"\s*\(the\s+[^)]+\)", "", heading).strip()
+    elif is_float:
+        fields["rate_type"]  = "Floating"
+        fields["coupon_pct"] = ""
+        fields["bond_name"]  = re.sub(r"\s*\(the\s+[^)]+\)", "", heading).strip()
+    else:
+        # Eli Lilly: "The 2027 Notes" — get coupon from Coupon: field
+        cf = find_raw(r"Coupon(?: \(Interest Rate\))?")
+        cm = re.search(r"(\d+\.\d+)\s*%", cf or "")
+        yr = re.search(r"\b(\d{4})\b", heading)
+        if cm and yr:
+            fields["rate_type"]  = "Fixed"
+            fields["coupon_pct"] = cm.group(1)
+            fields["bond_name"]  = f"{cm.group(1)}% Notes due {yr.group(1)}"
+        else:
+            fields["rate_type"]  = "Fixed"
+            fields["coupon_pct"] = ""
+            fields["bond_name"]  = heading
+            missing.append("coupon_pct")
+
+    # ── Issuer ────────────────────────────────────────────────────────────────
+    # Require colon: EDGAR file headers contain bare "Issuer" without colon
+    req("issuer", find_raw(r"Issuer(?=\s*:)"))
+
+    # ── Principal ─────────────────────────────────────────────────────────────
+    pa = (find_raw(r"Principal Amount Offered")
+          or find_raw(r"Principal Amount")
+          or find_raw(r"Aggregate Principal Amount"))
+    req("principal_amount", pa)
+    opt("currency", detect_currency(pa or "") if pa else "")
+
+    # ── Maturity ──────────────────────────────────────────────────────────────
+    mr = find_raw(r"Maturity(?:\s+Date)?")
+    mm = re.search(r"([A-Z][a-z]+ \d+, \d{4})", mr or "")
+    req("maturity_date", mm.group(1) if mm else None)
+
+    # ── Price to Public ───────────────────────────────────────────────────────
+    pr = (find_raw(r"Price to(?:\s+the)?\s+Public[^:]{0,20}")
+          or find_raw(r"Public Offering Price"))
+    if pr:
+        pm = re.search(r"(\d+\.\d+)", pr)
+        pv = pm.group(1) if pm else None
+    else:
+        m2 = re.search(
+            r"(?:Price to(?:\s+the)?\s+Public|Public Offering Price)[^0-9]*(\d+\.\d+)\s*%",
+            text, re.I)
+        pv = m2.group(1) if m2 else None
+    req("price_to_public_pct", pv)
+
+    # ── Dates ─────────────────────────────────────────────────────────────────
+    tr = find_raw(r"Trade Date")
+    tm = re.search(r"([A-Z][a-z]+ \d+, \d{4})", tr or "")
+    req("trade_date", tm.group(1) if tm else None)
+
+    sr = find_raw(r"Settlement Date[^:]{0,30}")
+    sm = re.search(r"([A-Z][a-z]+ \d+, \d{4})", sr or "")
+    req("settlement_date", sm.group(1) if sm else None)
+
+    # ── Day count ─────────────────────────────────────────────────────────────
+    dcr = find_raw(r"Day Count Convention")
+    if dcr:
+        dcm = re.search(
+            r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT\s*/\s*ACT(?:\s*\(ICMA\))?)",
+            dcr, re.I)
+        opt("day_count", dcm.group(1) if dcm else dcr.split()[0])
+    else:
+        opt("day_count", None)
+
+    # ── Ratings ───────────────────────────────────────────────────────────────
+    rr = find_raw(r"(?:Expected )?Ratings?(?:\*{0,2})?")
+    if rr:
+        mdy, sp = parse_ratings(rr)
+        opt("rating_moodys", mdy)
+        opt("rating_sp", sp)
+    else:
+        opt("rating_moodys", None)
+        opt("rating_sp", None)
+
+    # ── CUSIP & ISIN ──────────────────────────────────────────────────────────
+    cc = _CUSIP_RE.search(text)
+    if cc:
+        raw_c = cc.group(1)
+    elif doc_flat and bond_label:
+        raw_c = find_cusip_labeled(doc_flat, bond_label)
+    else:
+        raw_c = None
+    req("cusip", raw_c.replace(" ", "") if raw_c else None)
+
+    iv = find_isin(text)
+    if not iv and doc_flat and bond_label:
+        iv = find_isin_labeled(doc_flat, bond_label)
+    req("isin", iv)
+
+    # ── Rate-specific ─────────────────────────────────────────────────────────
+    if fields["rate_type"] == "Fixed":
+        # Benchmark yield
+        byr = find_raw(r"Benchmark(?:\s+Treasury)?\s+Yield")
+        if not byr:
+            # Eli Lilly format: "Benchmark Treasury Price and Yield: 99-12 3⁄4 / 4.219%"
+            bdr_pay = find_raw(r"Benchmark(?:\s+Treasury|\s+Gilt|\s+Bund|\s+Bond)\s+Price\s+and\s+Yield")
+            if bdr_pay:
+                b3 = re.search(r"/\s*(\d+\.\d+)\s*%", bdr_pay)
+                if b3:
+                    byv = b3.group(1)
+                else:
+                    all_pcts = re.findall(r"(\d+\.\d+)%", bdr_pay)
+                    byv = all_pcts[-1] if all_pcts else None
+            else:
+                bdr = find_raw(r"Benchmark(?:\s+Treasury|\s+Gilt|\s+Bund|\s+Bond)(?:\s+Price\s+and\s+Yield)?")
+                if bdr:
+                    b1 = re.search(r"\(yield to maturity:\s*(\d+\.\d+)\s*%\)", bdr, re.I)
+                    b2 = re.search(r"[\d.]+%\s*/\s*(\d+\.\d+)%", bdr)
+                    byv = (b1 or b2).group(1) if (b1 or b2) else None
+                else:
+                    byv = None
+        else:
+            bm = re.search(r"(\d+\.\d+)", byr)
+            byv = bm.group(1) if bm else None
+        opt("benchmark_treasury_yield_pct", byv)
+        if not byv:
+            missing.append("benchmark_treasury_yield_pct")
+
+        # Spread
+        spr = find_raw(
+            r"Spread to(?:\s+Benchmark)?\s+(?:Treasury|Gilt|GoC|Mid.Swap|Bund)"
+            r"|Re-Offer Spread")
+        if spr:
+            sm2 = re.search(r"\+?\s*(\d+(?:\.\d+)?)\s*(?:bps?|basis\s+points?)", spr, re.I)
+            spv = sm2.group(1) if sm2 else None
+        else:
+            sm3 = re.search(r"[Tt]\+(\d+)\s*(?:bps?|basis\s+points?)", text, re.I)
+            spv = sm3.group(1) if sm3 else None
+        opt("spread_to_treasury_bps", spv)
+        if not spv:
+            missing.append("spread_to_treasury_bps")
+
+        # Yield
+        yh = list(re.finditer(r"(?:Yield to Maturity|Yield):\s*(\d+\.\d+)\s*%", text, re.I))
+        yv = yh[-1].group(1) if yh else None
+        if not yv:
+            ym2 = re.search(r"Yield to Maturity[^:]*:\s*(\d+\.\d+)%", text, re.I)
+            yv = ym2.group(1) if ym2 else None
+        opt("yield_pct", yv)
+        if not yv:
+            missing.append("yield_pct")
+
+        opt("floating_benchmark",  "")
+        opt("floating_spread_pct", "")
+
+    else:  # Floating
+        fb = re.search(
+            r"will\s+be\s+(Compounded\s+SOFR|(?:Term\s+)?SOFR|EURIBOR|CORRA|SONIA)",
+            text, re.I | re.DOTALL)
+        if not fb:
+            fb2 = re.search(r"\b(SOFR|EURIBOR|CORRA|SONIA)\b", text, re.I)
+            fbv = fb2.group(1).upper() if fb2 else None
+        else:
+            fbv = fb.group(1)
+        opt("floating_benchmark", fbv)
+        if not fbv:
+            missing.append("floating_benchmark")
+
+        # Spread: "plus X%" or "plus X basis points" or "plus XX bps"
+        fs = re.search(r"plus\s+(\d+(?:\.\d+)?)\s*%", text, re.I)
+        if fs:
+            opt("floating_spread_pct", fs.group(1))
+        else:
+            fs2 = re.search(r"plus\s+(\d+(?:\.\d+)?)\s*(?:basis\s+points?|bps?)", text, re.I)
+            if fs2:
+                opt("floating_spread_pct", f"{float(fs2.group(1))/100:.3f}")
+            else:
+                opt("floating_spread_pct", None)
+                missing.append("floating_spread_pct")
+
+        opt("benchmark_treasury_yield_pct", "")
+        opt("spread_to_treasury_bps",       "")
+        opt("yield_pct",                    "")
+
+    return fields, missing
+
+
+# ─── Flat-labeled bond labels extractor ──────────────────────────────────────
+def get_bond_labels(doc_flat):
+    """Extract (full_name, short_label) pairs from Title / Title of Securities."""
+    pairs = []
+    # Curly quotes (U+201C/U+201D), straight quote, and U+FFFD (cp1252 replacement)
+    _Q = r'[\u201c\u201d\"\ufffd]'
+    for m in re.finditer(
+        r"([1-9]\d*\.?\d*%\s+(?:[^(]|\((?!the\s)){0,50}Notes?\s+due\s+\d{4}"
+        r"|Floating\s+Rate\s+Notes?\s+due\s+\d{4})"
+        r"\s*\(the\s+" + _Q + r"([^\u201c\u201d\"\ufffd\n]+)" + _Q,
+        doc_flat, re.I
+    ):
+        full  = re.sub(r"\s+", " ", m.group(1)).strip()
+        label = m.group(2).strip()
+        pairs.append((full, label))
+    return pairs
+
+
+# ─── Flat-labeled full extractor (Microsoft, Alphabet flat) ──────────────────
+def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None):
+    """
+    Extract all bonds from a flat multi-bond document.
+    Returns list of field dicts.
+    """
+    bond_pairs = get_bond_labels(doc_flat)
+    if not bond_pairs:
+        return []
+
+    # Shared top-level fields
+    def top(label_re):
+        m = re.search(rf"(?i){label_re}:?\s*(.*?){_TERM}", doc_flat, re.DOTALL)
+        return m.group(1).strip() if m else None
+
+    trade_raw  = top(r"Trade Date")
+    trade_date = re.search(r"([A-Z][a-z]+ \d+, \d{4})", trade_raw or "")
+    trade_date = trade_date.group(1) if trade_date else ""
+
+    sett_raw   = top(r"Settlement Date[^:]{0,30}")
+    sett_date  = re.search(r"([A-Z][a-z]+ \d+, \d{4})", sett_raw or "")
+    sett_date  = sett_date.group(1) if sett_date else ""
+
+    ratings_raw = top(r"(?:Expected )?Ratings?(?:\*{0,2})?")
+    mdy, sp = parse_ratings(ratings_raw)
+
+    dc_raw = top(r"Day Count Convention")
+    if dc_raw:
+        dcm = re.search(
+            r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT\s*/\s*ACT(?:\s*\(ICMA\))?)",
+            dc_raw, re.I)
+        day_count = dcm.group(1) if dcm else dc_raw.split()[0]
+    else:
+        day_count = ""
+
+    rows = []
+    for full_name, label in bond_pairs:
+        fields = {}
+        missing = []
+
+        def fv(field_re, lbl=label):
+            sec = find_all_field_sections(doc_flat, field_re)
+            return find_labeled_value(sec, lbl)
+
+        # Rate type & coupon from full name
+        is_float = bool(re.search(r"[Ff]loating", full_name))
+        cm_hdg = re.search(r"(\d+\.\d+)%", full_name)
+        fields["issuer"]    = shared_issuer
+        fields["bond_name"] = full_name
+        fields["rate_type"] = "Floating" if is_float else "Fixed"
+        fields["coupon_pct"]= "" if is_float else (cm_hdg.group(1) if cm_hdg else "")
+        if not is_float and not fields["coupon_pct"]:
+            missing.append("coupon_pct")
+
+        # Principal & currency (search all occurrences — docs may split by bond group)
+        pa_sec  = find_all_field_sections(doc_flat, r"Aggregate Principal Amount")
+        pa_val  = find_labeled_value(pa_sec, label)
+        # Truncate to just the currency amount (strip redemption/make-whole text)
+        if pa_val:
+            am = re.match(r'((?:C\s?)?[$\u20ac\xa3]\s*[\d,]+(?:\.\d+)?)', pa_val)
+            if am:
+                pa_val = am.group(1)
+        fields["principal_amount"] = pa_val or ""
+        if not pa_val:
+            missing.append("principal_amount")
+        fields["currency"] = detect_currency(pa_val or doc_flat[:500])
+
+        # Maturity
+        mat_sec = find_all_field_sections(doc_flat, r"Maturity(?:\s+Date)?")
+        mat_val = find_labeled_value(mat_sec, label)
+        if mat_val:
+            md = re.search(r"([A-Z][a-z]+ \d+, \d{4})", mat_val)
+            fields["maturity_date"] = md.group(1) if md else mat_val.split()[0]
+        else:
+            fields["maturity_date"] = ""
+            missing.append("maturity_date")
+
+        # Price
+        pr_sec = (find_all_field_sections(doc_flat, r"Public Offering Price")
+                  or find_all_field_sections(doc_flat, r"Price to(?:\s+the)?\s+Public[^:]{0,20}"))
+        pr_val = find_labeled_value(pr_sec, label)
+        if pr_val:
+            pm = re.search(r"(\d+\.\d+)", pr_val)
+            fields["price_to_public_pct"] = pm.group(1) if pm else ""
+        else:
+            fields["price_to_public_pct"] = ""
+            missing.append("price_to_public_pct")
+
+        # Shared fields
+        fields["trade_date"]      = trade_date
+        fields["settlement_date"] = sett_date
+        fields["day_count"]       = day_count
+        fields["rating_moodys"]   = mdy or ""
+        fields["rating_sp"]       = sp  or ""
+
+        # CUSIP & ISIN
+        raw_c = find_cusip_labeled(doc_flat, label)
+        fields["cusip"] = raw_c.replace(" ", "") if raw_c else ""
+        if not raw_c:
+            missing.append("cusip")
+        fields["isin"] = find_isin_labeled(doc_flat, label) or ""
+        if not fields["isin"]:
+            missing.append("isin")
+
+        # Rate-specific
+        if is_float:
+            cf_sec = find_all_field_sections(doc_flat, r"Coupon(?: \(Interest Rate\))?")
+            cf_val = find_labeled_value(cf_sec, label) or ""
+            fb = re.search(r"\b(SOFR|EURIBOR|CORRA|SONIA)\b", cf_val, re.I)
+            fields["floating_benchmark"]  = fb.group(1).upper() if fb else ""
+            sp_m = re.search(r"plus\s+(\d+(?:\.\d+)?)\s*%", cf_val, re.I)
+            sp_m3 = re.search(r"plus\s+\d+(?:\.\d+)?\s+basis\s+points?\s*\((\d+\.\d+)[)%]{1,2}", cf_val, re.I)
+            if sp_m:
+                fields["floating_spread_pct"] = sp_m.group(1)
+            elif sp_m3:
+                fields["floating_spread_pct"] = sp_m3.group(1)
+            else:
+                sp_m2 = re.search(r"(\d+(?:\.\d+)?)\s*%\s*per\s*ann", cf_val, re.I)
+                fields["floating_spread_pct"] = sp_m2.group(1) if sp_m2 else ""
+            if not fields["floating_benchmark"]:
+                missing.append("floating_benchmark")
+            if not fields["floating_spread_pct"]:
+                missing.append("floating_spread_pct")
+            fields["benchmark_treasury_yield_pct"] = ""
+            fields["spread_to_treasury_bps"]       = ""
+            fields["yield_pct"]                    = ""
+        else:
+            # Yield
+            ys = find_all_field_sections(doc_flat, r"Yield to Maturity(?:\s*\([^)]*\))?")
+            yv = find_labeled_value(ys, label)
+            if yv:
+                ym = re.search(r"(\d+\.\d+)", yv)
+                fields["yield_pct"] = ym.group(1) if ym else ""
+            else:
+                fields["yield_pct"] = ""
+                missing.append("yield_pct")
+
+            # Spread
+            sps = (find_all_field_sections(doc_flat, r"Spread to(?:\s+Benchmark)?\s+(?:Treasury|Gilt|Bund|GoC|Mid.Swap)")
+                   or find_all_field_sections(doc_flat, r"Re-Offer Spread"))
+            spv = find_labeled_value(sps, label)
+            if spv:
+                sm = re.search(r"\+?\s*(\d+(?:\.\d+)?)\s*(?:bps?|basis\s+points?)", spv, re.I)
+                fields["spread_to_treasury_bps"] = sm.group(1) if sm else ""
+            else:
+                fields["spread_to_treasury_bps"] = ""
+                missing.append("spread_to_treasury_bps")
+
+            # Benchmark yield
+            bps = find_all_field_sections(doc_flat,
+                r"Benchmark(?:\s+Treasury|\s+Gilt|\s+Bund|\s+Bond)(?:\s+Price\s+and\s+Yield)?")
+            bpv = find_labeled_value(bps, label)
+            if bpv:
+                # "XX.XXX% / Y.YYY%" → take second number
+                b2 = re.search(r"[\d.]+%\s*/\s*(\d+\.\d+)%", bpv)
+                b1 = re.search(r"\(yield to maturity:\s*(\d+\.\d+)\s*%\)", bpv, re.I)
+                fields["benchmark_treasury_yield_pct"] = (b2 or b1).group(1) if (b2 or b1) else ""
+            else:
+                fields["benchmark_treasury_yield_pct"] = ""
+                missing.append("benchmark_treasury_yield_pct")
+
+            fields["floating_benchmark"]  = ""
+            fields["floating_spread_pct"] = ""
+
+        fields["missing_fields"] = ", ".join(missing)
+        rows.append(fields)
+
+    return rows
+
+
+# ─── J&J flat-positional extractor ───────────────────────────────────────────
+def extract_jj(raw_html, issuer_name="Johnson & Johnson"):
+    """
+    J&J: bonds listed by position in "Security:" field, all other fields
+    have N values in the same order.
+    """
+    flat = html_to_flat(raw_html)
+    rows = []
+
+    # 1. Bond names from "Security:" section
+    sec_m = re.search(r"(?i)Security:\s*(.*?){_TERM}".replace("{_TERM}", _TERM), flat, re.DOTALL)
+    if not sec_m:
+        return []
+    sec_txt = sec_m.group(1).strip()
+    bond_names = re.findall(r"\d+\.\d+%\s+Notes\s+due\s+\d{4}", sec_txt, re.I)
+    n = len(bond_names)
+    if n == 0:
+        return []
+
+    def nth_value(section_text, idx):
+        """Return the idx-th EUR-amount or pct or date value from a positional section."""
+        if not section_text:
+            return None
+        # Try splitting by "€" prefix
+        vals = re.findall(r"€[\d,]+(?:,\d{3})*(?:\.\d+)?", section_text)
+        if vals and len(vals) >= n:
+            return vals[idx]
+        return None
+
+    def nth_pct(section_text, idx):
+        if not section_text:
+            return None
+        vals = re.findall(r"\d+\.\d+%", section_text)
+        # filter out very small pcts (discount/spread) if many
+        large = [v for v in vals if float(v.rstrip("%")) > 1.0]
+        if len(large) >= n:
+            return large[idx]
+        if len(vals) >= n:
+            return vals[idx]
+        return None
+
+    def nth_date(section_text, idx):
+        if not section_text:
+            return None
+        vals = re.findall(r"[A-Z][a-z]+ \d+, \d{4}", section_text)
+        if len(vals) >= n:
+            return vals[idx]
+        return None
+
+    # Shared fields
+    trade_raw = re.search(r"(?i)Trade Date:?\s*(.*?){_TERM}".replace("{_TERM}", _TERM), flat, re.DOTALL)
+    trade_raw = trade_raw.group(1).strip() if trade_raw else ""
+    trade_date_m = re.search(r"([A-Z][a-z]+ \d+, \d{4})", trade_raw)
+    trade_date = trade_date_m.group(1) if trade_date_m else ""
+
+    sett_raw = re.search(r"(?i)Settlement Date[^:]{0,30}:?\s*(.*?){_TERM}".replace("{_TERM}", _TERM), flat, re.DOTALL)
+    sett_raw = sett_raw.group(1).strip() if sett_raw else ""
+    sett_date_m = re.search(r"([A-Z][a-z]+ \d+, \d{4})", sett_raw)
+    sett_date = sett_date_m.group(1) if sett_date_m else ""
+
+    rat_raw = re.search(r"(?i)(?:Expected )?Ratings?:?\s*(.*?){_TERM}".replace("{_TERM}", _TERM), flat, re.DOTALL)
+    rat_raw = rat_raw.group(1).strip() if rat_raw else ""
+    mdy, sp = parse_ratings(rat_raw)
+
+    dc_raw = re.search(r"(?i)Day Count[^:]*:?\s*(.*?){_TERM}".replace("{_TERM}", _TERM), flat, re.DOTALL)
+    dc_raw = dc_raw.group(1).strip() if dc_raw else ""
+    dc_m = re.search(r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT\s*/\s*ACT(?:\s*\(ICMA\))?)", dc_raw, re.I)
+    day_count = dc_m.group(1) if dc_m else ""
+
+    # Per-bond sections
+    size_sec = find_field_section(flat, r"Size")
+    mat_sec  = find_field_section(flat, r"Maturity(?:\s+Date)?")
+    cpn_sec  = find_field_section(flat, r"Coupon(?: \(Interest Rate\))?")
+    prc_sec  = find_field_section(flat, r"(?:Issue\s+)?Price|Public Offering Price")
+    yld_sec  = find_field_section(flat, r"Yield to Maturity|Yield")
+
+    # CUSIPs: listed one per line in order
+    cusip_sec = find_field_section(flat, r"CUSIP(?:\s*/\s*(?:Common\s+Code|ISIN))*")
+    cusip_all = re.findall(r"[0-9A-Z]{5,6}\s?[0-9A-Z]{2}\s?[0-9A-Z]\b", cusip_sec or "")
+    # ISINs: XS-prefixed
+    isin_all  = re.findall(r"\b(XS[0-9A-Z]{10})\b", cusip_sec or "")
+
+    for i, name in enumerate(bond_names):
+        f = {}
+        miss = []
+
+        f["issuer"]    = issuer_name
+        f["bond_name"] = name
+        f["rate_type"] = "Fixed"
+        f["currency"]  = "EUR"
+        f["floating_benchmark"]  = ""
+        f["floating_spread_pct"] = ""
+
+        cm_name = re.search(r"(\d+\.\d+)%", name)
+        f["coupon_pct"] = cm_name.group(1) if cm_name else ""
+        if not f["coupon_pct"]:
+            miss.append("coupon_pct")
+
+        # Principal
+        pav = nth_value(size_sec, i)
+        f["principal_amount"] = pav or ""
+        if not pav:
+            miss.append("principal_amount")
+
+        # Maturity
+        mdv = nth_date(mat_sec, i)
+        f["maturity_date"] = mdv or ""
+        if not mdv:
+            miss.append("maturity_date")
+
+        # Price (look for pct near 99-100 range)
+        prc_sec2 = find_field_section(flat, r"Issue\s+Price|Price")
+        prc_all = re.findall(r"(\d{2,3}\.\d{3})", prc_sec2 or "")
+        f["price_to_public_pct"] = prc_all[i] if len(prc_all) >= n and i < len(prc_all) else ""
+        if not f["price_to_public_pct"]:
+            miss.append("price_to_public_pct")
+
+        # Yield
+        yv_all = re.findall(r"(\d+\.\d+)%", yld_sec or "")
+        f["yield_pct"] = yv_all[i] if len(yv_all) >= n and i < len(yv_all) else ""
+        if not f["yield_pct"]:
+            miss.append("yield_pct")
+
+        # Spread — J&J EUR uses "Spread to Mid-Swap" or "Spread to Benchmark Security"
+        spread_sec = (find_field_section(flat,
+            r"Spread to(?:\s+Benchmark(?:\s+Security)?)?\s+(?:Treasury|Bund|Gilt|Mid.Swap)")
+            or find_field_section(flat, r"Re-Offer Spread|Reoffer Spread"))
+        sp_all = re.findall(r"\+?(\d+(?:\.\d+)?)\s*(?:bps?|basis)", spread_sec or "", re.I)
+        f["spread_to_treasury_bps"] = sp_all[i] if len(sp_all) >= n and i < len(sp_all) else ""
+        if not f["spread_to_treasury_bps"]:
+            miss.append("spread_to_treasury_bps")
+
+        # Benchmark yield — J&J EUR uses "Benchmark Security Price and Yield: €XX.XX/ Y.YYY%"
+        bps_sec = find_field_section(flat, r"Benchmark(?:\s+Security)?\s+Price\s+and\s+Yield")
+        if bps_sec:
+            # Each entry: "€XX.XX/ Y.YYY%" — extract yields (after "/")
+            bpy_all = re.findall(r"/\s*(\d+\.\d+)\s*%", bps_sec)
+            f["benchmark_treasury_yield_pct"] = bpy_all[i] if i < len(bpy_all) else ""
+        else:
+            f["benchmark_treasury_yield_pct"] = ""
+        if not f["benchmark_treasury_yield_pct"]:
+            miss.append("benchmark_treasury_yield_pct")
+
+        # Shared
+        f["trade_date"]      = trade_date
+        f["settlement_date"] = sett_date
+        f["day_count"]       = day_count
+        f["rating_moodys"]   = mdy or ""
+        f["rating_sp"]       = sp  or ""
+
+        # CUSIP/ISIN
+        f["cusip"] = cusip_all[i].replace(" ", "") if i < len(cusip_all) else ""
+        if not f["cusip"]:
+            miss.append("cusip")
+        f["isin"] = isin_all[i] if i < len(isin_all) else ""
+        if not f["isin"]:
+            miss.append("isin")
+
+        f["missing_fields"] = ", ".join(miss)
+        rows.append(f)
+
+    return rows
+
+
+# ─── Alphabet Nov 2026 EUR hybrid extractor ───────────────────────────────────
+def extract_alphabet_hybrid_eur(raw_html):
+    """Nov 2026 EUR: floating single-bond section + fixed flat_labeled section."""
+    flat = html_to_flat(raw_html)
+
+    # Shared
+    trade_raw = find_field_section(flat, r"Trade Date")
+    trade_m = re.search(r"([A-Z][a-z]+ \d+, \d{4})", trade_raw or "")
+    trade_date = trade_m.group(1) if trade_m else ""
+
+    sett_raw = find_field_section(flat, r"Settlement Date[^:]{0,30}")
+    sett_m = re.search(r"([A-Z][a-z]+ \d+, \d{4})", sett_raw or "")
+    sett_date = sett_m.group(1) if sett_m else ""
+
+    rat_raw = find_field_section(flat, r"(?:Expected )?Ratings?(?:\*{0,2})?")
+    mdy, sp = parse_ratings(rat_raw)
+
+    rows = []
+
+    # ── 1. Floating Rate Notes ────────────────────────────────────────────────
+    # Find the section between "Floating Rate Notes" and "Fixed Rate Notes"
+    float_m = re.search(r"Floating Rate Notes\s+(.*?)(?=Fixed Rate Notes|\Z)", flat, re.DOTALL | re.I)
+    if float_m:
+        fsec = float_m.group(1)
+        f = {}
+        miss = []
+        # Bond name: first "Floating Rate Notes due YYYY"
+        fn_m = re.search(r"(Floating\s+Rate\s+Notes\s+due\s+\d{4})", flat, re.I)
+        f["bond_name"] = fn_m.group(1) if fn_m else "Floating Rate Notes"
+        f["issuer"] = "Alphabet Inc."
+        f["rate_type"] = "Floating"
+        f["coupon_pct"] = ""
+        f["currency"] = "EUR"
+
+        # Principal (single €X value)
+        pa_m = re.search(r"€([\d,]+(?:,\d{3})*)", fsec)
+        f["principal_amount"] = f"€{pa_m.group(1)}" if pa_m else ""
+        if not f["principal_amount"]:
+            miss.append("principal_amount")
+
+        mat_m2 = re.search(r"Maturity Date[^:]*:\s*([A-Z][a-z]+ \d+, \d{4})", fsec, re.I)
+        f["maturity_date"] = mat_m2.group(1) if mat_m2 else ""
+        if not f["maturity_date"]:
+            miss.append("maturity_date")
+
+        prc_m = re.search(r"(\d{2,3}\.\d{3})%", fsec)
+        f["price_to_public_pct"] = prc_m.group(1) if prc_m else ""
+        if not f["price_to_public_pct"]:
+            miss.append("price_to_public_pct")
+
+        # EURIBOR
+        fb = re.search(r"\b(EURIBOR)\b", fsec, re.I)
+        f["floating_benchmark"] = fb.group(1).upper() if fb else ""
+        if not f["floating_benchmark"]:
+            miss.append("floating_benchmark")
+
+        fs_m2 = re.search(r"plus\s+(\d+(?:\.\d+)?)\s*%", fsec, re.I)
+        f["floating_spread_pct"] = fs_m2.group(1) if fs_m2 else ""
+        if not f["floating_spread_pct"]:
+            miss.append("floating_spread_pct")
+
+        # CUSIP/ISIN from floating section
+        cc = _CUSIP_RE.search(fsec)
+        f["cusip"] = cc.group(1).replace(" ", "") if cc else ""
+        if not f["cusip"]:
+            miss.append("cusip")
+        f["isin"] = find_isin(fsec) or ""
+        if not f["isin"]:
+            miss.append("isin")
+
+        dc_m2 = re.search(r"(Actual\s*/\s*\d+|30\s*/\s*360)", fsec, re.I)
+        f["day_count"] = dc_m2.group(1) if dc_m2 else "Actual/360"
+
+        f["trade_date"]      = trade_date
+        f["settlement_date"] = sett_date
+        f["rating_moodys"]   = mdy or ""
+        f["rating_sp"]       = sp  or ""
+        f["benchmark_treasury_yield_pct"] = ""
+        f["spread_to_treasury_bps"]       = ""
+        f["yield_pct"]                    = ""
+        f["missing_fields"] = ", ".join(miss)
+        rows.append(f)
+
+    # ── 2. Fixed Rate Notes (flat_labeled section) ────────────────────────────
+    # Get bond labels from the flat text "Title:" section
+    bond_pairs = get_bond_labels(flat)
+    # Keep only fixed bonds (floating already handled)
+    fixed_pairs = [(n, l) for n, l in bond_pairs if "Floating" not in n]
+
+    # Fixed section starts after "Fixed Rate Notes"
+    fixed_m = re.search(r"Fixed Rate Notes\s+(.*)", flat, re.DOTALL | re.I)
+    fixed_flat = fixed_m.group(1) if fixed_m else flat
+
+    # Day count for fixed bonds
+    dc_raw = re.search(r"Day Count[^:]*:\s*(.*?){_TERM}".replace("{_TERM}", _TERM), fixed_flat, re.DOTALL | re.I)
+    dc_raw = dc_raw.group(1).strip() if dc_raw else ""
+    dc_m = re.search(r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT\s*/\s*ACT(?:\s*\(ICMA\))?)", dc_raw, re.I)
+    day_count = dc_m.group(1) if dc_m else "Actual/Actual (ICMA)"
+
+    for full_name, label in fixed_pairs:
+        f = {}
+        miss = []
+
+        f["issuer"] = "Alphabet Inc."
+        f["bond_name"] = full_name
+        f["rate_type"] = "Fixed"
+        f["currency"] = "EUR"
+
+        cm_n = re.search(r"(\d+\.\d+)%", full_name)
+        f["coupon_pct"] = cm_n.group(1) if cm_n else ""
+        if not f["coupon_pct"]:
+            miss.append("coupon_pct")
+
+        pa_sec = find_field_section(fixed_flat, r"Aggregate Principal Amount")
+        pa_v = find_labeled_value(pa_sec, label)
+        f["principal_amount"] = pa_v or ""
+        if not f["principal_amount"]:
+            miss.append("principal_amount")
+
+        mat_s = find_field_section(fixed_flat, r"Maturity(?:\s+Date)?")
+        mat_v = find_labeled_value(mat_s, label)
+        if mat_v:
+            md = re.search(r"([A-Z][a-z]+ \d+, \d{4})", mat_v)
+            f["maturity_date"] = md.group(1) if md else ""
+        else:
+            f["maturity_date"] = ""
+            miss.append("maturity_date")
+
+        prc_s = find_field_section(fixed_flat, r"Public Offering Price")
+        prc_v = find_labeled_value(prc_s, label)
+        if prc_v:
+            pm = re.search(r"(\d+\.\d+)", prc_v)
+            f["price_to_public_pct"] = pm.group(1) if pm else ""
+        else:
+            f["price_to_public_pct"] = ""
+            miss.append("price_to_public_pct")
+
+        ys = find_field_section(fixed_flat, r"Yield to Maturity")
+        yv = find_labeled_value(ys, label)
+        if yv:
+            ym = re.search(r"(\d+\.\d+)", yv)
+            f["yield_pct"] = ym.group(1) if ym else ""
+        else:
+            f["yield_pct"] = ""
+            miss.append("yield_pct")
+
+        sps = find_field_section(fixed_flat, r"Spread to(?:\s+Benchmark)?\s+(?:Bund|Treasury|Gilt)|Re-Offer Spread")
+        spv = find_labeled_value(sps, label)
+        if spv:
+            sm = re.search(r"\+?\s*(\d+(?:\.\d+)?)\s*(?:bps?|basis)", spv, re.I)
+            f["spread_to_treasury_bps"] = sm.group(1) if sm else ""
+        else:
+            f["spread_to_treasury_bps"] = ""
+            miss.append("spread_to_treasury_bps")
+
+        bps2 = find_field_section(fixed_flat,
+            r"Benchmark(?:\s+Bund|\s+Treasury|\s+Gilt)(?:\s+Price\s+and\s+Yield)?")
+        bpv = find_labeled_value(bps2, label)
+        if bpv:
+            b2 = re.search(r"[\d.]+%\s*/\s*(\d+\.\d+)%", bpv)
+            f["benchmark_treasury_yield_pct"] = b2.group(1) if b2 else ""
+        else:
+            f["benchmark_treasury_yield_pct"] = ""
+            miss.append("benchmark_treasury_yield_pct")
+
+        # CUSIP/ISIN
+        rc = find_cusip_labeled(fixed_flat, label)
+        f["cusip"] = rc.replace(" ", "") if rc else ""
+        if not f["cusip"]:
+            miss.append("cusip")
+        f["isin"] = find_isin_labeled(fixed_flat, label) or ""
+        if not f["isin"]:
+            miss.append("isin")
+
+        f["trade_date"]      = trade_date
+        f["settlement_date"] = sett_date
+        f["day_count"]       = day_count
+        f["rating_moodys"]   = mdy or ""
+        f["rating_sp"]       = sp  or ""
+        f["floating_benchmark"]  = ""
+        f["floating_spread_pct"] = ""
+        f["missing_fields"] = ", ".join(miss)
+        rows.append(f)
+
+    return rows
+
+
+# ─── Alphabet format detector ─────────────────────────────────────────────────
+def detect_alpha_format(raw_html, flat):
+    """Return 'block_b', 'hybrid_eur', or 'flat_labeled'."""
+    # block_b: individual <b> bond headings
+    b_texts = [html_to_flat(m.group(1))
+               for m in re.finditer(r"<b[^>]*>(.*?)</b>", raw_html, re.DOTALL | re.I)]
+    if any(_ALPHA_B_HDG.search(t) for t in b_texts):
+        return "block_b"
+    # hybrid_eur: "Aggregate Principal Amount:" immediately followed by € (single bond)
+    m1 = re.search(r"Aggregate Principal Amount:\s*€", flat, re.I)
+    m2 = re.search(r"Aggregate Principal Amount:\s*\d{4}", flat, re.I)
+    if m1 and (not m2 or m1.start() < m2.start()):
+        return "hybrid_eur"
+    return "flat_labeled"
+
+
+# ─── Company processors ───────────────────────────────────────────────────────
+def process_apple():
+    """Load Apple bonds from existing CSV; ensure currency column."""
+    df = pd.read_csv(APPLE_CSV)
+    if "currency" not in df.columns:
+        df["currency"] = "USD"
+    df["issuer"] = "Apple"
+    rows = df[OUTPUT_COLUMNS].to_dict("records")
+    print(f"  Apple:  {len(rows)} bonds (from {APPLE_CSV.name})")
+    return rows
+
+
+def process_eli_lilly(docs):
+    deals = docs[docs["issuer"] == "Eli Lilly"].dropna(subset=["fwp_accession"])
+    rows = []
+    print(f"  Eli Lilly: {len(deals)} FWP(s)")
+    for _, deal in deals.iterrows():
+        raw = load_html("Eli Lilly", deal["fwp_accession"])
+        if not raw:
+            print(f"    SKIP — file not found: {deal['fwp_accession']}")
+            continue
+        preamble_html, blocks = split_blocks(raw, _LILLY_HDG, tag="u")
+        if not blocks:
+            print(f"    WARN no <u> headings in {deal['fwp_accession']}")
+            continue
+        preamble_flat = html_to_flat(preamble_html)
+        print(f"    {deal['fwp_accession']}  → {len(blocks)} bonds")
+        for blk in blocks:
+            flat_text = preamble_flat + " " + html_to_flat(blk["block_html"])
+            fields, miss = extract_fields_block(flat_text, blk["heading"])
+            fields["missing_fields"] = ", ".join(miss)
+            rows.append(fields)
+    return rows
+
+
+def process_microsoft(docs):
+    deals = docs[docs["issuer"] == "Microsoft"].dropna(subset=["fwp_accession"])
+    rows = []
+    print(f"  Microsoft: {len(deals)} FWP(s)")
+    for _, deal in deals.iterrows():
+        raw = load_html("Microsoft", deal["fwp_accession"])
+        if not raw:
+            print(f"    SKIP — file not found: {deal['fwp_accession']}")
+            continue
+        flat = html_to_flat(raw)
+        bond_rows = extract_flat_labeled(flat, "Microsoft Corporation")
+        print(f"    {deal['fwp_accession']}  → {len(bond_rows)} bonds")
+        rows.extend(bond_rows)
+    return rows
+
+
+def process_alphabet(docs):
+    deals = docs[docs["issuer"] == "Alphabet"].dropna(subset=["fwp_accession"])
+    # Deduplicate by accession (multiple 424B2 may share one FWP)
+    seen = set()
+    rows = []
+    print(f"  Alphabet: processing unique FWPs")
+    for _, deal in deals.iterrows():
+        acc = deal["fwp_accession"]
+        if acc in seen:
+            continue
+        seen.add(acc)
+        raw = load_html("Alphabet", acc)
+        if not raw:
+            print(f"    SKIP — file not found: {acc}")
+            continue
+        flat = html_to_flat(raw)
+        fmt = detect_alpha_format(raw, flat)
+        print(f"    {acc}  format={fmt}")
+
+        if fmt == "block_b":
+            # For block_b, fixed-bond HTML blocks are empty (~110 chars each);
+            # all labeled per-bond data lives in the preamble's flat-labeled sections.
+            # Use extract_flat_labeled on the full flat text.
+            bond_rows = extract_flat_labeled(flat, "Alphabet Inc.")
+            print(f"      → {len(bond_rows)} bonds (block_b → flat_labeled)")
+            rows.extend(bond_rows)
+
+        elif fmt == "hybrid_eur":
+            bond_rows = extract_alphabet_hybrid_eur(raw)
+            print(f"      → {len(bond_rows)} bonds (hybrid_eur)")
+            rows.extend(bond_rows)
+
+        else:  # flat_labeled
+            bond_rows = extract_flat_labeled(flat, "Alphabet Inc.")
+            print(f"      → {len(bond_rows)} bonds (flat_labeled)")
+            rows.extend(bond_rows)
+
+    return rows
+
+
+def process_jj(docs):
+    deals = docs[docs["issuer"] == "Johnson & Johnson"].dropna(subset=["fwp_accession"])
+    rows = []
+    seen = set()
+    print(f"  J&J: processing unique FWPs")
+    for _, deal in deals.iterrows():
+        acc = deal["fwp_accession"]
+        if acc in seen:
+            continue
+        seen.add(acc)
+        raw = load_html("Johnson & Johnson", acc)
+        if not raw:
+            print(f"    SKIP — file not found: {acc}")
+            continue
+        bond_rows = extract_jj(raw)
+        print(f"    {acc}  → {len(bond_rows)} bonds")
+        rows.extend(bond_rows)
+    return rows
+
+
+# ─── Main ─────────────────────────────────────────────────────────────────────
+docs = pd.read_csv(DOCS_CSV)
+# Keep only build set (not test)
+build = docs[docs["set"] == "build"].copy()
+
+print("=" * 70)
+print("Build-set FWP extractor")
+print("=" * 70)
+
+all_rows = []
+all_rows.extend(process_apple())
+all_rows.extend(process_eli_lilly(build))
+all_rows.extend(process_microsoft(build))
+all_rows.extend(process_alphabet(build))
+all_rows.extend(process_jj(build))
+
+# ── Assemble output ───────────────────────────────────────────────────────────
+out_df = pd.DataFrame(all_rows)
+# Ensure all columns present in correct order
+for col in OUTPUT_COLUMNS:
+    if col not in out_df.columns:
+        out_df[col] = ""
+out_df = out_df[OUTPUT_COLUMNS]
+# Fill NaN (can appear from Apple CSV empty strings loaded as float NaN)
+out_df = out_df.fillna("")
+
+OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
+out_df.to_csv(OUT_CSV, index=False)
+print(f"\nSaved {OUT_CSV}  ({len(out_df)} total bonds)")
+
+# ── Per-company summary ───────────────────────────────────────────────────────
+print("\n" + "=" * 70)
+print(f"{'Issuer':<24}  {'Bonds':>5}  {'All fields':>10}  {'Most missing'}")
+print("-" * 70)
+for issuer, grp in out_df.groupby("issuer"):
+    n_total = len(grp)
+    n_complete = (grp["missing_fields"] == "").sum()
+    # Count which fields are most often missing
+    all_miss = []
+    for mf in grp["missing_fields"]:
+        if mf:
+            all_miss.extend([f.strip() for f in mf.split(",") if f.strip()])
+    from collections import Counter
+    top_miss = Counter(all_miss).most_common(3)
+    top_str = ", ".join(f"{f}({c})" for f, c in top_miss) if top_miss else "—"
+    print(f"  {issuer:<22}  {n_total:>5}  {n_complete:>8}/{n_total:<2}  {top_str}")
+
+print("\nAll bonds:")
+disp_cols = ["issuer", "bond_name", "rate_type", "coupon_pct",
+             "principal_amount", "maturity_date", "cusip", "missing_fields"]
+pd.set_option("display.max_colwidth", 50)
+pd.set_option("display.width", 160)
+print(out_df[disp_cols].to_string(index=False))
