@@ -26,16 +26,19 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent.parent / ".env")
 
-IN_CSV        = Path(__file__).parent.parent / "data" / "processed" / "module5_build_tranches.csv"
-OUT_CSV       = Path(__file__).parent.parent / "data" / "processed" / "module5_build_validation.csv"
-PREFIXES_CSV  = Path(__file__).parent.parent / "data" / "reference"  / "issuer_prefixes.csv"
+IN_CSV          = Path(__file__).parent.parent / "data" / "processed" / "module5_build_tranches.csv"
+OUT_CSV         = Path(__file__).parent.parent / "data" / "processed" / "module5_build_validation.csv"
+PREFIXES_CSV    = Path(__file__).parent.parent / "data" / "reference"  / "issuer_prefixes.csv"
 CONVENTIONS_CSV = Path(__file__).parent.parent / "data" / "reference" / "day_count_conventions.csv"
+BENCHMARK_CONV_CSV = Path(__file__).parent.parent / "data" / "reference" / "benchmark_conventions.csv"
+EXCEPTIONS_CSV  = Path(__file__).parent.parent / "data" / "reference" / "expected_exceptions_module5.csv"
 
-PASS           = "pass"
-FAIL           = "fail"
-NA             = "not applicable"    # check concept does not apply (e.g. floating-rate bond)
-NOT_APPLICABLE = "not_applicable"    # check applies but data is absent from the document
-NEEDS_REVIEW   = "needs_review"      # (currency, rate_type) combo not yet in reference file
+PASS             = "pass"
+FAIL             = "fail"
+NA               = "not applicable"    # check concept does not apply (e.g. floating-rate bond)
+NOT_APPLICABLE   = "not_applicable"    # check applies but data is absent from the document
+NEEDS_REVIEW     = "needs_review"      # (currency, rate_type) combo not yet in reference file
+EXPECTED_REVIEWED = "expected_reviewed"  # pre-approved documented exception
 
 # Map issuer column value → search fragment for security_master_history ILIKE
 ISSUER_SEARCH = {
@@ -76,6 +79,25 @@ def load_day_count_conventions():
         key = (str(row["currency"]).strip(), str(row["rate_type"]).strip())
         conv[key] = str(row["expected_day_count"]).strip()
     return conv
+
+
+def load_benchmark_conventions():
+    """Return dict: currency → yield_column_for_v4 (from benchmark_conventions.csv)."""
+    df = pd.read_csv(BENCHMARK_CONV_CSV, dtype=str)
+    return {
+        str(row["currency"]).strip(): str(row["yield_column_for_v4"]).strip()
+        for _, row in df.iterrows()
+    }
+
+
+def load_expected_exceptions():
+    """Return dict: (cusip_upper, check) → reason (from expected_exceptions_module5.csv)."""
+    exc = {}
+    df = pd.read_csv(EXCEPTIONS_CSV, dtype=str)
+    for _, row in df.iterrows():
+        key = (str(row["cusip"]).strip().upper(), str(row["check"]).strip())
+        exc[key] = str(row["reason"]).strip()
+    return exc
 
 
 def normalize_dc(raw):
@@ -160,43 +182,64 @@ def check_v3(cusip, stock_prefix, issuer, extra_prefixes):
     return FAIL, (f"bond prefix {bond_prefix} ≠ stock prefix {stock_prefix} "
                   f"and not in issuer_prefixes.csv")
 
-def check_v4(rate_type, bm_yield, spread_bps, yld, yield_sa=""):
+def check_v4(rate_type, bm_yield, spread_bps, yld, yield_sa="", yield_ann="",
+             currency="USD", bm_convs=None, cusip="", exceptions=None):
     """
     Verify: benchmark_yield + spread/100 ≈ yield (± 0.5 bps tolerance).
+
+    Which yield column to compare is determined by benchmark_conventions.csv:
+      GBP → yield_semiannual  (Gilt spread is quoted on a semi-annual basis)
+      EUR → yield_annual      (Bund spread is quoted on an annual basis)
+      USD → yield_pct         (equals semi-annual yield for USD bonds)
+      CAD → yield_pct         (equals semi-annual yield for CAD bonds)
+
     Returns not_applicable when the document does not contain a benchmark yield.
-    Tries yield_pct first; also tries yield_semiannual as a fallback because GBP bonds
-    quote the Gilt benchmark on a semi-annual basis and state the spread against
-    the semi-annual yield, not the annual yield.
+    Returns expected_reviewed for bonds listed in expected_exceptions_module5.csv.
     """
     if str(rate_type).strip().lower() != "fixed":
         return NA, "floating-rate bond"
+
+    # Pre-approved documented exception — checked before any numeric comparison
+    if exceptions and (str(cusip).strip().upper(), "V4") in exceptions:
+        return EXPECTED_REVIEWED, exceptions[(str(cusip).strip().upper(), "V4")]
+
     # Document did not contain a benchmark yield → not_applicable
+    # (float(NaN) succeeds, so check pd.isna explicitly)
     try:
         bm = float(bm_yield)
     except (TypeError, ValueError):
+        return NOT_APPLICABLE, "benchmark yield not in document"
+    if pd.isna(bm):
         return NOT_APPLICABLE, "benchmark yield not in document"
     try:
         sp = float(spread_bps)
     except (TypeError, ValueError):
         return FAIL, "spread missing/non-numeric"
     computed = bm + sp / 100.0
-    # Try yield_pct first, then yield_semiannual (for GBP bonds that use semi-annual convention)
-    for col_name, yld_val in [("yield_pct", yld), ("yield_sa", yield_sa)]:
-        try:
-            y = float(yld_val)
-        except (TypeError, ValueError):
-            continue
-        diff = abs(computed - y)
-        if diff <= 0.005:
-            suffix = f" (using {col_name})" if col_name != "yield_pct" else ""
-            return PASS, f"|{bm}+{sp}/100−{y}| = {diff:.4f} ≤ 0.005{suffix}"
-    # Neither matched — report against yield_pct
+
+    # Deterministic yield column selection from benchmark_conventions.csv
+    curr = str(currency).strip()
+    if bm_convs and curr in bm_convs:
+        col_name = bm_convs[curr]
+    else:
+        col_name = "yield_pct"
+
+    if col_name == "yield_semiannual":
+        yld_val = yield_sa
+    elif col_name == "yield_annual":
+        yld_val = yield_ann
+    else:
+        yld_val = yld  # yield_pct
+
     try:
-        y_main = float(yld)
-        diff_main = abs(computed - y_main)
-        return FAIL, f"|{bm}+{sp}/100−{y_main}| = {diff_main:.4f} > 0.005"
+        y = float(yld_val)
     except (TypeError, ValueError):
-        return FAIL, "yield missing/non-numeric"
+        return FAIL, f"yield column {col_name!r} missing/non-numeric"
+
+    diff = abs(computed - y)
+    if diff <= 0.005:
+        return PASS, f"|{bm}+{sp}/100−{y}| = {diff:.4f} ≤ 0.005 ({col_name})"
+    return FAIL, f"|{bm}+{sp}/100−{y}| = {diff:.4f} > 0.005 ({col_name})"
 
 def check_v5(rate_type, coupon, yld, price, coupon_freq="", yield_sa="", yield_ann=""):
     """
@@ -324,13 +367,15 @@ def check_v8(bond, all_df):
 
 # ── runner ────────────────────────────────────────────────────────────────────
 
-def run_all_checks(df, prefix_map, extra_prefixes, conventions):
+def run_all_checks(df, prefix_map, extra_prefixes, conventions,
+                   bm_convs=None, exceptions=None):
     rows = []
     for _, bond in df.iterrows():
         cusip       = str(bond["cusip"]).strip()
         bond_name   = str(bond["bond_name"]).strip()
         rate_type   = str(bond["rate_type"]).strip()
         issuer      = str(bond["issuer"]).strip()
+        currency    = str(bond.get("currency", "USD")).strip()
         coupon_freq = str(bond.get("coupon_frequency", "")).strip()
         yield_sa    = str(bond.get("yield_semiannual", "")).strip()
         yield_ann   = str(bond.get("yield_annual", "")).strip()
@@ -344,7 +389,8 @@ def run_all_checks(df, prefix_map, extra_prefixes, conventions):
                            bond["benchmark_treasury_yield_pct"],
                            bond["spread_to_treasury_bps"],
                            bond["yield_pct"],
-                           yield_sa),
+                           yield_sa, yield_ann,
+                           currency, bm_convs, cusip, exceptions),
             "V5": check_v5(rate_type,
                            bond["coupon_pct"],
                            bond["yield_pct"],
@@ -379,8 +425,12 @@ def main():
     # ── load reference files ──────────────────────────────────────────────────
     extra_prefixes = load_issuer_prefixes()
     conventions    = load_day_count_conventions()
+    bm_convs       = load_benchmark_conventions()
+    exceptions     = load_expected_exceptions()
     print(f"  issuer_prefixes.csv: {sum(len(v) for v in extra_prefixes.values())} approved extra prefixes")
     print(f"  day_count_conventions.csv: {len(conventions)} (currency, rate_type) entries")
+    print(f"  benchmark_conventions.csv: {len(bm_convs)} currencies mapped")
+    print(f"  expected_exceptions_module5.csv: {len(exceptions)} pre-approved exceptions")
 
     # ── V3: look up stock CUSIP prefix per issuer ─────────────────────────────
     prefix_map = {}
@@ -410,7 +460,8 @@ def main():
         print(f"WARNING: DB connection failed — V3 will fail for all bonds: {e}")
 
     # ── run checks ────────────────────────────────────────────────────────────
-    val = run_all_checks(df, prefix_map, extra_prefixes, conventions)
+    val = run_all_checks(df, prefix_map, extra_prefixes, conventions,
+                         bm_convs=bm_convs, exceptions=exceptions)
     val.to_csv(OUT_CSV, index=False)
     print(f"\nWrote {len(val)} rows → {OUT_CSV.name}")
 
@@ -467,6 +518,22 @@ def main():
         print(nr_pivot.to_string())
     else:
         print("\nneeds_review counts: none")
+
+    # ── expected_reviewed counts per check ───────────────────────────────────
+    er_rows = val[val["result"] == EXPECTED_REVIEWED].copy()
+    er_rows["company"] = er_rows["issuer"].map(lambda x: ISSUER_SHORT.get(x, x))
+    er_pivot = (
+        er_rows.groupby(["check", "company"])
+               .size()
+               .unstack(fill_value=0)
+    )
+    if not er_pivot.empty:
+        er_pivot["TOTAL"] = er_pivot.sum(axis=1)
+        er_pivot = er_pivot[er_pivot["TOTAL"] > 0]
+        print("\nexpected_reviewed counts (pre-approved documented exceptions):")
+        print(er_pivot.to_string())
+    else:
+        print("\nexpected_reviewed counts: none")
 
     # ── sample failures ───────────────────────────────────────────────────────
     if fails.empty:

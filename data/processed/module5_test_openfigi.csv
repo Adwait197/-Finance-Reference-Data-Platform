@@ -1,0 +1,18 @@
+cusip,bond_name,openfigi_name,openfigi_coupon,openfigi_maturity,extracted_coupon,extracted_maturity,coupon_match,maturity_match
+11135FCA7,4.150% Senior Notes due 2028,BROADCOM INC,4.15,2028-02-15,4.15,"February 15, 2028",pass,pass
+11135FCB5,4.350% Senior Notes due 2030,BROADCOM INC,4.35,2030-02-15,4.35,"February 15, 2030",pass,pass
+11135FCC3,4.550% Senior Notes due 2032,BROADCOM INC,4.55,2032-02-15,4.55,"February 15, 2032",pass,pass
+11135FCD1,4.800% Senior Notes due 2034,BROADCOM INC,4.8,2034-10-15,4.8,October,pass,no_data (truncated)
+11135FCE9,4.800% Senior Notes due 2028,BROADCOM INC,4.8,2028-04-15,4.8,"April 15, 2028",pass,pass
+11135FCF6,5.050% Senior Notes due 2030,BROADCOM INC,5.05,2030-04-15,5.05,"April 15, 2030",pass,pass
+11135FCG4,5.200% Senior Notes due 2032,BROADCOM INC,5.2,2032-04-15,5.2,April,pass,no_data (truncated)
+11135FCK5,4.600% Senior Notes due 2030,BROADCOM INC,4.6,2030-07-15,4.6,"July 15, 2030",pass,pass
+11135FCL3,4.900% Senior Notes due 2032,BROADCOM INC,4.9,2032-07-15,4.9,"July 15, 2032",pass,pass
+11135FCM1,5.200% Senior Notes due 2035,BROADCOM INC,5.2,2035-07-15,5.2,July,pass,no_data (truncated)
+11135FCW9,4.200% Senior Notes due 2030,BROADCOM INC,4.2,2030-10-15,4.2,"October 15, 2030",pass,pass
+11135FCY5,4.800% Senior Notes due 2036,BROADCOM INC,4.8,2036-02-15,4.8,"February 15, 2036",pass,pass
+11135FCX7,4.900% Senior Notes due 2038,BROADCOM INC,4.9,2038-02-15,4.9,February,pass,no_data (truncated)
+11135FCZ2,4.300% Senior Notes due 2031,BROADCOM INC,4.3,2031-01-15,4.3,"January 15, 2031",pass,pass
+11135FDA6,4.600% Senior Notes due 2033,BROADCOM INC,4.6,2033-01-15,4.6,"January 15, 2033",pass,pass
+11135FDB4,4.950% Senior Notes due 2036,BROADCOM INC,4.95,2036-01-15,4.95,"January 15, 2036",pass,pass
+11135FDD0,5.700% Senior Notes due 2056,BROADCOM INC,5.7,2056-01-15,5.7,January,pass,no_data (truncated)

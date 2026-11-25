@@ -1,0 +1,137 @@
+issuer,cusip,bond_name,check,result,detail
+Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V1,pass,check digit 7 verified
+Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V5,pass,"coupon 4.15% < semi-annual yield 4.198%, price 99.855 ✓"
+Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V8,pass,CUSIP 11135FCA7 is unique in this deal
+Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V1,pass,check digit 5 verified
+Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V5,pass,"coupon 4.35% < semi-annual yield 4.388%, price 99.824 ✓"
+Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V8,pass,CUSIP 11135FCB5 is unique in this deal
+Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V1,pass,check digit 3 verified
+Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V5,pass,"coupon 4.55% < semi-annual yield 4.593%, price 99.739 ✓"
+Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V8,pass,CUSIP 11135FCC3 is unique in this deal
+Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V1,pass,check digit 1 verified
+Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V5,pass,"coupon 4.8% < semi-annual yield 4.826%, price 99.793 ✓"
+Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V8,pass,CUSIP 11135FCD1 is unique in this deal
+Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V1,pass,check digit 9 verified
+Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V5,pass,"coupon 4.8% < semi-annual yield 4.847%, price 99.867 ✓"
+Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V8,pass,CUSIP 11135FCE9 is unique in this deal
+Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V1,pass,check digit 6 verified
+Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V5,pass,"coupon 5.05% < semi-annual yield 5.052%, price 99.999 ✓"
+Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V8,pass,CUSIP 11135FCF6 is unique in this deal
+Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V1,pass,check digit 4 verified
+Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V5,pass,"coupon 5.2% < semi-annual yield 5.221%, price 99.883 ✓"
+Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V8,pass,CUSIP 11135FCG4 is unique in this deal
+Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V1,pass,check digit 5 verified
+Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V5,pass,"coupon 4.6% < semi-annual yield 4.647%, price 99.791 ✓"
+Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V8,pass,CUSIP 11135FCK5 is unique in this deal
+Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V1,pass,check digit 3 verified
+Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V5,pass,"coupon 4.9% < semi-annual yield 4.946%, price 99.73 ✓"
+Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V8,pass,CUSIP 11135FCL3 is unique in this deal
+Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V1,pass,check digit 1 verified
+Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V5,pass,"coupon 5.2% < semi-annual yield 5.247%, price 99.637 ✓"
+Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V8,pass,CUSIP 11135FCM1 is unique in this deal
+Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V1,pass,check digit 9 verified
+Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V5,pass,"coupon 4.2% < semi-annual yield 4.231%, price 99.858 ✓"
+Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V8,pass,CUSIP 11135FCW9 is unique in this deal
+Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V1,pass,check digit 5 verified
+Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V5,pass,"coupon 4.8% < semi-annual yield 4.827%, price 99.787 ✓"
+Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V8,pass,CUSIP 11135FCY5 is unique in this deal
+Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V1,pass,check digit 7 verified
+Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V5,pass,"coupon 4.9% < semi-annual yield 4.927%, price 99.757 ✓"
+Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V8,pass,CUSIP 11135FCX7 is unique in this deal
+Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V1,pass,check digit 2 verified
+Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V5,pass,"coupon 4.3% < semi-annual yield 4.322%, price 99.902 ✓"
+Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V8,pass,CUSIP 11135FCZ2 is unique in this deal
+Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V1,pass,check digit 6 verified
+Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V5,pass,"coupon 4.6% < semi-annual yield 4.641%, price 99.757 ✓"
+Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V8,pass,CUSIP 11135FDA6 is unique in this deal
+Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V1,pass,check digit 4 verified
+Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V5,pass,"coupon 4.95% < semi-annual yield 4.961%, price 99.914 ✓"
+Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V8,pass,CUSIP 11135FDB4 is unique in this deal
+Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V1,pass,check digit 0 verified
+Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V2,fail,length 3 ≠ 12
+Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V3,pass,bond prefix 11135F = stock prefix 11135F
+Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V4,not_applicable,benchmark yield not in document
+Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V5,pass,"coupon 5.7% < semi-annual yield 5.747%, price 99.331 ✓"
+Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V6,fail,"date parse error: time data 'nan' does not match format '%B %d, %Y'"
+Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V7,fail,day_count='nan' (expected '30/360' for USD Fixed)
+Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V8,pass,CUSIP 11135FDD0 is unique in this deal
