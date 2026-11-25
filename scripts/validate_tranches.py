@@ -11,6 +11,9 @@ Checks:
   V5 — fixed-rate only: coupon vs yield → price direction (discount/par/premium)
   V6 — trade_date <= settlement_date < maturity_date;
        maturity year equals year in bond_name ("due YYYY")
+  V7 — within each deal (same trade_date): rating_moodys, rating_sp,
+       trade_date, settlement_date identical across all bonds;
+       day_count = 30/360 (Fixed) or Actual/360 (Floating)
 
 Floating-rate bonds receive "not applicable" for V4 and V5 (not "pass").
 """
@@ -31,7 +34,7 @@ PASS = "pass"
 FAIL = "fail"
 NA   = "not applicable"
 
-CHECKS = ["V1", "V2", "V3", "V4", "V5", "V6"]
+CHECKS = ["V1", "V2", "V3", "V4", "V5", "V6", "V7"]
 
 
 # ── V1: CUSIP check digit ─────────────────────────────────────────────────────
@@ -211,6 +214,39 @@ def check_v6(bond_name: str, trade_str: str, sett_str: str, mat_str: str) -> tup
     return PASS, f"trade {trade} ≤ settlement {sett} < maturity {mat}, year {mat_year} ✓"
 
 
+# ── V7: intra-deal consistency + day_count ────────────────────────────────────
+
+def check_v7(bond: pd.Series, all_df: pd.DataFrame) -> tuple[str, str]:
+    """
+    Within each deal (bonds sharing the same trade_date):
+    - rating_moodys, rating_sp, trade_date, settlement_date must be identical
+    - day_count must be '30/360' (Fixed) or 'Actual/360' (Floating)
+    """
+    trade_date = str(bond["trade_date"]).strip()
+    deal_df    = all_df[all_df["trade_date"].astype(str).str.strip() == trade_date]
+
+    issues = []
+    for field in ["rating_moodys", "rating_sp", "trade_date", "settlement_date"]:
+        vals = deal_df[field].astype(str).str.strip().unique()
+        if len(vals) > 1:
+            issues.append(f"{field} not uniform in deal: {list(vals)}")
+
+    rate_type = str(bond["rate_type"]).strip()
+    dc        = str(bond["day_count"]).strip()
+    if rate_type == "Fixed":
+        if "30/360" not in dc:
+            issues.append(f"day_count={dc!r} (Fixed → expected 30/360)")
+    elif rate_type == "Floating":
+        if not re.search(r"actual/360", dc, re.IGNORECASE):
+            issues.append(f"day_count={dc!r} (Floating → expected Actual/360)")
+
+    if issues:
+        return FAIL, "; ".join(issues)
+
+    dc_pass = "30/360" if rate_type == "Fixed" else "Actual/360"
+    return PASS, f"ratings/dates uniform across deal; day_count={dc_pass!r} ✓"
+
+
 # ── runner ────────────────────────────────────────────────────────────────────
 
 def run_all_checks(df: pd.DataFrame, stock_prefix: str | None) -> pd.DataFrame:
@@ -236,6 +272,7 @@ def run_all_checks(df: pd.DataFrame, stock_prefix: str | None) -> pd.DataFrame:
                            str(bond["trade_date"]),
                            str(bond["settlement_date"]),
                            str(bond["maturity_date"])),
+            "V7": check_v7(bond, df),
         }
         for check_id, (result, detail) in checks.items():
             rows.append({
@@ -302,7 +339,7 @@ def main():
     val = run_all_checks(df, stock_prefix)
     val.to_csv(OUT_CSV, index=False)
     print(f"Wrote {len(val)} rows to {OUT_CSV.name}")
-    print_summary(val, "real data (16 bonds × 6 checks)")
+    print_summary(val, "real data (16 bonds × 7 checks)")
 
     if conn:
         conn.close()

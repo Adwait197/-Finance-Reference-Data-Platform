@@ -1,0 +1,16 @@
+name,cusip,val_usd,cik,edgar_name,count_424b2,recent_1,recent_2,recent_3,most_recent_url,plain_fixed_rate,structured_flag,notes
+NVIDIA Corp.,67066G104,66662358368,0001045810,NVIDIA CORP,0,,,,,,,+ 1 older pages not fetched in survey
+"Apple, Inc.",037833100,58459130827,0000320193,Apple Inc.,6,2026-11-06,2026-11-05,2025-05-06,https://www.sec.gov/Archives/edgar/data/320193/000114036126042505/ny20084621x2_424b2.htm,True,False,+ 1 older pages not fetched in survey
+Microsoft Corp.,594918104,38115446952,0000789019,MICROSOFT CORP,2,2026-11-02,2026-10-29,,https://www.sec.gov/Archives/edgar/data/789019/000119312526442618/d150456d424b2.htm,True,False,+ 2 older pages not fetched in survey
+"Amazon.com, Inc.",023135106,32092599931,0001018724,AMAZON COM INC,0,,,,,,,+ 2 older pages not fetched in survey
+"Alphabet, Inc.",02079K305,28824129780,0001652044,Alphabet Inc.,11,2026-11-23,2026-11-04,2026-08-07,https://www.sec.gov/Archives/edgar/data/1652044/000119312526470750/d115240d424b2.htm,True,False,+ 1 older pages not fetched in survey
+"Broadcom, Inc.",11135F101,24601641522,0001730168,Broadcom Inc.,6,2026-01-08,2025-09-24,2025-07-09,https://www.sec.gov/Archives/edgar/data/1730168/000119312526007683/d917883d424b2.htm,False,False,recent window covers all filings
+"Alphabet, Inc.",02079K107,22970989937,0001652044,Alphabet Inc.,11,2026-11-23,2026-11-04,2026-08-07,https://www.sec.gov/Archives/edgar/data/1652044/000119312526470750/d115240d424b2.htm,True,False,+ 1 older pages not fetched in survey
+"Micron Technology, Inc.",595112103,17907142555,0000723125,MICRON TECHNOLOGY INC,4,2025-04-24,2025-01-13,2024-01-10,,,,+ 1 older pages not fetched in survey
+"Meta Platforms, Inc.",30303M102,17015876149,0001326801,"Meta Platforms, Inc.",6,2026-05-01,2026-04-30,2025-11-03,,,,+ 2 older pages not fetched in survey
+"Tesla, Inc.",88160R101,16287661815,0001318605,"Tesla, Inc.",0,,,,,,,+ 1 older pages not fetched in survey
+Eli Lilly & Co.,532457108,13051679106,0000059478,ELI LILLY & Co,12,2026-05-08,2026-05-06,2025-08-19,https://www.sec.gov/Archives/edgar/data/59478/000119312526213175/d81251d424b2.htm,True,False,+ 2 older pages not fetched in survey
+"Advanced Micro Devices, Inc.",007903107,13029638769,0000002488,ADVANCED MICRO DEVICES INC,0,,,,,,,+ 2 older pages not fetched in survey
+Intel Corp.,458140100,9073997693,0000050863,INTEL CORP,0,,,,,,,+ 2 older pages not fetched in survey
+Johnson & Johnson,478160104,8409391147,0000200406,JOHNSON & JOHNSON,4,2025-02-21,2025-02-19,2024-05-16,https://www.sec.gov/Archives/edgar/data/200406/000119312525032025/d867955d424b2.htm,True,False,+ 2 older pages not fetched in survey
+"Applied Materials, Inc.",038222105,7892244864,0000006951,APPLIED MATERIALS INC /DE,4,2025-09-16,2025-09-15,2024-06-07,,,,+ 1 older pages not fetched in survey
