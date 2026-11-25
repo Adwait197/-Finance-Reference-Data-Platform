@@ -1,0 +1,2 @@
+company,cusip_prefix,evidence,reviewed_by,reviewed_date
+Alphabet Inc.,02079W,"OpenFIGI /v3/mapping returned name=ALPHABET INC for all 8 CUSIPs queried: 02079WAG6 02079WAA9 02079WAC5 02079WAE1 02079WAK7 02079WAM3 02079WAL5 02079WAN1. Alphabet Canada ULC uses a separate CUSIP issuer prefix (02079W) distinct from the US-registered prefix (02079K) because the notes are issued under a Canadian shelf registration.",Adwait Gaur,2026-11-25

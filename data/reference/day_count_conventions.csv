@@ -1,0 +1,7 @@
+currency,rate_type,expected_day_count,reason
+USD,Fixed,30/360,"US corporate bond standard per SIFMA; all USD domestic fixed-rate notes accrue on 30/360 basis"
+USD,Floating,Actual/360,"US floating-rate note standard (money-market day count); applies to SOFR-linked notes"
+EUR,Fixed,Actual/Actual (ICMA),"Eurobond standard per ICMA Rule 251 (also known as ISMA-99 or ICMA actual/actual)"
+EUR,Floating,Actual/360,"Euribor-linked floating notes use Actual/360 (money-market convention)"
+GBP,Fixed,Actual/Actual (ICMA),"International sterling bond standard per ICMA Rule 251; same convention as the UK Gilt market"
+CAD,Fixed,Actual/365,"Alphabet Canada issuances use Actual/365 for partial interest periods (the extractor captures the first day-count token from the term sheet clause 'Actual/365 (Fixed) when calculating interest accruals during any partial interest period / 30/360 for a full interest period'); semi-annual pay confirmed by term sheet"

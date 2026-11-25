@@ -23,10 +23,11 @@ RAW_DIR   = Path(__file__).parent.parent / "data" / "raw" / "prospectus"
 
 OUTPUT_COLUMNS = [
     "issuer", "bond_name", "currency", "principal_amount",
-    "rate_type", "coupon_pct",
+    "rate_type", "coupon_pct", "coupon_frequency",
     "floating_benchmark", "floating_spread_pct",
     "maturity_date", "price_to_public_pct",
-    "benchmark_treasury_yield_pct", "spread_to_treasury_bps", "yield_pct",
+    "benchmark_treasury_yield_pct", "spread_to_treasury_bps",
+    "yield_pct", "yield_semiannual", "yield_annual",
     "trade_date", "settlement_date", "day_count", "day_count_source",
     "rating_moodys", "rating_sp",
     "cusip", "isin",
@@ -82,6 +83,49 @@ def html_to_flat(raw):
     t = re.sub(r"<[^>]+>", " ", raw)
     t = _unn(t)
     return re.sub(r"\s+", " ", t).strip()
+
+
+def normalize_day_count(raw):
+    """Normalize day count string to a canonical form for comparison."""
+    if not raw:
+        return raw
+    r = re.sub(r"\s*/\s*", "/", str(raw).strip())
+    r = re.sub(r"\s+", " ", r)
+    if re.match(r"(?i)30/360", r):                      return "30/360"
+    if re.match(r"(?i)actual/360", r):                  return "Actual/360"
+    if re.match(r"(?i)act(?:ual)?/act(?:ual)?", r):     return "Actual/Actual (ICMA)"
+    if re.match(r"(?i)actual/365", r):                  return "Actual/365"
+    return r
+
+
+def detect_coupon_frequency(text):
+    """Detect coupon payment frequency from 'Interest Payment Dates' in document text.
+    Returns 'annual', 'semi-annual', or 'quarterly'."""
+    ip_m = re.search(
+        r"(?i)Interest\s+Payment\s+Date[^:]*:?\s*(.*?)"
+        r"(?=\s*(?:Day Count|CUSIP|Listing|Denominations?|Optional|\Z))",
+        text, re.DOTALL
+    )
+    if ip_m:
+        ip_text = ip_m.group(1)[:400]
+        if re.search(r"(?i)\bquarterly\b", ip_text):
+            return "quarterly"
+        if re.search(r"(?i)\bsemi.annually\b", ip_text):
+            return "semi-annual"
+        # Annual: a single month-day before "of each year" (not "and Month Day of each year")
+        single_ann = re.search(
+            r"(?i)\b(?:January|February|March|April|May|June|July|August|September|"
+            r"October|November|December)\s+\d+\s+of\s+each\s+year",
+            ip_text
+        )
+        if single_ann:
+            two_dates = re.search(
+                r"(?i)[A-Z][a-z]+\s+\d+\s+and\s+[A-Z][a-z]+\s+\d+[^.]*of\s+each\s+year",
+                ip_text
+            )
+            if not two_dates:
+                return "annual"
+    return "semi-annual"
 
 def load_html(issuer, accession):
     p = RAW_DIR / issuer / f"{accession}.htm"
@@ -376,7 +420,7 @@ def extract_fields_block(text, heading, doc_flat=None, bond_label=None, block_te
                 r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT(?:UAL)?\s*/\s*ACT(?:UAL)?(?:\s*\(ICMA\))?)",
                 dcr, re.I)
         raw_dc = dcm.group(1) if dcm else dcr.split()[0]
-        opt("day_count", re.sub(r"\s*/\s*", "/", raw_dc))
+        opt("day_count", normalize_day_count(raw_dc))
         opt("day_count_source", "term_sheet")
     else:
         opt("day_count", None)
@@ -455,20 +499,28 @@ def extract_fields_block(text, heading, doc_flat=None, bond_label=None, block_te
         if not spv:
             missing.append("spread_to_treasury_bps")
 
-        # Yield
+        # Yield (all block extractor bonds are USD → semi-annual pay)
         yh = list(re.finditer(r"(?:Yield to Maturity|Yield):\s*(\d+\.\d+)\s*%", text, re.I))
         yv = yh[-1].group(1) if yh else None
         if not yv:
             ym2 = re.search(r"Yield to Maturity[^:]*:\s*(\d+\.\d+)%", text, re.I)
             yv = ym2.group(1) if ym2 else None
         opt("yield_pct", yv)
+        opt("yield_semiannual", yv or "")
+        opt("yield_annual",     "")
         if not yv:
             missing.append("yield_pct")
 
         opt("floating_benchmark",  "")
         opt("floating_spread_pct", "")
 
+        # Coupon frequency: all block-extractor bonds are USD → semi-annual
+        opt("coupon_frequency", detect_coupon_frequency(text) or "semi-annual")
+
     else:  # Floating
+        opt("coupon_frequency", "")
+        opt("yield_semiannual", "")
+        opt("yield_annual",     "")
         fb = re.search(
             r"will\s+be\s+(Compounded\s+SOFR|(?:Term\s+)?SOFR|EURIBOR|CORRA|SONIA)",
             text, re.I | re.DOTALL)
@@ -544,15 +596,22 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
     ratings_raw = top(r"(?:Expected )?Ratings?(?:\*{0,2})?")
     mdy, sp = parse_ratings(ratings_raw)
 
-    dc_raw = top(r"Day Count Convention")
-    if dc_raw:
-        dcm = re.search(
-            r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT(?:UAL)?\s*/\s*ACT(?:UAL)?(?:\s*\(ICMA\))?)",
-            dc_raw, re.I)
-        raw_dc = dcm.group(1) if dcm else dc_raw.split()[0]
-        day_count = re.sub(r"\s*/\s*", "/", raw_dc)
-    else:
-        day_count = ""  # no day count in term sheet; bonds will look up prospectus
+    # Collect ALL Day Count Convention occurrences in the document.
+    # Some FWPs (Alphabet USD with both floating and fixed tranches) list one per
+    # bond type: "Actual/360" for the floating section, "30/360" for the fixed section.
+    # Picking only the first occurrence assigns the floating convention to fixed bonds.
+    _DC_PAT = r"(?i)Day Count[^:]{0,30}:\s*([^\n]{1,120})"
+    _DC_VAL = r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT(?:UAL)?\s*/\s*ACT(?:UAL)?(?:\s*\(ICMA\))?)"
+    all_dcs = []
+    for dc_text in re.findall(_DC_PAT, doc_flat):
+        dcm = re.search(_DC_VAL, dc_text, re.I)
+        if dcm:
+            all_dcs.append(normalize_day_count(dcm.group(1)))
+    day_count       = all_dcs[0] if all_dcs else ""   # first occurrence (floating section default)
+    day_count_fixed = next((d for d in all_dcs if d != "Actual/360"), "") or day_count
+
+    # Coupon frequency for the whole document (shared across all bonds)
+    doc_coupon_freq = detect_coupon_frequency(doc_flat)
 
     rows = []
     for full_name, label in bond_pairs:
@@ -607,19 +666,26 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
             fields["price_to_public_pct"] = ""
             missing.append("price_to_public_pct")
 
-        # Day count: use term-sheet value when present; for floating bonds where the
-        # term sheet says 30/360 (the fixed-rate convention), apply Actual/360 — still
-        # "term_sheet" because the bond type is confirmed in the doc.  When the term
-        # sheet has no day count label, look up the 424B2 prospectus.
-        if is_float and day_count == "30/360":
-            fields["day_count"]        = "Actual/360"
-            fields["day_count_source"] = "term_sheet"
-        elif day_count:
-            fields["day_count"]        = day_count
+        # Day count: floating bonds always use Actual/360; fixed bonds use the
+        # fixed-specific day count (the first non-Actual/360 value in the document).
+        # When the document has no day count at all, fall back to the prospectus.
+        if is_float:
+            if day_count:
+                # Term sheet mentions a day count → bond type is confirmed in doc
+                fields["day_count"]        = "Actual/360"
+                fields["day_count_source"] = "term_sheet"
+            elif prospectus_dc:
+                prosp_val, prosp_found = prospectus_dc.get("Floating", ("", False))
+                fields["day_count"]        = prosp_val if prosp_found else ""
+                fields["day_count_source"] = "prospectus" if prosp_found else "not_found"
+            else:
+                fields["day_count"]        = ""
+                fields["day_count_source"] = "not_found"
+        elif day_count_fixed:
+            fields["day_count"]        = day_count_fixed
             fields["day_count_source"] = "term_sheet"
         elif prospectus_dc:
-            rate_key = "Floating" if is_float else "Fixed"
-            prosp_val, prosp_found = prospectus_dc.get(rate_key, ("", False))
+            prosp_val, prosp_found = prospectus_dc.get("Fixed", ("", False))
             fields["day_count"]        = prosp_val if prosp_found else ""
             fields["day_count_source"] = "prospectus" if prosp_found else "not_found"
         else:
@@ -661,17 +727,38 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
                 missing.append("floating_spread_pct")
             fields["benchmark_treasury_yield_pct"] = ""
             fields["spread_to_treasury_bps"]       = ""
-            fields["yield_pct"]                    = ""
+            fields["yield_pct"]        = ""
+            fields["yield_semiannual"] = ""
+            fields["yield_annual"]     = ""
+            fields["coupon_frequency"] = doc_coupon_freq
         else:
-            # Yield
+            # Yield — handle dual format "X% / Y%" (GBP bonds quote semi-annual then annual)
             ys = find_all_field_sections(doc_flat, r"Yield to Maturity(?:\s*\([^)]*\))?")
             yv = find_labeled_value(ys, label)
             if yv:
-                ym = re.search(r"(\d+\.\d+)", yv)
-                fields["yield_pct"] = ym.group(1) if ym else ""
+                dual_m = re.search(r"(\d+\.\d+)%\s*/\s*(\d+\.\d+)%", yv)
+                if dual_m:
+                    # Semi-Annual / Annual format (GBP bond convention)
+                    fields["yield_semiannual"] = dual_m.group(1)
+                    fields["yield_annual"]     = dual_m.group(2)
+                    fields["yield_pct"]        = dual_m.group(2)  # annual is the standard for annual-pay
+                else:
+                    ym = re.search(r"(\d+\.\d+)", yv)
+                    yval = ym.group(1) if ym else ""
+                    fields["yield_pct"] = yval
+                    curr = fields.get("currency", "USD")
+                    if curr == "EUR":
+                        fields["yield_annual"]     = yval
+                        fields["yield_semiannual"] = ""
+                    else:  # USD, CAD → semi-annual convention
+                        fields["yield_semiannual"] = yval
+                        fields["yield_annual"]     = ""
             else:
-                fields["yield_pct"] = ""
+                fields["yield_pct"]        = ""
+                fields["yield_semiannual"] = ""
+                fields["yield_annual"]     = ""
                 missing.append("yield_pct")
+            fields["coupon_frequency"] = doc_coupon_freq
 
             # Spread
             sps = (find_all_field_sections(doc_flat, r"Spread to(?:\s+Benchmark)?\s+(?:Treasury|Gilt|Bund|GoC|Mid.Swap)")
@@ -783,7 +870,7 @@ def extract_jj(raw_html, issuer_name="Johnson & Johnson"):
     # ACT(?:UAL)? handles both "ACT/ACT(ICMA)" and "ACTUAL/ACTUAL (ICMA)" (J&J EUR)
     dc_m = re.search(r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT(?:UAL)?\s*/\s*ACT(?:UAL)?(?:\s*\(ICMA\))?)", dc_raw, re.I)
     raw_dc = dc_m.group(1) if dc_m else dc_raw if dc_raw else ""
-    day_count = re.sub(r"\s*/\s*", "/", raw_dc)
+    day_count = normalize_day_count(raw_dc)
 
     # Per-bond sections
     size_sec = find_field_section(flat, r"Size")
@@ -838,6 +925,9 @@ def extract_jj(raw_html, issuer_name="Johnson & Johnson"):
         f["yield_pct"] = yv_all[i] if len(yv_all) >= n and i < len(yv_all) else ""
         if not f["yield_pct"]:
             miss.append("yield_pct")
+        f["yield_annual"]     = f["yield_pct"]   # J&J EUR bonds pay annually (ICMA)
+        f["yield_semiannual"] = ""
+        f["coupon_frequency"] = "annual"
 
         # Spread — J&J EUR uses "Spread to Benchmark Security"; match that BEFORE
         # broader alternatives (Mid-Swap / Treasury) so we get Bund-spread not swap-spread.
@@ -953,16 +1043,19 @@ def extract_alphabet_hybrid_eur(raw_html):
             miss.append("isin")
 
         dc_m2 = re.search(r"(Actual\s*/\s*\d+|30\s*/\s*360)", fsec, re.I)
-        f["day_count"]        = dc_m2.group(1) if dc_m2 else "Actual/360"
+        f["day_count"]        = normalize_day_count(dc_m2.group(1) if dc_m2 else "Actual/360")
         f["day_count_source"] = "term_sheet"
 
-        f["trade_date"]      = trade_date
-        f["settlement_date"] = sett_date
-        f["rating_moodys"]   = mdy or ""
-        f["rating_sp"]       = sp  or ""
+        f["trade_date"]        = trade_date
+        f["settlement_date"]   = sett_date
+        f["rating_moodys"]     = mdy or ""
+        f["rating_sp"]         = sp  or ""
         f["benchmark_treasury_yield_pct"] = ""
         f["spread_to_treasury_bps"]       = ""
-        f["yield_pct"]                    = ""
+        f["yield_pct"]         = ""
+        f["yield_semiannual"]  = ""
+        f["yield_annual"]      = ""
+        f["coupon_frequency"]  = "annual"   # EUR floating notes pay annually
         f["missing_fields"] = ", ".join(miss)
         rows.append(f)
 
@@ -980,7 +1073,7 @@ def extract_alphabet_hybrid_eur(raw_html):
     dc_raw = re.search(r"Day Count[^:]*:\s*(.*?){_TERM}".replace("{_TERM}", _TERM), fixed_flat, re.DOTALL | re.I)
     dc_raw = dc_raw.group(1).strip() if dc_raw else ""
     dc_m = re.search(r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT\s*/\s*ACT(?:\s*\(ICMA\))?)", dc_raw, re.I)
-    day_count = dc_m.group(1) if dc_m else "Actual/Actual (ICMA)"
+    day_count = normalize_day_count(dc_m.group(1) if dc_m else "Actual/Actual (ICMA)")
 
     for full_name, label in fixed_pairs:
         f = {}
@@ -1038,15 +1131,35 @@ def extract_alphabet_hybrid_eur(raw_html):
             f["spread_to_treasury_bps"] = ""
             miss.append("spread_to_treasury_bps")
 
+        # Require "Price and Yield" to skip the bare "Benchmark Bund: BKO..." name label
         bps2 = find_field_section(fixed_flat,
-            r"Benchmark(?:\s+Bund|\s+Treasury|\s+Gilt)(?:\s+Price\s+and\s+Yield)?")
+            r"Benchmark(?:\s+Bund|\s+Treasury|\s+Gilt)\s+Price\s+and\s+Yield")
         bpv = find_labeled_value(bps2, label)
         if bpv:
             b2 = re.search(r"[\d.]+%\s*/\s*(\d+\.\d+)%", bpv)
             f["benchmark_treasury_yield_pct"] = b2.group(1) if b2 else ""
+            if not f["benchmark_treasury_yield_pct"]:
+                miss.append("benchmark_treasury_yield_pct")
         else:
             f["benchmark_treasury_yield_pct"] = ""
             miss.append("benchmark_treasury_yield_pct")
+
+        # Yield — EUR fixed bonds quote a single annual yield
+        ys2 = find_field_section(fixed_flat, r"Yield to Maturity")
+        yv2 = find_labeled_value(ys2, label)
+        if yv2:
+            ym2 = re.search(r"(\d+\.\d+)", yv2)
+            yval = ym2.group(1) if ym2 else ""
+            f["yield_pct"]        = yval
+            f["yield_annual"]     = yval
+            f["yield_semiannual"] = ""
+        else:
+            f["yield_pct"]        = ""
+            f["yield_annual"]     = ""
+            f["yield_semiannual"] = ""
+            miss.append("yield_pct")
+
+        f["coupon_frequency"] = "annual"   # EUR fixed notes pay annually
 
         # CUSIP/ISIN
         rc = find_cusip_labeled(fixed_flat, label)
@@ -1097,6 +1210,11 @@ def process_apple():
     # Apple FWPs always carry "Day Count Convention:" — mark all as term_sheet
     df["day_count_source"] = df["day_count"].apply(
         lambda v: "term_sheet" if str(v).strip() else "not_found")
+    df["day_count"]        = df["day_count"].apply(normalize_day_count)
+    df["coupon_frequency"] = "semi-annual"           # Apple = USD; USD pays semi-annual
+    df["yield_semiannual"] = df["yield_pct"].apply(  # semi-annual yield = yield_pct for USD
+        lambda v: "" if pd.isna(v) else str(v))
+    df["yield_annual"]     = ""
     rows = df[OUTPUT_COLUMNS].to_dict("records")
     print(f"  Apple:  {len(rows)} bonds (from {APPLE_CSV.name})")
     return rows

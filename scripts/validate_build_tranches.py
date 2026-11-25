@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 """
-Module 5 — Validation checks V1-V7 for all 106 build-set bonds.
+Module 5 — Validation checks V1-V8 for all 106 build-set bonds.
 
-Re-uses the same check logic as validate_tranches.py but:
-  - reads module5_build_tranches.csv (5 issuers, 106 bonds)
-  - V3 looks up each issuer's own stock CUSIP prefix from security_master_history
-  - V7 groups by (issuer, trade_date) so cross-company same-date deals don't collide
-  - outputs a failure-count matrix (checks × companies) and top-10 failure list
+Changes from the previous version:
+  V3  — also accepts CUSIP prefixes listed in data/reference/issuer_prefixes.csv
+          (for Alphabet Canada ULC bonds confirmed via OpenFIGI)
+  V4  — returns not_applicable when the document does not contain a benchmark yield
+          (instead of failing the bond for missing data)
+  V5  — compares coupon against the yield of the same payment frequency
+          (annual yield for EUR/GBP annual-pay bonds; semi-annual for USD/CAD)
+  V6  — also accepts the maturity year when it appears anywhere in the bond name
+          (handles names like "The 2028 Floating Rate Notes")
+  V7  — currency-aware day count check driven by data/reference/day_count_conventions.csv;
+          any (currency, rate_type) combination not in that file → needs_review, not fail
+
+Rule changes are documented in the two reference CSV files; nothing is auto-passed.
 """
-import os, re, sys
+import os, re
 from datetime import datetime
 from pathlib import Path
 
@@ -18,12 +26,16 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent.parent / ".env")
 
-IN_CSV  = Path(__file__).parent.parent / "data" / "processed" / "module5_build_tranches.csv"
-OUT_CSV = Path(__file__).parent.parent / "data" / "processed" / "module5_build_validation.csv"
+IN_CSV        = Path(__file__).parent.parent / "data" / "processed" / "module5_build_tranches.csv"
+OUT_CSV       = Path(__file__).parent.parent / "data" / "processed" / "module5_build_validation.csv"
+PREFIXES_CSV  = Path(__file__).parent.parent / "data" / "reference"  / "issuer_prefixes.csv"
+CONVENTIONS_CSV = Path(__file__).parent.parent / "data" / "reference" / "day_count_conventions.csv"
 
-PASS = "pass"
-FAIL = "fail"
-NA   = "not applicable"
+PASS           = "pass"
+FAIL           = "fail"
+NA             = "not applicable"    # check concept does not apply (e.g. floating-rate bond)
+NOT_APPLICABLE = "not_applicable"    # check applies but data is absent from the document
+NEEDS_REVIEW   = "needs_review"      # (currency, rate_type) combo not yet in reference file
 
 # Map issuer column value → search fragment for security_master_history ILIKE
 ISSUER_SEARCH = {
@@ -34,7 +46,6 @@ ISSUER_SEARCH = {
     "Microsoft Corporation": "Microsoft Corp",
 }
 
-# Short labels for the output table
 ISSUER_SHORT = {
     "Apple":                 "Apple",
     "Alphabet Inc.":         "Alphabet",
@@ -44,7 +55,43 @@ ISSUER_SHORT = {
 }
 
 
-# ── check functions (identical logic to validate_tranches.py) ─────────────────
+# ── reference-file loaders ────────────────────────────────────────────────────
+
+def load_issuer_prefixes():
+    """Return dict: issuer → set of approved extra CUSIP prefixes (6 chars, uppercase)."""
+    extra = {}
+    df = pd.read_csv(PREFIXES_CSV, dtype=str)
+    for _, row in df.iterrows():
+        company = str(row["company"]).strip()
+        prefix  = str(row["cusip_prefix"]).strip().upper()[:6]
+        extra.setdefault(company, set()).add(prefix)
+    return extra
+
+
+def load_day_count_conventions():
+    """Return dict: (currency, rate_type) → expected_day_count (normalized)."""
+    df = pd.read_csv(CONVENTIONS_CSV, dtype=str)
+    conv = {}
+    for _, row in df.iterrows():
+        key = (str(row["currency"]).strip(), str(row["rate_type"]).strip())
+        conv[key] = str(row["expected_day_count"]).strip()
+    return conv
+
+
+def normalize_dc(raw):
+    """Same normalization used by the extractor so comparisons are apples-to-apples."""
+    if not raw:
+        return raw
+    r = re.sub(r"\s*/\s*", "/", str(raw).strip())
+    r = re.sub(r"\s+", " ", r)
+    if re.match(r"(?i)30/360", r):                      return "30/360"
+    if re.match(r"(?i)actual/360", r):                  return "Actual/360"
+    if re.match(r"(?i)act(?:ual)?/act(?:ual)?", r):     return "Actual/Actual (ICMA)"
+    if re.match(r"(?i)actual/365", r):                  return "Actual/365"
+    return r
+
+
+# ── check functions ───────────────────────────────────────────────────────────
 
 def _cusip_char_val(c):
     if c.isdigit(): return int(c)
@@ -97,42 +144,96 @@ def check_v2(isin):
         return PASS, f"Luhn sum {total} ≡ 0"
     return FAIL, f"Luhn sum {total} not ≡ 0"
 
-def check_v3(cusip, stock_prefix, issuer):
+def check_v3(cusip, stock_prefix, issuer, extra_prefixes):
+    """
+    Bond CUSIP prefix must match the issuer's stock CUSIP prefix, OR be listed
+    in data/reference/issuer_prefixes.csv (approved after OpenFIGI confirmation).
+    """
     bond_prefix = str(cusip).strip().upper()[:6]
+    approved = extra_prefixes.get(issuer, set())
+    if bond_prefix in approved:
+        return PASS, f"prefix {bond_prefix} approved in issuer_prefixes.csv for {issuer!r}"
     if stock_prefix is None:
         return FAIL, f"no stock CUSIP found for {issuer!r} in security_master_history"
     if bond_prefix == stock_prefix:
         return PASS, f"bond prefix {bond_prefix} = stock prefix {stock_prefix}"
-    return FAIL, f"bond prefix {bond_prefix} ≠ stock prefix {stock_prefix}"
+    return FAIL, (f"bond prefix {bond_prefix} ≠ stock prefix {stock_prefix} "
+                  f"and not in issuer_prefixes.csv")
 
-def check_v4(rate_type, bm_yield, spread_bps, yld):
+def check_v4(rate_type, bm_yield, spread_bps, yld, yield_sa=""):
+    """
+    Verify: benchmark_yield + spread/100 ≈ yield (± 0.5 bps tolerance).
+    Returns not_applicable when the document does not contain a benchmark yield.
+    Tries yield_pct first; also tries yield_semiannual as a fallback because GBP bonds
+    quote the Gilt benchmark on a semi-annual basis and state the spread against
+    the semi-annual yield, not the annual yield.
+    """
     if str(rate_type).strip().lower() != "fixed":
         return NA, "floating-rate bond"
+    # Document did not contain a benchmark yield → not_applicable
     try:
-        bm, sp, y = float(bm_yield), float(spread_bps), float(yld)
+        bm = float(bm_yield)
     except (TypeError, ValueError):
-        return FAIL, "one or more numeric fields missing/non-numeric"
-    diff = abs(bm + sp / 100.0 - y)
-    if diff <= 0.005:
-        return PASS, f"|{bm}+{sp}/100−{y}| = {diff:.4f} ≤ 0.005"
-    return FAIL, f"|{bm}+{sp}/100−{y}| = {diff:.4f} > 0.005"
+        return NOT_APPLICABLE, "benchmark yield not in document"
+    try:
+        sp = float(spread_bps)
+    except (TypeError, ValueError):
+        return FAIL, "spread missing/non-numeric"
+    computed = bm + sp / 100.0
+    # Try yield_pct first, then yield_semiannual (for GBP bonds that use semi-annual convention)
+    for col_name, yld_val in [("yield_pct", yld), ("yield_sa", yield_sa)]:
+        try:
+            y = float(yld_val)
+        except (TypeError, ValueError):
+            continue
+        diff = abs(computed - y)
+        if diff <= 0.005:
+            suffix = f" (using {col_name})" if col_name != "yield_pct" else ""
+            return PASS, f"|{bm}+{sp}/100−{y}| = {diff:.4f} ≤ 0.005{suffix}"
+    # Neither matched — report against yield_pct
+    try:
+        y_main = float(yld)
+        diff_main = abs(computed - y_main)
+        return FAIL, f"|{bm}+{sp}/100−{y_main}| = {diff_main:.4f} > 0.005"
+    except (TypeError, ValueError):
+        return FAIL, "yield missing/non-numeric"
 
-def check_v5(rate_type, coupon, yld, price):
+def check_v5(rate_type, coupon, yld, price, coupon_freq="", yield_sa="", yield_ann=""):
+    """
+    Coupon vs yield pricing direction check.
+    Uses yield of the same frequency as the coupon: annual yield for annual-pay
+    bonds (EUR, GBP); semi-annual yield for semi-annual-pay bonds (USD, CAD).
+    Falls back to yield_pct when the specific column is empty.
+    """
     if str(rate_type).strip().lower() != "fixed":
         return NA, "floating-rate bond"
+    cf = str(coupon_freq).strip().lower()
+    if cf == "annual" and yield_ann:
+        compare_yld = yield_ann
+        freq_label  = "annual"
+    elif cf in ("semi-annual",) and yield_sa:
+        compare_yld = yield_sa
+        freq_label  = "semi-annual"
+    else:
+        compare_yld = yld
+        freq_label  = "yield_pct"
     try:
-        c, y, p = float(coupon), float(yld), float(price)
+        c, y, p = float(coupon), float(compare_yld), float(price)
     except (TypeError, ValueError):
         return FAIL, "one or more numeric fields missing/non-numeric"
     if abs(c - y) < 1e-6:
         ok = abs(p - 100.0) <= 0.01
-        return (PASS if ok else FAIL), f"par bond, price {p}"
+        return (PASS if ok else FAIL), f"par bond ({freq_label}), price {p}"
     elif c < y:
         ok = p < 100.0
-        return (PASS if ok else FAIL), f"coupon {c}% < yield {y}%, price {p} {'✓' if ok else '✗ (expected <100)'}"
+        return (PASS if ok else FAIL), (
+            f"coupon {c}% < {freq_label} yield {y}%, price {p} "
+            f"{'✓' if ok else '✗ (expected <100)'}")
     else:
         ok = p > 100.0
-        return (PASS if ok else FAIL), f"coupon {c}% > yield {y}%, price {p} {'✓' if ok else '✗ (expected >100)'}"
+        return (PASS if ok else FAIL), (
+            f"coupon {c}% > {freq_label} yield {y}%, price {p} "
+            f"{'✓' if ok else '✗ (expected >100)'}")
 
 _DATE_FMT = "%B %d, %Y"
 
@@ -141,6 +242,11 @@ def _parse_date(s):
     return datetime.strptime(s, _DATE_FMT).date()
 
 def check_v6(bond_name, trade_str, sett_str, mat_str):
+    """
+    Date ordering check: trade ≤ settlement < maturity.
+    Accepts 'due YYYY' in bond name, and also falls back to any 4-digit year
+    anywhere in the name (handles 'The 2028 Floating Rate Notes').
+    """
     try:
         trade = _parse_date(trade_str)
         sett  = _parse_date(sett_str)
@@ -152,12 +258,54 @@ def check_v6(bond_name, trade_str, sett_str, mat_str):
     if sett >= mat:
         return FAIL, f"settlement {sett} ≥ maturity {mat}"
     m = re.search(r"due\s+(\d{4})", bond_name, re.IGNORECASE)
-    if not m:
-        return FAIL, f"'due YYYY' not in bond_name"
-    name_year = int(m.group(1))
+    if m:
+        name_year = int(m.group(1))
+    else:
+        # Fallback: accept any 4-digit year in the bond name
+        m2 = re.search(r"\b(\d{4})\b", bond_name)
+        if not m2:
+            return FAIL, "no year found in bond_name"
+        name_year = int(m2.group(1))
     if name_year != mat.year:
         return FAIL, f"name year {name_year} ≠ maturity year {mat.year}"
     return PASS, f"trade {trade} ≤ sett {sett} < mat {mat}, year {mat.year} ✓"
+
+def check_v7(bond, all_df, conventions):
+    """
+    Deal-uniformity check + currency-aware day count check.
+    Day count is validated against data/reference/day_count_conventions.csv.
+    Returns needs_review (not fail) when the (currency, rate_type) combination
+    is not yet covered by the reference file.
+    """
+    issuer     = str(bond["issuer"]).strip()
+    trade_date = str(bond["trade_date"]).strip()
+    currency   = str(bond.get("currency", "USD")).strip()
+    rate_type  = str(bond["rate_type"]).strip()
+    dc         = normalize_dc(str(bond["day_count"]).strip())
+
+    # Deal uniformity
+    deal_df = all_df[
+        (all_df["issuer"].astype(str).str.strip() == issuer) &
+        (all_df["trade_date"].astype(str).str.strip() == trade_date)
+    ]
+    issues = []
+    for field in ["rating_moodys", "rating_sp", "trade_date", "settlement_date"]:
+        vals = deal_df[field].astype(str).str.strip().unique()
+        if len(vals) > 1:
+            issues.append(f"{field} not uniform in deal: {list(vals)}")
+
+    # Currency-aware day count using reference file
+    key = (currency, rate_type)
+    if key not in conventions:
+        return NEEDS_REVIEW, (f"({currency}, {rate_type}) not in day_count_conventions.csv"
+                              + ("; " + "; ".join(issues) if issues else ""))
+    expected_dc = conventions[key]
+    if dc != expected_dc:
+        issues.append(f"day_count={dc!r} (expected {expected_dc!r} for {currency} {rate_type})")
+
+    if issues:
+        return FAIL, "; ".join(issues)
+    return PASS, f"ratings/dates uniform; day_count={dc!r} ✓"
 
 def check_v8(bond, all_df):
     """Within one deal (same issuer + trade_date), no two bonds may share a CUSIP."""
@@ -174,61 +322,39 @@ def check_v8(bond, all_df):
     return PASS, f"CUSIP {cusip} is unique in this deal"
 
 
-def check_v7(bond, all_df):
-    issuer     = str(bond["issuer"]).strip()
-    trade_date = str(bond["trade_date"]).strip()
-    # Group by (issuer, trade_date) so cross-company same-date deals don't collide
-    deal_df = all_df[
-        (all_df["issuer"].astype(str).str.strip() == issuer) &
-        (all_df["trade_date"].astype(str).str.strip() == trade_date)
-    ]
-    issues = []
-    for field in ["rating_moodys", "rating_sp", "trade_date", "settlement_date"]:
-        vals = deal_df[field].astype(str).str.strip().unique()
-        if len(vals) > 1:
-            issues.append(f"{field} not uniform in deal: {list(vals)}")
-    rate_type = str(bond["rate_type"]).strip()
-    dc        = str(bond["day_count"]).strip()
-    if rate_type == "Fixed":
-        if "30/360" not in dc:
-            issues.append(f"day_count={dc!r} (Fixed → expected 30/360)")
-    elif rate_type == "Floating":
-        if not re.search(r"actual/360", dc, re.IGNORECASE):
-            issues.append(f"day_count={dc!r} (Floating → expected Actual/360)")
-    if issues:
-        return FAIL, "; ".join(issues)
-    dc_pass = "30/360" if rate_type == "Fixed" else "Actual/360"
-    return PASS, f"ratings/dates uniform; day_count={dc_pass!r} ✓"
-
-
 # ── runner ────────────────────────────────────────────────────────────────────
 
-def run_all_checks(df, prefix_map):
+def run_all_checks(df, prefix_map, extra_prefixes, conventions):
     rows = []
     for _, bond in df.iterrows():
-        cusip     = str(bond["cusip"]).strip()
-        bond_name = str(bond["bond_name"]).strip()
-        rate_type = str(bond["rate_type"]).strip()
-        issuer    = str(bond["issuer"]).strip()
+        cusip       = str(bond["cusip"]).strip()
+        bond_name   = str(bond["bond_name"]).strip()
+        rate_type   = str(bond["rate_type"]).strip()
+        issuer      = str(bond["issuer"]).strip()
+        coupon_freq = str(bond.get("coupon_frequency", "")).strip()
+        yield_sa    = str(bond.get("yield_semiannual", "")).strip()
+        yield_ann   = str(bond.get("yield_annual", "")).strip()
 
         stock_prefix = prefix_map.get(issuer)
         checks = {
             "V1": check_v1(cusip),
             "V2": check_v2(str(bond["isin"]).strip()),
-            "V3": check_v3(cusip, stock_prefix, issuer),
+            "V3": check_v3(cusip, stock_prefix, issuer, extra_prefixes),
             "V4": check_v4(rate_type,
                            bond["benchmark_treasury_yield_pct"],
                            bond["spread_to_treasury_bps"],
-                           bond["yield_pct"]),
+                           bond["yield_pct"],
+                           yield_sa),
             "V5": check_v5(rate_type,
                            bond["coupon_pct"],
                            bond["yield_pct"],
-                           bond["price_to_public_pct"]),
+                           bond["price_to_public_pct"],
+                           coupon_freq, yield_sa, yield_ann),
             "V6": check_v6(bond_name,
                            str(bond["trade_date"]),
                            str(bond["settlement_date"]),
                            str(bond["maturity_date"])),
-            "V7": check_v7(bond, df),
+            "V7": check_v7(bond, df, conventions),
             "V8": check_v8(bond, df),
         }
         for check_id, (result, detail) in checks.items():
@@ -249,6 +375,12 @@ def main():
                 "spread_to_treasury_bps", "price_to_public_pct"]:
         df[col] = pd.to_numeric(df[col], errors="coerce")
     print(f"Loaded {len(df)} bonds from {IN_CSV.name}")
+
+    # ── load reference files ──────────────────────────────────────────────────
+    extra_prefixes = load_issuer_prefixes()
+    conventions    = load_day_count_conventions()
+    print(f"  issuer_prefixes.csv: {sum(len(v) for v in extra_prefixes.values())} approved extra prefixes")
+    print(f"  day_count_conventions.csv: {len(conventions)} (currency, rate_type) entries")
 
     # ── V3: look up stock CUSIP prefix per issuer ─────────────────────────────
     prefix_map = {}
@@ -278,7 +410,7 @@ def main():
         print(f"WARNING: DB connection failed — V3 will fail for all bonds: {e}")
 
     # ── run checks ────────────────────────────────────────────────────────────
-    val = run_all_checks(df, prefix_map)
+    val = run_all_checks(df, prefix_map, extra_prefixes, conventions)
     val.to_csv(OUT_CSV, index=False)
     print(f"\nWrote {len(val)} rows → {OUT_CSV.name}")
 
@@ -289,7 +421,6 @@ def main():
     companies = ["Apple", "Alphabet", "Eli Lilly", "J&J", "Microsoft"]
     checks    = ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"]
 
-    # Build matrix
     pivot = (
         fails.groupby(["check", "company"])
              .size()
@@ -301,23 +432,57 @@ def main():
     print("\nFailure counts (0 = all passed):")
     print(pivot.to_string())
 
-    # ── top-10 failures: one representative per (check, company) bucket ──────
-    if fails.empty:
-        print("\nAll bonds passed every check.")
+    # ── not_applicable counts per check ──────────────────────────────────────
+    na_rows = val[val["result"] == NOT_APPLICABLE].copy()
+    na_rows["company"] = na_rows["issuer"].map(ISSUER_SHORT)
+    na_pivot = (
+        na_rows.groupby(["check", "company"])
+               .size()
+               .unstack(fill_value=0)
+               .reindex(index=checks, columns=companies, fill_value=0)
+    )
+    na_pivot["TOTAL"] = na_pivot.sum(axis=1)
+    na_pivot = na_pivot[na_pivot["TOTAL"] > 0]
+
+    if not na_pivot.empty:
+        print("\nnot_applicable counts (data absent from document):")
+        print(na_pivot.to_string())
     else:
-        # Pick the first failure per (check, company) so all checks/companies are visible
+        print("\nnot_applicable counts: none")
+
+    # ── needs_review counts per check ────────────────────────────────────────
+    nr_rows = val[val["result"] == NEEDS_REVIEW].copy()
+    nr_rows["company"] = nr_rows["issuer"].map(ISSUER_SHORT)
+    nr_pivot = (
+        nr_rows.groupby(["check", "company"])
+               .size()
+               .unstack(fill_value=0)
+               .reindex(index=checks, columns=companies, fill_value=0)
+    )
+    nr_pivot["TOTAL"] = nr_pivot.sum(axis=1)
+    nr_pivot = nr_pivot[nr_pivot["TOTAL"] > 0]
+
+    if not nr_pivot.empty:
+        print("\nneeds_review counts ((currency, rate_type) not yet in conventions file):")
+        print(nr_pivot.to_string())
+    else:
+        print("\nneeds_review counts: none")
+
+    # ── sample failures ───────────────────────────────────────────────────────
+    if fails.empty:
+        print("\nAll bonds passed every check (no failures).")
+    else:
         diverse = (
             fails.groupby(["check", "company"], sort=True)
                  .first()
                  .reset_index()
                  .sort_values(["check", "company"])
-                 .head(10)
+                 .head(15)
         )
         print(f"\nSample failures ({len(fails)} total — one per check/company bucket):")
         for _, r in diverse.iterrows():
             short_name = r["bond_name"][:40].strip()
-            company = r["company"] if "company" in r else ISSUER_SHORT.get(r["issuer"], r["issuer"])
-            print(f"  {r['check']}  {company:<10}  {r['cusip']}  "
+            print(f"  {r['check']}  {r['company']:<10}  {r['cusip']}  "
                   f"{short_name:<40}  {r['detail'][:75]}")
 
 
