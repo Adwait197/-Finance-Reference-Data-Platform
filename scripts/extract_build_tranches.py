@@ -27,7 +27,7 @@ OUTPUT_COLUMNS = [
     "floating_benchmark", "floating_spread_pct",
     "maturity_date", "price_to_public_pct",
     "benchmark_treasury_yield_pct", "spread_to_treasury_bps", "yield_pct",
-    "trade_date", "settlement_date", "day_count",
+    "trade_date", "settlement_date", "day_count", "day_count_source",
     "rating_moodys", "rating_sp",
     "cusip", "isin",
     "missing_fields",
@@ -92,6 +92,33 @@ def load_html(issuer, accession):
     if b"\x93" in raw or b"\x94" in raw:
         return raw.decode("cp1252", errors="replace")
     return raw.decode("utf-8", errors="replace")
+
+
+def lookup_day_count_from_prospectus(issuer_folder, fwp_accession):
+    """Read the 424B2 prospectus for this deal and extract day count conventions.
+    Returns dict: {"Fixed": (value, found_bool), "Floating": (value, found_bool)}."""
+    result = {"Fixed": ("", False), "Floating": ("", False)}
+    docs = pd.read_csv(DOCS_CSV, dtype=str)
+    row = docs[docs["fwp_accession"] == fwp_accession]
+    if row.empty:
+        return result
+    b2_accn = row.iloc[0]["accession_number"]
+    b2_path = RAW_DIR / issuer_folder / f"{b2_accn}.htm"
+    if not b2_path.exists():
+        return result
+    flat = html_to_flat(b2_path.read_bytes().decode("utf-8", errors="replace"))
+    # Fixed: "360-day year of/composed of twelve 30-day months" near "computed on the basis of"
+    if re.search(r"360.day\s+year\s+(?:of|composed\s+of)\s+twelve\s+30.day\s+months", flat, re.I):
+        result["Fixed"] = ("30/360", True)
+    # Floating: "actual number of days" within ~80 chars of "360-day year"
+    # Proximity check avoids false positives from fixed-rate language in the same doc
+    if re.search(
+        r"(?:actual\s+number\s+of\s+days.{1,80}360.day\s+year"
+        r"|360.day\s+year\s+and\s+the\s+actual\s+number\s+of\s+days)",
+        flat, re.I,
+    ):
+        result["Floating"] = ("Actual/360", True)
+    return result
 
 
 # ─── Rating parser (handles forward/reversed/mixed formats) ───────────────────
@@ -230,22 +257,31 @@ def split_blocks(html, heading_re, tag="u"):
 
 
 # ─── Block-level field extractor (Apple / Eli Lilly / Alphabet Nov2025) ───────
-def extract_fields_block(text, heading, doc_flat=None, bond_label=None):
+def extract_fields_block(text, heading, doc_flat=None, bond_label=None, block_text=None):
     """
     Extract all OUTPUT_COLUMNS fields from one bond's flat text block.
     text:       preamble + block flat text
     heading:    bond heading string
     doc_flat:   full doc flat (for labeled CUSIP fallback, Alphabet Nov 2025)
     bond_label: short label "2028 Notes" (for labeled CUSIP fallback)
+    block_text: block-only flat text (no preamble); used to prefer block data
+                over preamble data when preamble contains a prior bond's fields
     """
     fields = {}
     missing = []
 
     def find_raw(label_re, src=None):
-        t = src if src is not None else text
-        m = re.search(rf"(?i)(?:{label_re}):?\s*(.*?){_TERM}", t, re.DOTALL)
-        v = m.group(1) if m else None
-        return v.strip() if v is not None else None
+        # When block_text is provided and no explicit src, search block first
+        # (prevents preamble fields from bleeding into the wrong bond's block)
+        for t in ([src] if src is not None
+                  else ([block_text, text] if block_text else [text])):
+            if t is None:
+                continue
+            m = re.search(rf"(?i)(?:{label_re}):?\s*(.*?){_TERM}", t, re.DOTALL)
+            v = m.group(1) if m else None
+            if v is not None and v.strip():
+                return v.strip()
+        return None
 
     def req(k, v):
         fields[k] = v if v else ""
@@ -295,7 +331,9 @@ def extract_fields_block(text, heading, doc_flat=None, bond_label=None):
     opt("currency", detect_currency(pa or "") if pa else "")
 
     # ── Maturity ──────────────────────────────────────────────────────────────
-    mr = find_raw(r"Maturity(?:\s+Date)?")
+    # Prefer block_text to avoid a preamble bond's maturity bleeding into this block
+    mr = (find_raw(r"Maturity(?:\s+Date)?", src=block_text) if block_text else None) \
+         or find_raw(r"Maturity(?:\s+Date)?")
     mm = re.search(r"([A-Z][a-z]+ \d+, \d{4})", mr or "")
     req("maturity_date", mm.group(1) if mm else None)
 
@@ -313,26 +351,41 @@ def extract_fields_block(text, heading, doc_flat=None, bond_label=None):
     req("price_to_public_pct", pv)
 
     # ── Dates ─────────────────────────────────────────────────────────────────
-    tr = find_raw(r"Trade Date")
+    # Dates are shared per-deal and always live in the preamble; use combined text
+    # to avoid block-first picking up an interest-accrual date inside the block.
+    tr = find_raw(r"Trade Date", src=text)
     tm = re.search(r"([A-Z][a-z]+ \d+, \d{4})", tr or "")
     req("trade_date", tm.group(1) if tm else None)
 
-    sr = find_raw(r"Settlement Date[^:]{0,30}")
+    sr = find_raw(r"Settlement Date[^:]{0,30}", src=text)
     sm = re.search(r"([A-Z][a-z]+ \d+, \d{4})", sr or "")
     req("settlement_date", sm.group(1) if sm else None)
 
     # ── Day count ─────────────────────────────────────────────────────────────
     dcr = find_raw(r"Day Count Convention")
     if dcr:
-        dcm = re.search(
-            r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT\s*/\s*ACT(?:\s*\(ICMA\))?)",
-            dcr, re.I)
-        opt("day_count", dcm.group(1) if dcm else dcr.split()[0])
+        # When a doc states both rates (e.g. "Actual/360 for Floating ... 30/360 for Fixed"),
+        # pick the convention that matches this bond's rate type.
+        rate_now = fields.get("rate_type", "")
+        if rate_now == "Fixed" and re.search(r"30\s*/\s*360", dcr, re.I):
+            dcm = re.search(r"(30\s*/\s*360)", dcr, re.I)
+        elif rate_now == "Floating" and re.search(r"Actual\s*/\s*\d+", dcr, re.I):
+            dcm = re.search(r"(Actual\s*/\s*\d+)", dcr, re.I)
+        else:
+            dcm = re.search(
+                r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT(?:UAL)?\s*/\s*ACT(?:UAL)?(?:\s*\(ICMA\))?)",
+                dcr, re.I)
+        raw_dc = dcm.group(1) if dcm else dcr.split()[0]
+        opt("day_count", re.sub(r"\s*/\s*", "/", raw_dc))
+        opt("day_count_source", "term_sheet")
     else:
         opt("day_count", None)
+        opt("day_count_source", "")  # caller fills from 424B2 prospectus or sets "not_found"
 
     # ── Ratings ───────────────────────────────────────────────────────────────
-    rr = find_raw(r"(?:Expected )?Ratings?(?:\*{0,2})?")
+    # Ratings are shared per-deal; use combined text so all bonds in a deal
+    # extract the same value regardless of whether the block has a copy.
+    rr = find_raw(r"(?:Expected )?Ratings?(?:\*{0,2})?", src=text)
     if rr:
         mdy, sp = parse_ratings(rr)
         opt("rating_moodys", mdy)
@@ -342,7 +395,8 @@ def extract_fields_block(text, heading, doc_flat=None, bond_label=None):
         opt("rating_sp", None)
 
     # ── CUSIP & ISIN ──────────────────────────────────────────────────────────
-    cc = _CUSIP_RE.search(text)
+    # Prefer block_text to avoid a preamble bond's CUSIP bleeding into this block
+    cc = (_CUSIP_RE.search(block_text) if block_text else None) or _CUSIP_RE.search(text)
     if cc:
         raw_c = cc.group(1)
     elif doc_flat and bond_label:
@@ -351,7 +405,9 @@ def extract_fields_block(text, heading, doc_flat=None, bond_label=None):
         raw_c = None
     req("cusip", raw_c.replace(" ", "") if raw_c else None)
 
-    iv = find_isin(text)
+    iv = find_isin(block_text) if block_text else None
+    if not iv:
+        iv = find_isin(text)
     if not iv and doc_flat and bond_label:
         iv = find_isin_labeled(doc_flat, bond_label)
     req("isin", iv)
@@ -463,7 +519,7 @@ def get_bond_labels(doc_flat):
 
 
 # ─── Flat-labeled full extractor (Microsoft, Alphabet flat) ──────────────────
-def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None):
+def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=None):
     """
     Extract all bonds from a flat multi-bond document.
     Returns list of field dicts.
@@ -491,11 +547,12 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None):
     dc_raw = top(r"Day Count Convention")
     if dc_raw:
         dcm = re.search(
-            r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT\s*/\s*ACT(?:\s*\(ICMA\))?)",
+            r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT(?:UAL)?\s*/\s*ACT(?:UAL)?(?:\s*\(ICMA\))?)",
             dc_raw, re.I)
-        day_count = dcm.group(1) if dcm else dc_raw.split()[0]
+        raw_dc = dcm.group(1) if dcm else dc_raw.split()[0]
+        day_count = re.sub(r"\s*/\s*", "/", raw_dc)
     else:
-        day_count = ""
+        day_count = ""  # no day count in term sheet; bonds will look up prospectus
 
     rows = []
     for full_name, label in bond_pairs:
@@ -550,10 +607,27 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None):
             fields["price_to_public_pct"] = ""
             missing.append("price_to_public_pct")
 
+        # Day count: use term-sheet value when present; for floating bonds where the
+        # term sheet says 30/360 (the fixed-rate convention), apply Actual/360 — still
+        # "term_sheet" because the bond type is confirmed in the doc.  When the term
+        # sheet has no day count label, look up the 424B2 prospectus.
+        if is_float and day_count == "30/360":
+            fields["day_count"]        = "Actual/360"
+            fields["day_count_source"] = "term_sheet"
+        elif day_count:
+            fields["day_count"]        = day_count
+            fields["day_count_source"] = "term_sheet"
+        elif prospectus_dc:
+            rate_key = "Floating" if is_float else "Fixed"
+            prosp_val, prosp_found = prospectus_dc.get(rate_key, ("", False))
+            fields["day_count"]        = prosp_val if prosp_found else ""
+            fields["day_count_source"] = "prospectus" if prosp_found else "not_found"
+        else:
+            fields["day_count"]        = ""
+            fields["day_count_source"] = "not_found"
         # Shared fields
         fields["trade_date"]      = trade_date
         fields["settlement_date"] = sett_date
-        fields["day_count"]       = day_count
         fields["rating_moodys"]   = mdy or ""
         fields["rating_sp"]       = sp  or ""
 
@@ -610,15 +684,23 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None):
                 fields["spread_to_treasury_bps"] = ""
                 missing.append("spread_to_treasury_bps")
 
-            # Benchmark yield
+            # Benchmark yield — require "Price and Yield" to avoid the bare
+            # "Benchmark Treasury: UST 4.75%..." label that only names the ref bond.
+            # Also covers J&J "Benchmark Security Price and Yield" (EUR bonds).
             bps = find_all_field_sections(doc_flat,
-                r"Benchmark(?:\s+Treasury|\s+Gilt|\s+Bund|\s+Bond)(?:\s+Price\s+and\s+Yield)?")
+                r"Benchmark(?:\s+Treasury|\s+Gilt|\s+Bund|\s+Bond|\s+Security)\s+Price\s+and\s+Yield")
             bpv = find_labeled_value(bps, label)
             if bpv:
-                # "XX.XXX% / Y.YYY%" → take second number
+                # "XX.XXX% / Y.YYY%" (pct/pct format, some Alphabet EUR)
                 b2 = re.search(r"[\d.]+%\s*/\s*(\d+\.\d+)%", bpv)
+                # "(yield to maturity: X.XXX%)" (some Apple / older FWPs)
                 b1 = re.search(r"\(yield to maturity:\s*(\d+\.\d+)\s*%\)", bpv, re.I)
-                fields["benchmark_treasury_yield_pct"] = (b2 or b1).group(1) if (b2 or b1) else ""
+                # "99-14+ / 4.030%" or "€82.73/ 2.476%" (bond-price / yield format)
+                b3 = re.search(r"/\s*(\d+\.\d+)\s*%", bpv)
+                byv = (b2 or b1 or b3).group(1) if (b2 or b1 or b3) else ""
+                fields["benchmark_treasury_yield_pct"] = byv
+                if not byv:
+                    missing.append("benchmark_treasury_yield_pct")
             else:
                 fields["benchmark_treasury_yield_pct"] = ""
                 missing.append("benchmark_treasury_yield_pct")
@@ -698,8 +780,10 @@ def extract_jj(raw_html, issuer_name="Johnson & Johnson"):
 
     dc_raw = re.search(r"(?i)Day Count[^:]*:?\s*(.*?){_TERM}".replace("{_TERM}", _TERM), flat, re.DOTALL)
     dc_raw = dc_raw.group(1).strip() if dc_raw else ""
-    dc_m = re.search(r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT\s*/\s*ACT(?:\s*\(ICMA\))?)", dc_raw, re.I)
-    day_count = dc_m.group(1) if dc_m else ""
+    # ACT(?:UAL)? handles both "ACT/ACT(ICMA)" and "ACTUAL/ACTUAL (ICMA)" (J&J EUR)
+    dc_m = re.search(r"(Actual\s*/\s*\d+|30\s*/\s*360|ACT(?:UAL)?\s*/\s*ACT(?:UAL)?(?:\s*\(ICMA\))?)", dc_raw, re.I)
+    raw_dc = dc_m.group(1) if dc_m else dc_raw if dc_raw else ""
+    day_count = re.sub(r"\s*/\s*", "/", raw_dc)
 
     # Per-bond sections
     size_sec = find_field_section(flat, r"Size")
@@ -755,9 +839,10 @@ def extract_jj(raw_html, issuer_name="Johnson & Johnson"):
         if not f["yield_pct"]:
             miss.append("yield_pct")
 
-        # Spread — J&J EUR uses "Spread to Mid-Swap" or "Spread to Benchmark Security"
-        spread_sec = (find_field_section(flat,
-            r"Spread to(?:\s+Benchmark(?:\s+Security)?)?\s+(?:Treasury|Bund|Gilt|Mid.Swap)")
+        # Spread — J&J EUR uses "Spread to Benchmark Security"; match that BEFORE
+        # broader alternatives (Mid-Swap / Treasury) so we get Bund-spread not swap-spread.
+        spread_sec = (find_field_section(flat, r"Spread to\s+Benchmark\s+Security")
+            or find_field_section(flat, r"Spread to(?:\s+Benchmark)?\s+(?:Treasury|Bund|Gilt|Mid.Swap)")
             or find_field_section(flat, r"Re-Offer Spread|Reoffer Spread"))
         sp_all = re.findall(r"\+?(\d+(?:\.\d+)?)\s*(?:bps?|basis)", spread_sec or "", re.I)
         f["spread_to_treasury_bps"] = sp_all[i] if len(sp_all) >= n and i < len(sp_all) else ""
@@ -776,11 +861,12 @@ def extract_jj(raw_html, issuer_name="Johnson & Johnson"):
             miss.append("benchmark_treasury_yield_pct")
 
         # Shared
-        f["trade_date"]      = trade_date
-        f["settlement_date"] = sett_date
-        f["day_count"]       = day_count
-        f["rating_moodys"]   = mdy or ""
-        f["rating_sp"]       = sp  or ""
+        f["trade_date"]       = trade_date
+        f["settlement_date"]  = sett_date
+        f["day_count"]        = day_count
+        f["day_count_source"] = "term_sheet" if day_count else "not_found"
+        f["rating_moodys"]    = mdy or ""
+        f["rating_sp"]        = sp  or ""
 
         # CUSIP/ISIN
         f["cusip"] = cusip_all[i].replace(" ", "") if i < len(cusip_all) else ""
@@ -867,7 +953,8 @@ def extract_alphabet_hybrid_eur(raw_html):
             miss.append("isin")
 
         dc_m2 = re.search(r"(Actual\s*/\s*\d+|30\s*/\s*360)", fsec, re.I)
-        f["day_count"] = dc_m2.group(1) if dc_m2 else "Actual/360"
+        f["day_count"]        = dc_m2.group(1) if dc_m2 else "Actual/360"
+        f["day_count_source"] = "term_sheet"
 
         f["trade_date"]      = trade_date
         f["settlement_date"] = sett_date
@@ -970,11 +1057,12 @@ def extract_alphabet_hybrid_eur(raw_html):
         if not f["isin"]:
             miss.append("isin")
 
-        f["trade_date"]      = trade_date
-        f["settlement_date"] = sett_date
-        f["day_count"]       = day_count
-        f["rating_moodys"]   = mdy or ""
-        f["rating_sp"]       = sp  or ""
+        f["trade_date"]       = trade_date
+        f["settlement_date"]  = sett_date
+        f["day_count"]        = day_count
+        f["day_count_source"] = "term_sheet" if day_count else "not_found"
+        f["rating_moodys"]    = mdy or ""
+        f["rating_sp"]        = sp  or ""
         f["floating_benchmark"]  = ""
         f["floating_spread_pct"] = ""
         f["missing_fields"] = ", ".join(miss)
@@ -1006,6 +1094,9 @@ def process_apple():
     if "currency" not in df.columns:
         df["currency"] = "USD"
     df["issuer"] = "Apple"
+    # Apple FWPs always carry "Day Count Convention:" — mark all as term_sheet
+    df["day_count_source"] = df["day_count"].apply(
+        lambda v: "term_sheet" if str(v).strip() else "not_found")
     rows = df[OUTPUT_COLUMNS].to_dict("records")
     print(f"  Apple:  {len(rows)} bonds (from {APPLE_CSV.name})")
     return rows
@@ -1025,10 +1116,27 @@ def process_eli_lilly(docs):
             print(f"    WARN no <u> headings in {deal['fwp_accession']}")
             continue
         preamble_flat = html_to_flat(preamble_html)
+        # Only activate block-first searching when the preamble itself contains a
+        # CUSIP — that signals a full prior-bond section landed in the preamble
+        # (e.g. FWP 0001193125-25-182780 where the Floating Rate Notes have no
+        # <u> heading).  For normal FWPs the preamble is just the common header
+        # and block-first searching would cause settlement_date to be taken from
+        # a relative "T+5" in the block rather than the absolute date in the header.
+        preamble_has_cusip = bool(_CUSIP_RE.search(preamble_flat))
+        # Pre-load prospectus day count for bonds whose term sheet lacks the label
+        prosp_dc = lookup_day_count_from_prospectus("Eli Lilly", deal["fwp_accession"])
         print(f"    {deal['fwp_accession']}  → {len(blocks)} bonds")
         for blk in blocks:
-            flat_text = preamble_flat + " " + html_to_flat(blk["block_html"])
-            fields, miss = extract_fields_block(flat_text, blk["heading"])
+            blk_flat = html_to_flat(blk["block_html"])
+            flat_text = preamble_flat + " " + blk_flat
+            blk_text_arg = blk_flat if preamble_has_cusip else None
+            fields, miss = extract_fields_block(flat_text, blk["heading"], block_text=blk_text_arg)
+            # Fill day_count from 424B2 when not found in term sheet
+            if not fields.get("day_count"):
+                rate_key = "Floating" if fields.get("rate_type") == "Floating" else "Fixed"
+                prosp_val, prosp_found = prosp_dc.get(rate_key, ("", False))
+                fields["day_count"]        = prosp_val if prosp_found else ""
+                fields["day_count_source"] = "prospectus" if prosp_found else "not_found"
             fields["missing_fields"] = ", ".join(miss)
             rows.append(fields)
     return rows
@@ -1044,7 +1152,8 @@ def process_microsoft(docs):
             print(f"    SKIP — file not found: {deal['fwp_accession']}")
             continue
         flat = html_to_flat(raw)
-        bond_rows = extract_flat_labeled(flat, "Microsoft Corporation")
+        prosp_dc = lookup_day_count_from_prospectus("Microsoft", deal["fwp_accession"])
+        bond_rows = extract_flat_labeled(flat, "Microsoft Corporation", prospectus_dc=prosp_dc)
         print(f"    {deal['fwp_accession']}  → {len(bond_rows)} bonds")
         rows.extend(bond_rows)
     return rows
@@ -1163,3 +1272,19 @@ disp_cols = ["issuer", "bond_name", "rate_type", "coupon_pct",
 pd.set_option("display.max_colwidth", 50)
 pd.set_option("display.width", 160)
 print(out_df[disp_cols].to_string(index=False))
+
+# ── day_count_source summary ──────────────────────────────────────────────────
+_co_map = {
+    "Apple": "Apple", "Alphabet Inc.": "Alphabet",
+    "Eli Lilly and Company": "Eli Lilly",
+    "Johnson & Johnson": "J&J", "Microsoft Corporation": "Microsoft",
+}
+out_df["_co"] = out_df["issuer"].map(_co_map).fillna(out_df["issuer"])
+src_counts = (
+    out_df.groupby(["_co", "day_count_source"]).size()
+    .unstack(fill_value=0)
+    .reindex(columns=["term_sheet", "prospectus", "not_found"], fill_value=0)
+)
+print("\nday_count_source counts per company:")
+print(src_counts.to_string())
+out_df.drop(columns=["_co"], inplace=True)
