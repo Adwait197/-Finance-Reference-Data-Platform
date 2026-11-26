@@ -167,30 +167,48 @@ def lookup_day_count_from_prospectus(issuer_folder, fwp_accession):
 
 
 # ─── Rating parser (handles forward/reversed/mixed formats) ───────────────────
+#
+# Agency-name sub-patterns use inline (?i:...) so matching is case-insensitive
+# for the label but case-sensitive for the grade itself:
+#   Moody's grades  → mixed-case  (Aaa, Aa2, A1, Baa3 …)
+#   S&P grades      → all-caps   (AAA, AA+, A+, BBB- …)
+#
+# The (?![0-9A-Za-z]) lookahead prevents partial-token matches, e.g. it stops
+# the grade pattern 'A' from matching the 'A' in 'A1', or 'B' from matching
+# the 'b' in '(Stable)'.
+#
+# ’ is the curly right-single-quotation mark used in many FWP HTML files
+# for the apostrophe in "Moody's"; the straight apostrophe ' is also kept.
+
+_MDY = r"(?i:Moody[’']?s(?:\s+Investors?\s+Service(?:,?\s+Inc\.?)?)?)"
+_SP  = r"(?i:S&?P(?:\s+Global\s+Ratings?)?|Standard\s*&\s*Poor[’']?s)"
+
+_MDY_GRADE = r"(?:Aaa|Aa[1-3]|A[1-3]|Baa[1-3]|Ba[1-3]|B[1-3]|Caa[1-3]|Ca|C)(?![0-9A-Za-z])"
+_SP_GRADE  = r"(?:AAA|AA[+\-]?|A[+\-]?|BBB[+\-]?|BB[+\-]?|B[+\-]?|CCC[+\-]?|CC|D)(?![0-9A-Za-z])"
+
+
 def parse_ratings(raw):
     if not raw:
         return None, None
     t = raw
 
-    # Format 1: "Moody's: Aaa ..." or "S&P: AA+ ..."
-    mm = re.search(r"Moody'?s:?\s*(Aa?a|Aa[123]|A[123]|Baa[123]|Ba[123]|B[123]|Caa[123]|Ca|C)\b", t, re.I)
-    ms = re.search(r"S&?P:?\s*(AAA|AA[+\-]?|A[+\-]?|BBB[+\-]?|BB[+\-]?|B[+\-]?|CCC[+\-]?)\b", t, re.I)
+    # Format 1: label then grade ("Moody's: Aaa ..." or "S&P: AA+ ...")
+    mm = re.search(rf"{_MDY}:?\s*({_MDY_GRADE})", t)
+    ms = re.search(rf"{_SP}:?\s*({_SP_GRADE})", t)
     if mm and ms:
         return mm.group(1), ms.group(1)
 
-    # Format 2: reversed "Aaa (stable) Moody's" or "Aaa (stable) (Moody's)"
-    mm2 = re.search(
-        r"(Aa?a|Aa[123]|A[123]|Baa[123]|Ba[123]|B[123]|Caa[123])"
-        r"[^\n/]{0,40}?(?:Moody'?s|\(Moody)", t, re.I)
-    ms2 = re.search(
-        r"(AAA|AA[+\-]?|A[+\-]?|BBB[+\-]?|BB[+\-]?|B[+\-]?)"
-        r"[^\n/]{0,40}?(?:S&?P|Standard|\(S&)", t, re.I)
+    # Format 2: grade then label ("Aaa (stable) Moody's" or "A1 (outlook) (Moody's ...)")
+    # 40-char window: wide enough for multi-word outlook phrases but short enough to
+    # separate BBB- (Fitch, 46 chars from S&P) from BBB (S&P, 10 chars from S&P)
+    mm2 = re.search(rf"({_MDY_GRADE})[^\n/]{{0,40}}?{_MDY}", t)
+    ms2 = re.search(rf"({_SP_GRADE})[^\n/]{{0,40}}?{_SP}", t)
     if mm2 or ms2:
         return (mm2.group(1) if mm2 else None), (ms2.group(1) if ms2 else None)
 
-    # Format 3: Apple "Aaa\n(stable)" — distinguish by notation
-    mm3 = re.search(r"(Aa?a|Aa[123]|A[123]|Baa[123])\s*\([^)]+\)", t)
-    ms3 = re.search(r"(AAA|AA[+\-]?|A[+\-]?|BBB[+\-]?|BB[+\-]?)\s*\([^)]+\)", t)
+    # Format 3: grade + parenthetical, no label (Apple "Aaa (stable)")
+    mm3 = re.search(rf"({_MDY_GRADE})\s*\([^)]+\)", t)
+    ms3 = re.search(rf"({_SP_GRADE})\s*\([^)]+\)", t)
     return (mm3.group(1) if mm3 else None), (ms3.group(1) if ms3 else None)
 
 

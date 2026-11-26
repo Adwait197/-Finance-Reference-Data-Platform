@@ -365,6 +365,49 @@ def check_v8(bond, all_df):
     return PASS, f"CUSIP {cusip} is unique in this deal"
 
 
+_VALID_MOODYS = {
+    "Aaa", "Aa1", "Aa2", "Aa3", "A1", "A2", "A3",
+    "Baa1", "Baa2", "Baa3", "Ba1", "Ba2", "Ba3",
+    "B1",   "B2",   "B3",   "Caa1", "Caa2", "Caa3", "Ca", "C",
+}
+_VALID_SP = {
+    "AAA", "AA+", "AA", "AA-", "A+", "A", "A-",
+    "BBB+", "BBB", "BBB-", "BB+", "BB", "BB-",
+    "B+",   "B",   "B-",   "CCC+", "CCC", "CCC-", "CC", "C", "D",
+}
+
+def check_v9(rating_moodys, rating_sp):
+    """
+    Both ratings must be recognized credit grades.
+    An absent rating is reported as 'not_found', not as pass or fail.
+    A present but unrecognized value is a fail.
+    """
+    import pandas as _pd
+    mdy = str(rating_moodys).strip() if (_pd.notna(rating_moodys) and
+          str(rating_moodys).strip().lower() not in ("", "nan")) else ""
+    sp  = str(rating_sp).strip()     if (_pd.notna(rating_sp)     and
+          str(rating_sp).strip().lower()     not in ("", "nan")) else ""
+
+    mdy_invalid = mdy and mdy not in _VALID_MOODYS
+    sp_invalid  = sp  and sp  not in _VALID_SP
+
+    if mdy_invalid or sp_invalid:
+        parts = []
+        if mdy_invalid: parts.append(f"Moody's {mdy!r} not a recognized grade")
+        if sp_invalid:  parts.append(f"S&P {sp!r} not a recognized grade")
+        if not mdy:     parts.append("Moody's not found")
+        if not sp:      parts.append("S&P not found")
+        return FAIL, "; ".join(parts)
+
+    if not mdy or not sp:
+        parts = []
+        if not mdy: parts.append("Moody's not found")
+        if not sp:  parts.append("S&P not found")
+        return "not_found", "; ".join(parts)
+
+    return PASS, f"Moody's={mdy}, S&P={sp}"
+
+
 # ── runner ────────────────────────────────────────────────────────────────────
 
 def run_all_checks(df, prefix_map, extra_prefixes, conventions,
@@ -402,6 +445,7 @@ def run_all_checks(df, prefix_map, extra_prefixes, conventions,
                            str(bond["maturity_date"])),
             "V7": check_v7(bond, df, conventions),
             "V8": check_v8(bond, df),
+            "V9": check_v9(bond.get("rating_moodys", ""), bond.get("rating_sp", "")),
         }
         for check_id, (result, detail) in checks.items():
             rows.append({
@@ -470,7 +514,7 @@ def main():
     fails["company"] = fails["issuer"].map(ISSUER_SHORT)
 
     companies = ["Apple", "Alphabet", "Eli Lilly", "J&J", "Microsoft"]
-    checks    = ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"]
+    checks    = ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9"]
 
     pivot = (
         fails.groupby(["check", "company"])
@@ -482,6 +526,22 @@ def main():
 
     print("\nFailure counts (0 = all passed):")
     print(pivot.to_string())
+
+    # ── not_found counts for V9 ───────────────────────────────────────────────
+    nf_rows = val[val["result"] == "not_found"].copy()
+    if not nf_rows.empty:
+        nf_rows["company"] = nf_rows["issuer"].map(ISSUER_SHORT)
+        nf_pivot = (
+            nf_rows.groupby(["check", "company"])
+                   .size()
+                   .unstack(fill_value=0)
+                   .reindex(index=checks, columns=companies, fill_value=0)
+        )
+        nf_pivot["TOTAL"] = nf_pivot.sum(axis=1)
+        nf_pivot = nf_pivot[nf_pivot["TOTAL"] > 0]
+        if not nf_pivot.empty:
+            print("\nnot_found counts (rating absent from document):")
+            print(nf_pivot.to_string())
 
     # ── not_applicable counts per check ──────────────────────────────────────
     na_rows = val[val["result"] == NOT_APPLICABLE].copy()

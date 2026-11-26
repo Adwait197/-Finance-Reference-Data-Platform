@@ -7,6 +7,7 @@ Apple,037833ES5,4.421% Notes due 2026 (“2026 Notes”),V5,pass,"par bond (semi
 Apple,037833ES5,4.421% Notes due 2026 (“2026 Notes”),V6,pass,"trade 2023-05-08 ≤ sett 2023-05-10 < mat 2026-05-08, year 2026 ✓"
 Apple,037833ES5,4.421% Notes due 2026 (“2026 Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833ES5,4.421% Notes due 2026 (“2026 Notes”),V8,pass,CUSIP 037833ES5 is unique in this deal
+Apple,037833ES5,4.421% Notes due 2026 (“2026 Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833ET3,4.000% Notes due 2028 (“2028 Notes”),V1,pass,check digit 3 verified
 Apple,037833ET3,4.000% Notes due 2028 (“2028 Notes”),V2,pass,Luhn sum 70 ≡ 0
 Apple,037833ET3,4.000% Notes due 2028 (“2028 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -15,6 +16,7 @@ Apple,037833ET3,4.000% Notes due 2028 (“2028 Notes”),V5,pass,"coupon 4.0% < 
 Apple,037833ET3,4.000% Notes due 2028 (“2028 Notes”),V6,pass,"trade 2023-05-08 ≤ sett 2023-05-10 < mat 2028-05-10, year 2028 ✓"
 Apple,037833ET3,4.000% Notes due 2028 (“2028 Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833ET3,4.000% Notes due 2028 (“2028 Notes”),V8,pass,CUSIP 037833ET3 is unique in this deal
+Apple,037833ET3,4.000% Notes due 2028 (“2028 Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833EU0,4.150% Notes due 2030 (“2030 Notes”),V1,pass,check digit 0 verified
 Apple,037833EU0,4.150% Notes due 2030 (“2030 Notes”),V2,pass,Luhn sum 60 ≡ 0
 Apple,037833EU0,4.150% Notes due 2030 (“2030 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -23,6 +25,7 @@ Apple,037833EU0,4.150% Notes due 2030 (“2030 Notes”),V5,pass,"coupon 4.15% <
 Apple,037833EU0,4.150% Notes due 2030 (“2030 Notes”),V6,pass,"trade 2023-05-08 ≤ sett 2023-05-10 < mat 2030-05-10, year 2030 ✓"
 Apple,037833EU0,4.150% Notes due 2030 (“2030 Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833EU0,4.150% Notes due 2030 (“2030 Notes”),V8,pass,CUSIP 037833EU0 is unique in this deal
+Apple,037833EU0,4.150% Notes due 2030 (“2030 Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833EV8,4.300% Notes due 2033 (“2033 Notes”),V1,pass,check digit 8 verified
 Apple,037833EV8,4.300% Notes due 2033 (“2033 Notes”),V2,pass,Luhn sum 70 ≡ 0
 Apple,037833EV8,4.300% Notes due 2033 (“2033 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -31,6 +34,7 @@ Apple,037833EV8,4.300% Notes due 2033 (“2033 Notes”),V5,pass,"coupon 4.3% < 
 Apple,037833EV8,4.300% Notes due 2033 (“2033 Notes”),V6,pass,"trade 2023-05-08 ≤ sett 2023-05-10 < mat 2033-05-10, year 2033 ✓"
 Apple,037833EV8,4.300% Notes due 2033 (“2033 Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833EV8,4.300% Notes due 2033 (“2033 Notes”),V8,pass,CUSIP 037833EV8 is unique in this deal
+Apple,037833EV8,4.300% Notes due 2033 (“2033 Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833EW6,4.850% Notes due 2053 (“2053 Notes”),V1,pass,check digit 6 verified
 Apple,037833EW6,4.850% Notes due 2053 (“2053 Notes”),V2,pass,Luhn sum 60 ≡ 0
 Apple,037833EW6,4.850% Notes due 2053 (“2053 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -39,6 +43,7 @@ Apple,037833EW6,4.850% Notes due 2053 (“2053 Notes”),V5,pass,"coupon 4.85% <
 Apple,037833EW6,4.850% Notes due 2053 (“2053 Notes”),V6,pass,"trade 2023-05-08 ≤ sett 2023-05-10 < mat 2053-05-10, year 2053 ✓"
 Apple,037833EW6,4.850% Notes due 2053 (“2053 Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833EW6,4.850% Notes due 2053 (“2053 Notes”),V8,pass,CUSIP 037833EW6 is unique in this deal
+Apple,037833EW6,4.850% Notes due 2053 (“2053 Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833EY2,4.000% Notes due 2028 (“2028 Notes”),V1,pass,check digit 2 verified
 Apple,037833EY2,4.000% Notes due 2028 (“2028 Notes”),V2,pass,Luhn sum 70 ≡ 0
 Apple,037833EY2,4.000% Notes due 2028 (“2028 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -47,6 +52,7 @@ Apple,037833EY2,4.000% Notes due 2028 (“2028 Notes”),V5,pass,"coupon 4.0% < 
 Apple,037833EY2,4.000% Notes due 2028 (“2028 Notes”),V6,pass,"trade 2025-05-05 ≤ sett 2025-05-12 < mat 2028-05-12, year 2028 ✓"
 Apple,037833EY2,4.000% Notes due 2028 (“2028 Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833EY2,4.000% Notes due 2028 (“2028 Notes”),V8,pass,CUSIP 037833EY2 is unique in this deal
+Apple,037833EY2,4.000% Notes due 2028 (“2028 Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V1,pass,check digit 9 verified
 Apple,037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V2,pass,Luhn sum 70 ≡ 0
 Apple,037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -55,6 +61,7 @@ Apple,037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V5,pass,"coupon 4.2% < 
 Apple,037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V6,pass,"trade 2025-05-05 ≤ sett 2025-05-12 < mat 2030-05-12, year 2030 ✓"
 Apple,037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V8,pass,CUSIP 037833EZ9 is unique in this deal
+Apple,037833EZ9,4.200% Notes due 2030 (“2030 Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833FA3,4.500% Notes due 2032 (“2032 Notes”),V1,pass,check digit 3 verified
 Apple,037833FA3,4.500% Notes due 2032 (“2032 Notes”),V2,pass,Luhn sum 60 ≡ 0
 Apple,037833FA3,4.500% Notes due 2032 (“2032 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -63,6 +70,7 @@ Apple,037833FA3,4.500% Notes due 2032 (“2032 Notes”),V5,pass,"coupon 4.5% < 
 Apple,037833FA3,4.500% Notes due 2032 (“2032 Notes”),V6,pass,"trade 2025-05-05 ≤ sett 2025-05-12 < mat 2032-05-12, year 2032 ✓"
 Apple,037833FA3,4.500% Notes due 2032 (“2032 Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833FA3,4.500% Notes due 2032 (“2032 Notes”),V8,pass,CUSIP 037833FA3 is unique in this deal
+Apple,037833FA3,4.500% Notes due 2032 (“2032 Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833FB1,4.750% Notes due 2035 (“2035 Notes”),V1,pass,check digit 1 verified
 Apple,037833FB1,4.750% Notes due 2035 (“2035 Notes”),V2,pass,Luhn sum 60 ≡ 0
 Apple,037833FB1,4.750% Notes due 2035 (“2035 Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -71,6 +79,7 @@ Apple,037833FB1,4.750% Notes due 2035 (“2035 Notes”),V5,pass,"coupon 4.75% <
 Apple,037833FB1,4.750% Notes due 2035 (“2035 Notes”),V6,pass,"trade 2025-05-05 ≤ sett 2025-05-12 < mat 2035-05-12, year 2035 ✓"
 Apple,037833FB1,4.750% Notes due 2035 (“2035 Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833FB1,4.750% Notes due 2035 (“2035 Notes”),V8,pass,CUSIP 037833FB1 is unique in this deal
+Apple,037833FB1,4.750% Notes due 2035 (“2035 Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V1,pass,check digit 9 verified
 Apple,037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V2,pass,Luhn sum 70 ≡ 0
 Apple,037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -79,6 +88,7 @@ Apple,037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V5
 Apple,037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V6,pass,"trade 2026-11-05 ≤ sett 2026-11-09 < mat 2028-11-09, year 2028 ✓"
 Apple,037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V7,pass,ratings/dates uniform; day_count='Actual/360' ✓
 Apple,037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V8,pass,CUSIP 037833FC9 is unique in this deal
+Apple,037833FC9,Floating Rate Notes due 2028 (“2028 Floating Rate Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V1,pass,check digit 5 verified
 Apple,037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V2,pass,Luhn sum 60 ≡ 0
 Apple,037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -87,6 +97,7 @@ Apple,037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V5
 Apple,037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V6,pass,"trade 2026-11-05 ≤ sett 2026-11-09 < mat 2029-11-09, year 2029 ✓"
 Apple,037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V7,pass,ratings/dates uniform; day_count='Actual/360' ✓
 Apple,037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V8,pass,CUSIP 037833FE5 is unique in this deal
+Apple,037833FE5,Floating Rate Notes due 2029 (“2029 Floating Rate Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V1,pass,check digit 7 verified
 Apple,037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V2,pass,Luhn sum 60 ≡ 0
 Apple,037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -95,6 +106,7 @@ Apple,037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V5,pass,"cou
 Apple,037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V6,pass,"trade 2026-11-05 ≤ sett 2026-11-09 < mat 2028-11-09, year 2028 ✓"
 Apple,037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V8,pass,CUSIP 037833FD7 is unique in this deal
+Apple,037833FD7,4.650% Notes due 2028 (“2028 Fixed Rate Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V1,pass,check digit 2 verified
 Apple,037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V2,pass,Luhn sum 70 ≡ 0
 Apple,037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -103,6 +115,7 @@ Apple,037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V5,pass,"cou
 Apple,037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V6,pass,"trade 2026-11-05 ≤ sett 2026-11-09 < mat 2029-11-09, year 2029 ✓"
 Apple,037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V8,pass,CUSIP 037833FF2 is unique in this deal
+Apple,037833FF2,4.750% Notes due 2029 (“2029 Fixed Rate Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V1,pass,check digit 0 verified
 Apple,037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V2,pass,Luhn sum 60 ≡ 0
 Apple,037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -111,6 +124,7 @@ Apple,037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V5,pass,"cou
 Apple,037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V6,pass,"trade 2026-11-05 ≤ sett 2026-11-09 < mat 2031-11-09, year 2031 ✓"
 Apple,037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V8,pass,CUSIP 037833FG0 is unique in this deal
+Apple,037833FG0,4.900% Notes due 2031 (“2031 Fixed Rate Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V1,pass,check digit 8 verified
 Apple,037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V2,pass,Luhn sum 70 ≡ 0
 Apple,037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -119,6 +133,7 @@ Apple,037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V5,pass,"cou
 Apple,037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V6,pass,"trade 2026-11-05 ≤ sett 2026-11-09 < mat 2033-11-09, year 2033 ✓"
 Apple,037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V8,pass,CUSIP 037833FH8 is unique in this deal
+Apple,037833FH8,5.100% Notes due 2033 (“2033 Fixed Rate Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Apple,037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V1,pass,check digit 4 verified
 Apple,037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V2,pass,Luhn sum 70 ≡ 0
 Apple,037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V3,pass,bond prefix 037833 = stock prefix 037833
@@ -127,6 +142,7 @@ Apple,037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V5,pass,"cou
 Apple,037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V6,pass,"trade 2026-11-05 ≤ sett 2026-11-09 < mat 2036-11-09, year 2036 ✓"
 Apple,037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Apple,037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V8,pass,CUSIP 037833FJ4 is unique in this deal
+Apple,037833FJ4,5.350% Notes due 2036 (“2036 Fixed Rate Notes”),V9,pass,"Moody's=Aaa, S&P=AA+"
 Eli Lilly and Company,532457CJ5,4.500% Notes due 2027,V1,pass,check digit 5 verified
 Eli Lilly and Company,532457CJ5,4.500% Notes due 2027,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457CJ5,4.500% Notes due 2027,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -135,6 +151,7 @@ Eli Lilly and Company,532457CJ5,4.500% Notes due 2027,V5,pass,"coupon 4.5% < sem
 Eli Lilly and Company,532457CJ5,4.500% Notes due 2027,V6,pass,"trade 2024-02-07 ≤ sett 2024-02-09 < mat 2027-02-09, year 2027 ✓"
 Eli Lilly and Company,532457CJ5,4.500% Notes due 2027,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CJ5,4.500% Notes due 2027,V8,pass,CUSIP 532457CJ5 is unique in this deal
+Eli Lilly and Company,532457CJ5,4.500% Notes due 2027,V9,pass,"Moody's=A1, S&P=A+"
 Eli Lilly and Company,532457CK2,4.500% Notes due 2029,V1,pass,check digit 2 verified
 Eli Lilly and Company,532457CK2,4.500% Notes due 2029,V2,pass,Luhn sum 50 ≡ 0
 Eli Lilly and Company,532457CK2,4.500% Notes due 2029,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -143,6 +160,7 @@ Eli Lilly and Company,532457CK2,4.500% Notes due 2029,V5,pass,"coupon 4.5% < sem
 Eli Lilly and Company,532457CK2,4.500% Notes due 2029,V6,pass,"trade 2024-02-07 ≤ sett 2024-02-09 < mat 2029-02-09, year 2029 ✓"
 Eli Lilly and Company,532457CK2,4.500% Notes due 2029,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CK2,4.500% Notes due 2029,V8,pass,CUSIP 532457CK2 is unique in this deal
+Eli Lilly and Company,532457CK2,4.500% Notes due 2029,V9,pass,"Moody's=A1, S&P=A+"
 Eli Lilly and Company,532457CL0,4.700% Notes due 2034,V1,pass,check digit 0 verified
 Eli Lilly and Company,532457CL0,4.700% Notes due 2034,V2,pass,Luhn sum 50 ≡ 0
 Eli Lilly and Company,532457CL0,4.700% Notes due 2034,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -151,6 +169,7 @@ Eli Lilly and Company,532457CL0,4.700% Notes due 2034,V5,pass,"coupon 4.7% < sem
 Eli Lilly and Company,532457CL0,4.700% Notes due 2034,V6,pass,"trade 2024-02-07 ≤ sett 2024-02-09 < mat 2034-02-09, year 2034 ✓"
 Eli Lilly and Company,532457CL0,4.700% Notes due 2034,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CL0,4.700% Notes due 2034,V8,pass,CUSIP 532457CL0 is unique in this deal
+Eli Lilly and Company,532457CL0,4.700% Notes due 2034,V9,pass,"Moody's=A1, S&P=A+"
 Eli Lilly and Company,532457CM8,5.000% Notes due 2054,V1,pass,check digit 8 verified
 Eli Lilly and Company,532457CM8,5.000% Notes due 2054,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457CM8,5.000% Notes due 2054,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -159,6 +178,7 @@ Eli Lilly and Company,532457CM8,5.000% Notes due 2054,V5,pass,"coupon 5.0% < sem
 Eli Lilly and Company,532457CM8,5.000% Notes due 2054,V6,pass,"trade 2024-02-07 ≤ sett 2024-02-09 < mat 2054-02-09, year 2054 ✓"
 Eli Lilly and Company,532457CM8,5.000% Notes due 2054,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CM8,5.000% Notes due 2054,V8,pass,CUSIP 532457CM8 is unique in this deal
+Eli Lilly and Company,532457CM8,5.000% Notes due 2054,V9,pass,"Moody's=A1, S&P=A+"
 Eli Lilly and Company,532457CN6,5.100% Notes due 2064,V1,pass,check digit 6 verified
 Eli Lilly and Company,532457CN6,5.100% Notes due 2064,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457CN6,5.100% Notes due 2064,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -167,6 +187,7 @@ Eli Lilly and Company,532457CN6,5.100% Notes due 2064,V5,pass,"coupon 5.1% < sem
 Eli Lilly and Company,532457CN6,5.100% Notes due 2064,V6,pass,"trade 2024-02-07 ≤ sett 2024-02-09 < mat 2064-02-09, year 2064 ✓"
 Eli Lilly and Company,532457CN6,5.100% Notes due 2064,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CN6,5.100% Notes due 2064,V8,pass,CUSIP 532457CN6 is unique in this deal
+Eli Lilly and Company,532457CN6,5.100% Notes due 2064,V9,pass,"Moody's=A1, S&P=A+"
 Eli Lilly and Company,532457CP1,4.150% Notes due 2027,V1,pass,check digit 1 verified
 Eli Lilly and Company,532457CP1,4.150% Notes due 2027,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457CP1,4.150% Notes due 2027,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -175,6 +196,7 @@ Eli Lilly and Company,532457CP1,4.150% Notes due 2027,V5,pass,"coupon 4.15% < se
 Eli Lilly and Company,532457CP1,4.150% Notes due 2027,V6,pass,"trade 2024-08-12 ≤ sett 2024-08-14 < mat 2027-08-14, year 2027 ✓"
 Eli Lilly and Company,532457CP1,4.150% Notes due 2027,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CP1,4.150% Notes due 2027,V8,pass,CUSIP 532457CP1 is unique in this deal
+Eli Lilly and Company,532457CP1,4.150% Notes due 2027,V9,pass,"Moody's=A1, S&P=A+"
 Eli Lilly and Company,532457CQ9,4.200% Notes due 2029,V1,pass,check digit 9 verified
 Eli Lilly and Company,532457CQ9,4.200% Notes due 2029,V2,pass,Luhn sum 70 ≡ 0
 Eli Lilly and Company,532457CQ9,4.200% Notes due 2029,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -183,6 +205,7 @@ Eli Lilly and Company,532457CQ9,4.200% Notes due 2029,V5,pass,"coupon 4.2% < sem
 Eli Lilly and Company,532457CQ9,4.200% Notes due 2029,V6,pass,"trade 2024-08-12 ≤ sett 2024-08-14 < mat 2029-08-14, year 2029 ✓"
 Eli Lilly and Company,532457CQ9,4.200% Notes due 2029,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CQ9,4.200% Notes due 2029,V8,pass,CUSIP 532457CQ9 is unique in this deal
+Eli Lilly and Company,532457CQ9,4.200% Notes due 2029,V9,pass,"Moody's=A1, S&P=A+"
 Eli Lilly and Company,532457CR7,4.600% Notes due 2034,V1,pass,check digit 7 verified
 Eli Lilly and Company,532457CR7,4.600% Notes due 2034,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457CR7,4.600% Notes due 2034,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -191,6 +214,7 @@ Eli Lilly and Company,532457CR7,4.600% Notes due 2034,V5,pass,"coupon 4.6% < sem
 Eli Lilly and Company,532457CR7,4.600% Notes due 2034,V6,pass,"trade 2024-08-12 ≤ sett 2024-08-14 < mat 2034-08-14, year 2034 ✓"
 Eli Lilly and Company,532457CR7,4.600% Notes due 2034,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CR7,4.600% Notes due 2034,V8,pass,CUSIP 532457CR7 is unique in this deal
+Eli Lilly and Company,532457CR7,4.600% Notes due 2034,V9,pass,"Moody's=A1, S&P=A+"
 Eli Lilly and Company,532457CS5,5.050% Notes due 2054,V1,pass,check digit 5 verified
 Eli Lilly and Company,532457CS5,5.050% Notes due 2054,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457CS5,5.050% Notes due 2054,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -199,6 +223,7 @@ Eli Lilly and Company,532457CS5,5.050% Notes due 2054,V5,pass,"coupon 5.05% < se
 Eli Lilly and Company,532457CS5,5.050% Notes due 2054,V6,pass,"trade 2024-08-12 ≤ sett 2024-08-14 < mat 2054-08-14, year 2054 ✓"
 Eli Lilly and Company,532457CS5,5.050% Notes due 2054,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CS5,5.050% Notes due 2054,V8,pass,CUSIP 532457CS5 is unique in this deal
+Eli Lilly and Company,532457CS5,5.050% Notes due 2054,V9,pass,"Moody's=A1, S&P=A+"
 Eli Lilly and Company,532457CT3,5.200% Notes due 2064,V1,pass,check digit 3 verified
 Eli Lilly and Company,532457CT3,5.200% Notes due 2064,V2,pass,Luhn sum 70 ≡ 0
 Eli Lilly and Company,532457CT3,5.200% Notes due 2064,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -207,6 +232,7 @@ Eli Lilly and Company,532457CT3,5.200% Notes due 2064,V5,pass,"coupon 5.2% < sem
 Eli Lilly and Company,532457CT3,5.200% Notes due 2064,V6,pass,"trade 2024-08-12 ≤ sett 2024-08-14 < mat 2064-08-14, year 2064 ✓"
 Eli Lilly and Company,532457CT3,5.200% Notes due 2064,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CT3,5.200% Notes due 2064,V8,pass,CUSIP 532457CT3 is unique in this deal
+Eli Lilly and Company,532457CT3,5.200% Notes due 2064,V9,pass,"Moody's=A1, S&P=A+"
 Eli Lilly and Company,532457CU0,4.550% Notes due 2028,V1,pass,check digit 0 verified
 Eli Lilly and Company,532457CU0,4.550% Notes due 2028,V2,pass,Luhn sum 50 ≡ 0
 Eli Lilly and Company,532457CU0,4.550% Notes due 2028,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -215,6 +241,7 @@ Eli Lilly and Company,532457CU0,4.550% Notes due 2028,V5,pass,"coupon 4.55% < se
 Eli Lilly and Company,532457CU0,4.550% Notes due 2028,V6,pass,"trade 2025-02-10 ≤ sett 2025-02-12 < mat 2028-02-12, year 2028 ✓"
 Eli Lilly and Company,532457CU0,4.550% Notes due 2028,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CU0,4.550% Notes due 2028,V8,pass,CUSIP 532457CU0 is unique in this deal
+Eli Lilly and Company,532457CU0,4.550% Notes due 2028,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457CV8,4.750% Notes due 2030,V1,pass,check digit 8 verified
 Eli Lilly and Company,532457CV8,4.750% Notes due 2030,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457CV8,4.750% Notes due 2030,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -223,6 +250,7 @@ Eli Lilly and Company,532457CV8,4.750% Notes due 2030,V5,pass,"coupon 4.75% < se
 Eli Lilly and Company,532457CV8,4.750% Notes due 2030,V6,pass,"trade 2025-02-10 ≤ sett 2025-02-12 < mat 2030-02-12, year 2030 ✓"
 Eli Lilly and Company,532457CV8,4.750% Notes due 2030,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CV8,4.750% Notes due 2030,V8,pass,CUSIP 532457CV8 is unique in this deal
+Eli Lilly and Company,532457CV8,4.750% Notes due 2030,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457CW6,4.900% Notes due 2032,V1,pass,check digit 6 verified
 Eli Lilly and Company,532457CW6,4.900% Notes due 2032,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457CW6,4.900% Notes due 2032,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -231,6 +259,7 @@ Eli Lilly and Company,532457CW6,4.900% Notes due 2032,V5,pass,"coupon 4.9% < sem
 Eli Lilly and Company,532457CW6,4.900% Notes due 2032,V6,pass,"trade 2025-02-10 ≤ sett 2025-02-12 < mat 2032-02-12, year 2032 ✓"
 Eli Lilly and Company,532457CW6,4.900% Notes due 2032,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CW6,4.900% Notes due 2032,V8,pass,CUSIP 532457CW6 is unique in this deal
+Eli Lilly and Company,532457CW6,4.900% Notes due 2032,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457CX4,5.100% Notes due 2035,V1,pass,check digit 4 verified
 Eli Lilly and Company,532457CX4,5.100% Notes due 2035,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457CX4,5.100% Notes due 2035,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -239,6 +268,7 @@ Eli Lilly and Company,532457CX4,5.100% Notes due 2035,V5,pass,"coupon 5.1% < sem
 Eli Lilly and Company,532457CX4,5.100% Notes due 2035,V6,pass,"trade 2025-02-10 ≤ sett 2025-02-12 < mat 2035-02-12, year 2035 ✓"
 Eli Lilly and Company,532457CX4,5.100% Notes due 2035,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CX4,5.100% Notes due 2035,V8,pass,CUSIP 532457CX4 is unique in this deal
+Eli Lilly and Company,532457CX4,5.100% Notes due 2035,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457CY2,5.500% Notes due 2055,V1,pass,check digit 2 verified
 Eli Lilly and Company,532457CY2,5.500% Notes due 2055,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457CY2,5.500% Notes due 2055,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -247,6 +277,7 @@ Eli Lilly and Company,532457CY2,5.500% Notes due 2055,V5,pass,"coupon 5.5% < sem
 Eli Lilly and Company,532457CY2,5.500% Notes due 2055,V6,pass,"trade 2025-02-10 ≤ sett 2025-02-12 < mat 2055-02-12, year 2055 ✓"
 Eli Lilly and Company,532457CY2,5.500% Notes due 2055,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CY2,5.500% Notes due 2055,V8,pass,CUSIP 532457CY2 is unique in this deal
+Eli Lilly and Company,532457CY2,5.500% Notes due 2055,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457CZ9,5.600% Notes due 2065,V1,pass,check digit 9 verified
 Eli Lilly and Company,532457CZ9,5.600% Notes due 2065,V2,pass,Luhn sum 70 ≡ 0
 Eli Lilly and Company,532457CZ9,5.600% Notes due 2065,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -255,6 +286,7 @@ Eli Lilly and Company,532457CZ9,5.600% Notes due 2065,V5,pass,"coupon 5.6% < sem
 Eli Lilly and Company,532457CZ9,5.600% Notes due 2065,V6,pass,"trade 2025-02-10 ≤ sett 2025-02-12 < mat 2065-02-12, year 2065 ✓"
 Eli Lilly and Company,532457CZ9,5.600% Notes due 2065,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457CZ9,5.600% Notes due 2065,V8,pass,CUSIP 532457CZ9 is unique in this deal
+Eli Lilly and Company,532457CZ9,5.600% Notes due 2065,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457DB1,4.000% Notes due 2028,V1,pass,check digit 1 verified
 Eli Lilly and Company,532457DB1,4.000% Notes due 2028,V2,pass,Luhn sum 50 ≡ 0
 Eli Lilly and Company,532457DB1,4.000% Notes due 2028,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -263,6 +295,7 @@ Eli Lilly and Company,532457DB1,4.000% Notes due 2028,V5,pass,"coupon 4.0% < sem
 Eli Lilly and Company,532457DB1,4.000% Notes due 2028,V6,pass,"trade 2025-08-18 ≤ sett 2025-08-20 < mat 2028-10-15, year 2028 ✓"
 Eli Lilly and Company,532457DB1,4.000% Notes due 2028,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DB1,4.000% Notes due 2028,V8,pass,CUSIP 532457DB1 is unique in this deal
+Eli Lilly and Company,532457DB1,4.000% Notes due 2028,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457DC9,4.250% Notes due 2031,V1,pass,check digit 9 verified
 Eli Lilly and Company,532457DC9,4.250% Notes due 2031,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457DC9,4.250% Notes due 2031,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -271,6 +304,7 @@ Eli Lilly and Company,532457DC9,4.250% Notes due 2031,V5,pass,"coupon 4.25% < se
 Eli Lilly and Company,532457DC9,4.250% Notes due 2031,V6,pass,"trade 2025-08-18 ≤ sett 2025-08-20 < mat 2031-03-15, year 2031 ✓"
 Eli Lilly and Company,532457DC9,4.250% Notes due 2031,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DC9,4.250% Notes due 2031,V8,pass,CUSIP 532457DC9 is unique in this deal
+Eli Lilly and Company,532457DC9,4.250% Notes due 2031,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457DD7,4.550% Notes due 2032,V1,pass,check digit 7 verified
 Eli Lilly and Company,532457DD7,4.550% Notes due 2032,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457DD7,4.550% Notes due 2032,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -279,6 +313,7 @@ Eli Lilly and Company,532457DD7,4.550% Notes due 2032,V5,pass,"coupon 4.55% < se
 Eli Lilly and Company,532457DD7,4.550% Notes due 2032,V6,pass,"trade 2025-08-18 ≤ sett 2025-08-20 < mat 2032-10-15, year 2032 ✓"
 Eli Lilly and Company,532457DD7,4.550% Notes due 2032,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DD7,4.550% Notes due 2032,V8,pass,CUSIP 532457DD7 is unique in this deal
+Eli Lilly and Company,532457DD7,4.550% Notes due 2032,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457DE5,4.900% Notes due 2035,V1,pass,check digit 5 verified
 Eli Lilly and Company,532457DE5,4.900% Notes due 2035,V2,pass,Luhn sum 50 ≡ 0
 Eli Lilly and Company,532457DE5,4.900% Notes due 2035,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -287,6 +322,7 @@ Eli Lilly and Company,532457DE5,4.900% Notes due 2035,V5,pass,"coupon 4.9% < sem
 Eli Lilly and Company,532457DE5,4.900% Notes due 2035,V6,pass,"trade 2025-08-18 ≤ sett 2025-08-20 < mat 2035-10-15, year 2035 ✓"
 Eli Lilly and Company,532457DE5,4.900% Notes due 2035,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DE5,4.900% Notes due 2035,V8,pass,CUSIP 532457DE5 is unique in this deal
+Eli Lilly and Company,532457DE5,4.900% Notes due 2035,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457DF2,5.550% Notes due 2055,V1,pass,check digit 2 verified
 Eli Lilly and Company,532457DF2,5.550% Notes due 2055,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457DF2,5.550% Notes due 2055,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -295,6 +331,7 @@ Eli Lilly and Company,532457DF2,5.550% Notes due 2055,V5,pass,"coupon 5.55% < se
 Eli Lilly and Company,532457DF2,5.550% Notes due 2055,V6,pass,"trade 2025-08-18 ≤ sett 2025-08-20 < mat 2055-10-15, year 2055 ✓"
 Eli Lilly and Company,532457DF2,5.550% Notes due 2055,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DF2,5.550% Notes due 2055,V8,pass,CUSIP 532457DF2 is unique in this deal
+Eli Lilly and Company,532457DF2,5.550% Notes due 2055,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457DG0,5.650% Notes due 2065,V1,pass,check digit 0 verified
 Eli Lilly and Company,532457DG0,5.650% Notes due 2065,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457DG0,5.650% Notes due 2065,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -303,6 +340,7 @@ Eli Lilly and Company,532457DG0,5.650% Notes due 2065,V5,pass,"coupon 5.65% < se
 Eli Lilly and Company,532457DG0,5.650% Notes due 2065,V6,pass,"trade 2025-08-18 ≤ sett 2025-08-20 < mat 2065-10-15, year 2065 ✓"
 Eli Lilly and Company,532457DG0,5.650% Notes due 2065,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DG0,5.650% Notes due 2065,V8,pass,CUSIP 532457DG0 is unique in this deal
+Eli Lilly and Company,532457DG0,5.650% Notes due 2065,V9,pass,"Moody's=Aa3, S&P=A+"
 Eli Lilly and Company,532457DH8,The 2028 Floating Rate Notes,V1,pass,check digit 8 verified
 Eli Lilly and Company,532457DH8,The 2028 Floating Rate Notes,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457DH8,The 2028 Floating Rate Notes,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -311,6 +349,7 @@ Eli Lilly and Company,532457DH8,The 2028 Floating Rate Notes,V5,not applicable,f
 Eli Lilly and Company,532457DH8,The 2028 Floating Rate Notes,V6,pass,"trade 2026-05-06 ≤ sett 2026-05-20 < mat 2028-05-20, year 2028 ✓"
 Eli Lilly and Company,532457DH8,The 2028 Floating Rate Notes,V7,pass,ratings/dates uniform; day_count='Actual/360' ✓
 Eli Lilly and Company,532457DH8,The 2028 Floating Rate Notes,V8,pass,CUSIP 532457DH8 is unique in this deal
+Eli Lilly and Company,532457DH8,The 2028 Floating Rate Notes,V9,pass,"Moody's=Aa3, S&P=AA-"
 Eli Lilly and Company,532457DJ4,The 2029 Floating Rate Notes,V1,pass,check digit 4 verified
 Eli Lilly and Company,532457DJ4,The 2029 Floating Rate Notes,V2,pass,Luhn sum 70 ≡ 0
 Eli Lilly and Company,532457DJ4,The 2029 Floating Rate Notes,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -319,6 +358,7 @@ Eli Lilly and Company,532457DJ4,The 2029 Floating Rate Notes,V5,not applicable,f
 Eli Lilly and Company,532457DJ4,The 2029 Floating Rate Notes,V6,pass,"trade 2026-05-06 ≤ sett 2026-05-20 < mat 2029-05-20, year 2029 ✓"
 Eli Lilly and Company,532457DJ4,The 2029 Floating Rate Notes,V7,pass,ratings/dates uniform; day_count='Actual/360' ✓
 Eli Lilly and Company,532457DJ4,The 2029 Floating Rate Notes,V8,pass,CUSIP 532457DJ4 is unique in this deal
+Eli Lilly and Company,532457DJ4,The 2029 Floating Rate Notes,V9,pass,"Moody's=Aa3, S&P=AA-"
 Eli Lilly and Company,532457DK1,4.150% Notes due 2029,V1,pass,check digit 1 verified
 Eli Lilly and Company,532457DK1,4.150% Notes due 2029,V2,pass,Luhn sum 50 ≡ 0
 Eli Lilly and Company,532457DK1,4.150% Notes due 2029,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -327,6 +367,7 @@ Eli Lilly and Company,532457DK1,4.150% Notes due 2029,V5,pass,"coupon 4.15% < se
 Eli Lilly and Company,532457DK1,4.150% Notes due 2029,V6,pass,"trade 2026-05-06 ≤ sett 2026-05-20 < mat 2029-05-20, year 2029 ✓"
 Eli Lilly and Company,532457DK1,4.150% Notes due 2029,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DK1,4.150% Notes due 2029,V8,pass,CUSIP 532457DK1 is unique in this deal
+Eli Lilly and Company,532457DK1,4.150% Notes due 2029,V9,pass,"Moody's=Aa3, S&P=AA-"
 Eli Lilly and Company,532457DL9,4.375% Notes due 2031,V1,pass,check digit 9 verified
 Eli Lilly and Company,532457DL9,4.375% Notes due 2031,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457DL9,4.375% Notes due 2031,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -335,6 +376,7 @@ Eli Lilly and Company,532457DL9,4.375% Notes due 2031,V5,pass,"coupon 4.375% < s
 Eli Lilly and Company,532457DL9,4.375% Notes due 2031,V6,pass,"trade 2026-05-06 ≤ sett 2026-05-20 < mat 2031-05-20, year 2031 ✓"
 Eli Lilly and Company,532457DL9,4.375% Notes due 2031,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DL9,4.375% Notes due 2031,V8,pass,CUSIP 532457DL9 is unique in this deal
+Eli Lilly and Company,532457DL9,4.375% Notes due 2031,V9,pass,"Moody's=Aa3, S&P=AA-"
 Eli Lilly and Company,532457DM7,4.650% Notes due 2033,V1,pass,check digit 7 verified
 Eli Lilly and Company,532457DM7,4.650% Notes due 2033,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457DM7,4.650% Notes due 2033,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -343,6 +385,7 @@ Eli Lilly and Company,532457DM7,4.650% Notes due 2033,V5,pass,"coupon 4.65% < se
 Eli Lilly and Company,532457DM7,4.650% Notes due 2033,V6,pass,"trade 2026-05-06 ≤ sett 2026-05-20 < mat 2033-05-20, year 2033 ✓"
 Eli Lilly and Company,532457DM7,4.650% Notes due 2033,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DM7,4.650% Notes due 2033,V8,pass,CUSIP 532457DM7 is unique in this deal
+Eli Lilly and Company,532457DM7,4.650% Notes due 2033,V9,pass,"Moody's=Aa3, S&P=AA-"
 Eli Lilly and Company,532457DR6,4.850% Notes due 2036,V1,pass,check digit 6 verified
 Eli Lilly and Company,532457DR6,4.850% Notes due 2036,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457DR6,4.850% Notes due 2036,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -351,6 +394,7 @@ Eli Lilly and Company,532457DR6,4.850% Notes due 2036,V5,pass,"coupon 4.85% < se
 Eli Lilly and Company,532457DR6,4.850% Notes due 2036,V6,pass,"trade 2026-05-06 ≤ sett 2026-05-20 < mat 2036-05-20, year 2036 ✓"
 Eli Lilly and Company,532457DR6,4.850% Notes due 2036,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DR6,4.850% Notes due 2036,V8,pass,CUSIP 532457DR6 is unique in this deal
+Eli Lilly and Company,532457DR6,4.850% Notes due 2036,V9,pass,"Moody's=Aa3, S&P=AA-"
 Eli Lilly and Company,532457DP0,5.600% Notes due 2056,V1,pass,check digit 0 verified
 Eli Lilly and Company,532457DP0,5.600% Notes due 2056,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457DP0,5.600% Notes due 2056,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -359,6 +403,7 @@ Eli Lilly and Company,532457DP0,5.600% Notes due 2056,V5,pass,"coupon 5.6% < sem
 Eli Lilly and Company,532457DP0,5.600% Notes due 2056,V6,pass,"trade 2026-05-06 ≤ sett 2026-05-20 < mat 2056-05-20, year 2056 ✓"
 Eli Lilly and Company,532457DP0,5.600% Notes due 2056,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DP0,5.600% Notes due 2056,V8,pass,CUSIP 532457DP0 is unique in this deal
+Eli Lilly and Company,532457DP0,5.600% Notes due 2056,V9,pass,"Moody's=Aa3, S&P=AA-"
 Eli Lilly and Company,532457DQ8,5.700% Notes due 2066,V1,pass,check digit 8 verified
 Eli Lilly and Company,532457DQ8,5.700% Notes due 2066,V2,pass,Luhn sum 60 ≡ 0
 Eli Lilly and Company,532457DQ8,5.700% Notes due 2066,V3,pass,bond prefix 532457 = stock prefix 532457
@@ -367,6 +412,7 @@ Eli Lilly and Company,532457DQ8,5.700% Notes due 2066,V5,pass,"coupon 5.7% < sem
 Eli Lilly and Company,532457DQ8,5.700% Notes due 2066,V6,pass,"trade 2026-05-06 ≤ sett 2026-05-20 < mat 2066-05-20, year 2066 ✓"
 Eli Lilly and Company,532457DQ8,5.700% Notes due 2066,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Eli Lilly and Company,532457DQ8,5.700% Notes due 2066,V8,pass,CUSIP 532457DQ8 is unique in this deal
+Eli Lilly and Company,532457DQ8,5.700% Notes due 2066,V9,pass,"Moody's=Aa3, S&P=AA-"
 Microsoft Corporation,594918CX0,Floating Rate Notes due 2028,V1,pass,check digit 0 verified
 Microsoft Corporation,594918CX0,Floating Rate Notes due 2028,V2,pass,Luhn sum 70 ≡ 0
 Microsoft Corporation,594918CX0,Floating Rate Notes due 2028,V3,pass,bond prefix 594918 = stock prefix 594918
@@ -375,6 +421,7 @@ Microsoft Corporation,594918CX0,Floating Rate Notes due 2028,V5,not applicable,f
 Microsoft Corporation,594918CX0,Floating Rate Notes due 2028,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2028-11-03, year 2028 ✓"
 Microsoft Corporation,594918CX0,Floating Rate Notes due 2028,V7,pass,ratings/dates uniform; day_count='Actual/360' ✓
 Microsoft Corporation,594918CX0,Floating Rate Notes due 2028,V8,pass,CUSIP 594918CX0 is unique in this deal
+Microsoft Corporation,594918CX0,Floating Rate Notes due 2028,V9,pass,"Moody's=Aaa, S&P=AAA"
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V1,pass,check digit 5 verified
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V2,pass,Luhn sum 80 ≡ 0
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V3,pass,bond prefix 594918 = stock prefix 594918
@@ -383,6 +430,7 @@ Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V5,pass,"coupon 4.85% < yi
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2028-11-03, year 2028 ✓"
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V8,pass,CUSIP 594918CZ5 is unique in this deal
+Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V9,pass,"Moody's=Aaa, S&P=AAA"
 Microsoft Corporation,594918CY8,Floating Rate Notes due 2029,V1,pass,check digit 8 verified
 Microsoft Corporation,594918CY8,Floating Rate Notes due 2029,V2,pass,Luhn sum 80 ≡ 0
 Microsoft Corporation,594918CY8,Floating Rate Notes due 2029,V3,pass,bond prefix 594918 = stock prefix 594918
@@ -391,6 +439,7 @@ Microsoft Corporation,594918CY8,Floating Rate Notes due 2029,V5,not applicable,f
 Microsoft Corporation,594918CY8,Floating Rate Notes due 2029,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2029-11-03, year 2029 ✓"
 Microsoft Corporation,594918CY8,Floating Rate Notes due 2029,V7,pass,ratings/dates uniform; day_count='Actual/360' ✓
 Microsoft Corporation,594918CY8,Floating Rate Notes due 2029,V8,pass,CUSIP 594918CY8 is unique in this deal
+Microsoft Corporation,594918CY8,Floating Rate Notes due 2029,V9,pass,"Moody's=Aaa, S&P=AAA"
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V1,pass,check digit 9 verified
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V2,pass,Luhn sum 80 ≡ 0
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V3,pass,bond prefix 594918 = stock prefix 594918
@@ -399,6 +448,7 @@ Microsoft Corporation,594918DA9,5.000% Notes due 2029,V5,pass,"coupon 5.0% < yie
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2029-11-03, year 2029 ✓"
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V8,pass,CUSIP 594918DA9 is unique in this deal
+Microsoft Corporation,594918DA9,5.000% Notes due 2029,V9,pass,"Moody's=Aaa, S&P=AAA"
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V1,pass,check digit 7 verified
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V2,pass,Luhn sum 70 ≡ 0
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V3,pass,bond prefix 594918 = stock prefix 594918
@@ -407,6 +457,7 @@ Microsoft Corporation,594918DB7,5.200% Notes due 2031,V5,pass,"coupon 5.2% < yie
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2031-11-03, year 2031 ✓"
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V8,pass,CUSIP 594918DB7 is unique in this deal
+Microsoft Corporation,594918DB7,5.200% Notes due 2031,V9,pass,"Moody's=Aaa, S&P=AAA"
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V1,pass,check digit 5 verified
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V2,pass,Luhn sum 70 ≡ 0
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V3,pass,bond prefix 594918 = stock prefix 594918
@@ -415,6 +466,7 @@ Microsoft Corporation,594918DC5,5.350% Notes due 2033,V5,pass,"coupon 5.35% < yi
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2033-11-03, year 2033 ✓"
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V8,pass,CUSIP 594918DC5 is unique in this deal
+Microsoft Corporation,594918DC5,5.350% Notes due 2033,V9,pass,"Moody's=Aaa, S&P=AAA"
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V1,pass,check digit 3 verified
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V2,pass,Luhn sum 80 ≡ 0
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V3,pass,bond prefix 594918 = stock prefix 594918
@@ -423,6 +475,7 @@ Microsoft Corporation,594918DD3,5.550% Notes due 2036,V5,pass,"coupon 5.55% < yi
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2036-11-03, year 2036 ✓"
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V8,pass,CUSIP 594918DD3 is unique in this deal
+Microsoft Corporation,594918DD3,5.550% Notes due 2036,V9,pass,"Moody's=Aaa, S&P=AAA"
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V1,pass,check digit 1 verified
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V2,pass,Luhn sum 70 ≡ 0
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V3,pass,bond prefix 594918 = stock prefix 594918
@@ -431,6 +484,7 @@ Microsoft Corporation,594918DE1,6.150% Notes due 2046,V5,pass,"coupon 6.15% < yi
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2046-11-03, year 2046 ✓"
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V8,pass,CUSIP 594918DE1 is unique in this deal
+Microsoft Corporation,594918DE1,6.150% Notes due 2046,V9,pass,"Moody's=Aaa, S&P=AAA"
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V1,pass,check digit 8 verified
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V2,pass,Luhn sum 80 ≡ 0
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V3,pass,bond prefix 594918 = stock prefix 594918
@@ -439,6 +493,7 @@ Microsoft Corporation,594918DF8,6.250% Notes due 2056,V5,pass,"coupon 6.25% < yi
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2056-11-03, year 2056 ✓"
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V8,pass,CUSIP 594918DF8 is unique in this deal
+Microsoft Corporation,594918DF8,6.250% Notes due 2056,V9,pass,"Moody's=Aaa, S&P=AAA"
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V1,pass,check digit 6 verified
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V2,pass,Luhn sum 80 ≡ 0
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V3,pass,bond prefix 594918 = stock prefix 594918
@@ -447,6 +502,7 @@ Microsoft Corporation,594918DG6,6.350% Notes due 2066,V5,pass,"coupon 6.35% < yi
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2066-11-03, year 2066 ✓"
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V8,pass,CUSIP 594918DG6 is unique in this deal
+Microsoft Corporation,594918DG6,6.350% Notes due 2066,V9,pass,"Moody's=Aaa, S&P=AAA"
 Alphabet Inc.,02079KAP2,2.500% Notes due 2029,V1,pass,check digit 2 verified
 Alphabet Inc.,02079KAP2,2.500% Notes due 2029,V2,pass,Luhn sum 70 ≡ 0
 Alphabet Inc.,02079KAP2,2.500% Notes due 2029,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -455,6 +511,7 @@ Alphabet Inc.,02079KAP2,2.500% Notes due 2029,V5,pass,"coupon 2.5% < annual yiel
 Alphabet Inc.,02079KAP2,2.500% Notes due 2029,V6,pass,"trade 2025-04-29 ≤ sett 2025-05-06 < mat 2029-05-06, year 2029 ✓"
 Alphabet Inc.,02079KAP2,2.500% Notes due 2029,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KAP2,2.500% Notes due 2029,V8,pass,CUSIP 02079KAP2 is unique in this deal
+Alphabet Inc.,02079KAP2,2.500% Notes due 2029,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KAQ0,3.000% Notes due 2033,V1,pass,check digit 0 verified
 Alphabet Inc.,02079KAQ0,3.000% Notes due 2033,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KAQ0,3.000% Notes due 2033,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -463,6 +520,7 @@ Alphabet Inc.,02079KAQ0,3.000% Notes due 2033,V5,pass,"coupon 3.0% < annual yiel
 Alphabet Inc.,02079KAQ0,3.000% Notes due 2033,V6,pass,"trade 2025-04-29 ≤ sett 2025-05-06 < mat 2033-05-06, year 2033 ✓"
 Alphabet Inc.,02079KAQ0,3.000% Notes due 2033,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KAQ0,3.000% Notes due 2033,V8,pass,CUSIP 02079KAQ0 is unique in this deal
+Alphabet Inc.,02079KAQ0,3.000% Notes due 2033,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KAR8,3.375% Notes due 2037,V1,pass,check digit 8 verified
 Alphabet Inc.,02079KAR8,3.375% Notes due 2037,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KAR8,3.375% Notes due 2037,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -471,6 +529,7 @@ Alphabet Inc.,02079KAR8,3.375% Notes due 2037,V5,pass,"coupon 3.375% < annual yi
 Alphabet Inc.,02079KAR8,3.375% Notes due 2037,V6,pass,"trade 2025-04-29 ≤ sett 2025-05-06 < mat 2037-05-06, year 2037 ✓"
 Alphabet Inc.,02079KAR8,3.375% Notes due 2037,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KAR8,3.375% Notes due 2037,V8,pass,CUSIP 02079KAR8 is unique in this deal
+Alphabet Inc.,02079KAR8,3.375% Notes due 2037,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KAS6,3.875% Notes due 2045,V1,pass,check digit 6 verified
 Alphabet Inc.,02079KAS6,3.875% Notes due 2045,V2,pass,Luhn sum 70 ≡ 0
 Alphabet Inc.,02079KAS6,3.875% Notes due 2045,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -479,6 +538,7 @@ Alphabet Inc.,02079KAS6,3.875% Notes due 2045,V5,pass,"coupon 3.875% < annual yi
 Alphabet Inc.,02079KAS6,3.875% Notes due 2045,V6,pass,"trade 2025-04-29 ≤ sett 2025-05-06 < mat 2045-05-06, year 2045 ✓"
 Alphabet Inc.,02079KAS6,3.875% Notes due 2045,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KAS6,3.875% Notes due 2045,V8,pass,CUSIP 02079KAS6 is unique in this deal
+Alphabet Inc.,02079KAS6,3.875% Notes due 2045,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KAT4,4.000% Notes due 2054,V1,pass,check digit 4 verified
 Alphabet Inc.,02079KAT4,4.000% Notes due 2054,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KAT4,4.000% Notes due 2054,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -487,6 +547,7 @@ Alphabet Inc.,02079KAT4,4.000% Notes due 2054,V5,pass,"coupon 4.0% < annual yiel
 Alphabet Inc.,02079KAT4,4.000% Notes due 2054,V6,pass,"trade 2025-04-29 ≤ sett 2025-05-06 < mat 2054-05-06, year 2054 ✓"
 Alphabet Inc.,02079KAT4,4.000% Notes due 2054,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KAT4,4.000% Notes due 2054,V8,pass,CUSIP 02079KAT4 is unique in this deal
+Alphabet Inc.,02079KAT4,4.000% Notes due 2054,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V1,pass,check digit 9 verified
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -495,6 +556,7 @@ Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V5,pass,"coupon 3.875% < yield_pct
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2028-11-15, year 2028 ✓"
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V8,pass,CUSIP 02079KAV9 is unique in this deal
+Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V1,pass,check digit 7 verified
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -503,6 +565,7 @@ Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V5,pass,"coupon 4.1% < yield_pct y
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2030-11-15, year 2030 ✓"
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V8,pass,CUSIP 02079KAW7 is unique in this deal
+Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V1,pass,check digit 5 verified
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -511,6 +574,7 @@ Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V5,pass,"coupon 4.375% < yield_pct
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2032-11-15, year 2032 ✓"
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V8,pass,CUSIP 02079KAX5 is unique in this deal
+Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V1,pass,check digit 3 verified
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -519,6 +583,7 @@ Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V5,pass,"coupon 4.7% < yield_pct y
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2035-11-15, year 2035 ✓"
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V8,pass,CUSIP 02079KAY3 is unique in this deal
+Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V1,pass,check digit 0 verified
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -527,6 +592,7 @@ Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V5,pass,"coupon 5.35% < yield_pct 
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2045-11-15, year 2045 ✓"
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V8,pass,CUSIP 02079KAZ0 is unique in this deal
+Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V1,pass,check digit 4 verified
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -535,6 +601,7 @@ Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V5,pass,"coupon 5.45% < yield_pct 
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2055-11-15, year 2055 ✓"
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V8,pass,CUSIP 02079KBA4 is unique in this deal
+Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V1,pass,check digit 2 verified
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -543,6 +610,7 @@ Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V5,pass,"coupon 5.7% < yield_pct y
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2075-11-15, year 2075 ✓"
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V8,pass,CUSIP 02079KBB2 is unique in this deal
+Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KBR7,4.125% Notes due 2029,V1,pass,check digit 7 verified
 Alphabet Inc.,02079KBR7,4.125% Notes due 2029,V2,pass,Luhn sum 70 ≡ 0
 Alphabet Inc.,02079KBR7,4.125% Notes due 2029,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -551,6 +619,7 @@ Alphabet Inc.,02079KBR7,4.125% Notes due 2029,V5,pass,"coupon 4.125% < annual yi
 Alphabet Inc.,02079KBR7,4.125% Notes due 2029,V6,pass,"trade 2026-02-10 ≤ sett 2026-02-13 < mat 2029-02-13, year 2029 ✓"
 Alphabet Inc.,02079KBR7,4.125% Notes due 2029,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KBR7,4.125% Notes due 2029,V8,pass,CUSIP 02079KBR7 is unique in this deal
+Alphabet Inc.,02079KBR7,4.125% Notes due 2029,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KBS5,4.625% Notes due 2032,V1,pass,check digit 5 verified
 Alphabet Inc.,02079KBS5,4.625% Notes due 2032,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KBS5,4.625% Notes due 2032,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -559,6 +628,7 @@ Alphabet Inc.,02079KBS5,4.625% Notes due 2032,V5,pass,"coupon 4.625% < annual yi
 Alphabet Inc.,02079KBS5,4.625% Notes due 2032,V6,pass,"trade 2026-02-10 ≤ sett 2026-02-13 < mat 2032-11-13, year 2032 ✓"
 Alphabet Inc.,02079KBS5,4.625% Notes due 2032,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KBS5,4.625% Notes due 2032,V8,pass,CUSIP 02079KBS5 is unique in this deal
+Alphabet Inc.,02079KBS5,4.625% Notes due 2032,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KBT3,5.500% Notes due 2041,V1,pass,check digit 3 verified
 Alphabet Inc.,02079KBT3,5.500% Notes due 2041,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KBT3,5.500% Notes due 2041,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -567,6 +637,7 @@ Alphabet Inc.,02079KBT3,5.500% Notes due 2041,V5,pass,"coupon 5.5% < annual yiel
 Alphabet Inc.,02079KBT3,5.500% Notes due 2041,V6,pass,"trade 2026-02-10 ≤ sett 2026-02-13 < mat 2041-11-13, year 2041 ✓"
 Alphabet Inc.,02079KBT3,5.500% Notes due 2041,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KBT3,5.500% Notes due 2041,V8,pass,CUSIP 02079KBT3 is unique in this deal
+Alphabet Inc.,02079KBT3,5.500% Notes due 2041,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KBU0,5.875% Notes due 2058,V1,pass,check digit 0 verified
 Alphabet Inc.,02079KBU0,5.875% Notes due 2058,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KBU0,5.875% Notes due 2058,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -575,6 +646,7 @@ Alphabet Inc.,02079KBU0,5.875% Notes due 2058,V5,pass,"coupon 5.875% < annual yi
 Alphabet Inc.,02079KBU0,5.875% Notes due 2058,V6,pass,"trade 2026-02-10 ≤ sett 2026-02-13 < mat 2058-02-13, year 2058 ✓"
 Alphabet Inc.,02079KBU0,5.875% Notes due 2058,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KBU0,5.875% Notes due 2058,V8,pass,CUSIP 02079KBU0 is unique in this deal
+Alphabet Inc.,02079KBU0,5.875% Notes due 2058,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KBV8,6.125% Notes due 2126,V1,pass,check digit 8 verified
 Alphabet Inc.,02079KBV8,6.125% Notes due 2126,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KBV8,6.125% Notes due 2126,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -583,6 +655,7 @@ Alphabet Inc.,02079KBV8,6.125% Notes due 2126,V5,pass,"coupon 6.125% < annual yi
 Alphabet Inc.,02079KBV8,6.125% Notes due 2126,V6,pass,"trade 2026-02-10 ≤ sett 2026-02-13 < mat 2126-02-13, year 2126 ✓"
 Alphabet Inc.,02079KBV8,6.125% Notes due 2126,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KBV8,6.125% Notes due 2126,V8,pass,CUSIP 02079KBV8 is unique in this deal
+Alphabet Inc.,02079KBV8,6.125% Notes due 2126,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079WAG6,3.650% Notes due 2031,V1,pass,check digit 6 verified
 Alphabet Inc.,02079WAG6,3.650% Notes due 2031,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079WAG6,3.650% Notes due 2031,V3,pass,prefix 02079W approved in issuer_prefixes.csv for 'Alphabet Inc.'
@@ -591,6 +664,7 @@ Alphabet Inc.,02079WAG6,3.650% Notes due 2031,V5,pass,"coupon 3.65% < semi-annua
 Alphabet Inc.,02079WAG6,3.650% Notes due 2031,V6,pass,"trade 2026-05-05 ≤ sett 2026-05-11 < mat 2031-05-15, year 2031 ✓"
 Alphabet Inc.,02079WAG6,3.650% Notes due 2031,V7,pass,ratings/dates uniform; day_count='Actual/365' ✓
 Alphabet Inc.,02079WAG6,3.650% Notes due 2031,V8,pass,CUSIP 02079WAG6 is unique in this deal
+Alphabet Inc.,02079WAG6,3.650% Notes due 2031,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079WAA9,4.000% Notes due 2033,V1,pass,check digit 9 verified
 Alphabet Inc.,02079WAA9,4.000% Notes due 2033,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079WAA9,4.000% Notes due 2033,V3,pass,prefix 02079W approved in issuer_prefixes.csv for 'Alphabet Inc.'
@@ -599,6 +673,7 @@ Alphabet Inc.,02079WAA9,4.000% Notes due 2033,V5,pass,"coupon 4.0% < semi-annual
 Alphabet Inc.,02079WAA9,4.000% Notes due 2033,V6,pass,"trade 2026-05-05 ≤ sett 2026-05-11 < mat 2033-05-15, year 2033 ✓"
 Alphabet Inc.,02079WAA9,4.000% Notes due 2033,V7,pass,ratings/dates uniform; day_count='Actual/365' ✓
 Alphabet Inc.,02079WAA9,4.000% Notes due 2033,V8,pass,CUSIP 02079WAA9 is unique in this deal
+Alphabet Inc.,02079WAA9,4.000% Notes due 2033,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079WAC5,4.350% Notes due 2036,V1,pass,check digit 5 verified
 Alphabet Inc.,02079WAC5,4.350% Notes due 2036,V2,pass,Luhn sum 40 ≡ 0
 Alphabet Inc.,02079WAC5,4.350% Notes due 2036,V3,pass,prefix 02079W approved in issuer_prefixes.csv for 'Alphabet Inc.'
@@ -607,6 +682,7 @@ Alphabet Inc.,02079WAC5,4.350% Notes due 2036,V5,pass,"coupon 4.35% < semi-annua
 Alphabet Inc.,02079WAC5,4.350% Notes due 2036,V6,pass,"trade 2026-05-05 ≤ sett 2026-05-11 < mat 2036-05-15, year 2036 ✓"
 Alphabet Inc.,02079WAC5,4.350% Notes due 2036,V7,pass,ratings/dates uniform; day_count='Actual/365' ✓
 Alphabet Inc.,02079WAC5,4.350% Notes due 2036,V8,pass,CUSIP 02079WAC5 is unique in this deal
+Alphabet Inc.,02079WAC5,4.350% Notes due 2036,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079WAE1,5.000% Notes due 2056,V1,pass,check digit 1 verified
 Alphabet Inc.,02079WAE1,5.000% Notes due 2056,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079WAE1,5.000% Notes due 2056,V3,pass,prefix 02079W approved in issuer_prefixes.csv for 'Alphabet Inc.'
@@ -615,6 +691,7 @@ Alphabet Inc.,02079WAE1,5.000% Notes due 2056,V5,pass,"coupon 5.0% < semi-annual
 Alphabet Inc.,02079WAE1,5.000% Notes due 2056,V6,pass,"trade 2026-05-05 ≤ sett 2026-05-11 < mat 2056-05-15, year 2056 ✓"
 Alphabet Inc.,02079WAE1,5.000% Notes due 2056,V7,pass,ratings/dates uniform; day_count='Actual/365' ✓
 Alphabet Inc.,02079WAE1,5.000% Notes due 2056,V8,pass,CUSIP 02079WAE1 is unique in this deal
+Alphabet Inc.,02079WAE1,5.000% Notes due 2056,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCM7,Floating Rate Notes due 2028,V1,pass,check digit 7 verified
 Alphabet Inc.,02079KCM7,Floating Rate Notes due 2028,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KCM7,Floating Rate Notes due 2028,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -623,6 +700,7 @@ Alphabet Inc.,02079KCM7,Floating Rate Notes due 2028,V5,not applicable,floating-
 Alphabet Inc.,02079KCM7,Floating Rate Notes due 2028,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2028-08-10, year 2028 ✓"
 Alphabet Inc.,02079KCM7,Floating Rate Notes due 2028,V7,pass,ratings/dates uniform; day_count='Actual/360' ✓
 Alphabet Inc.,02079KCM7,Floating Rate Notes due 2028,V8,pass,CUSIP 02079KCM7 is unique in this deal
+Alphabet Inc.,02079KCM7,Floating Rate Notes due 2028,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V1,pass,check digit 9 verified
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -631,6 +709,7 @@ Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V5,pass,"coupon 4.5% < yield_pct y
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2028-08-10, year 2028 ✓"
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V8,pass,CUSIP 02079KCL9 is unique in this deal
+Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCP0,Floating Rate Notes due 2029,V1,pass,check digit 0 verified
 Alphabet Inc.,02079KCP0,Floating Rate Notes due 2029,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KCP0,Floating Rate Notes due 2029,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -639,6 +718,7 @@ Alphabet Inc.,02079KCP0,Floating Rate Notes due 2029,V5,not applicable,floating-
 Alphabet Inc.,02079KCP0,Floating Rate Notes due 2029,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2029-08-10, year 2029 ✓"
 Alphabet Inc.,02079KCP0,Floating Rate Notes due 2029,V7,pass,ratings/dates uniform; day_count='Actual/360' ✓
 Alphabet Inc.,02079KCP0,Floating Rate Notes due 2029,V8,pass,CUSIP 02079KCP0 is unique in this deal
+Alphabet Inc.,02079KCP0,Floating Rate Notes due 2029,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V1,pass,check digit 5 verified
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -647,6 +727,7 @@ Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V5,pass,"coupon 4.625% < yield_pct
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2029-08-10, year 2029 ✓"
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V8,pass,CUSIP 02079KCN5 is unique in this deal
+Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V1,pass,check digit 8 verified
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -655,6 +736,7 @@ Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V5,pass,"coupon 4.875% < yield_pct
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2031-08-15, year 2031 ✓"
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V8,pass,CUSIP 02079KCQ8 is unique in this deal
+Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V1,pass,check digit 6 verified
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -663,6 +745,7 @@ Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V5,pass,"coupon 5.2% < yield_pct y
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2033-08-15, year 2033 ✓"
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V8,pass,CUSIP 02079KCR6 is unique in this deal
+Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V1,pass,check digit 4 verified
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -671,6 +754,7 @@ Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V5,pass,"coupon 5.45% < yield_pct 
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2036-08-15, year 2036 ✓"
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V8,pass,CUSIP 02079KCS4 is unique in this deal
+Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V1,pass,check digit 2 verified
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -679,6 +763,7 @@ Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V5,pass,"coupon 6.25% < yield_pct 
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2046-08-15, year 2046 ✓"
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V8,pass,CUSIP 02079KCT2 is unique in this deal
+Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V1,pass,check digit 9 verified
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -687,6 +772,7 @@ Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V5,pass,"coupon 6.375% < yield_pct
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2056-08-15, year 2056 ✓"
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V8,pass,CUSIP 02079KCU9 is unique in this deal
+Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V1,pass,check digit 7 verified
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -695,6 +781,7 @@ Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V5,pass,"coupon 6.5% < yield_pct y
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2066-08-15, year 2066 ✓"
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V8,pass,CUSIP 02079KCV7 is unique in this deal
+Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCW5,Floating Rate Notes due 2028,V1,pass,check digit 5 verified
 Alphabet Inc.,02079KCW5,Floating Rate Notes due 2028,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCW5,Floating Rate Notes due 2028,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -703,6 +790,7 @@ Alphabet Inc.,02079KCW5,Floating Rate Notes due 2028,V5,not applicable,floating-
 Alphabet Inc.,02079KCW5,Floating Rate Notes due 2028,V6,pass,"trade 2026-11-02 ≤ sett 2026-11-05 < mat 2028-11-05, year 2028 ✓"
 Alphabet Inc.,02079KCW5,Floating Rate Notes due 2028,V7,pass,ratings/dates uniform; day_count='Actual/360' ✓
 Alphabet Inc.,02079KCW5,Floating Rate Notes due 2028,V8,pass,CUSIP 02079KCW5 is unique in this deal
+Alphabet Inc.,02079KCW5,Floating Rate Notes due 2028,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCX3,3.700% Notes due 2028,V1,pass,check digit 3 verified
 Alphabet Inc.,02079KCX3,3.700% Notes due 2028,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCX3,3.700% Notes due 2028,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -711,6 +799,7 @@ Alphabet Inc.,02079KCX3,3.700% Notes due 2028,V5,pass,"coupon 3.7% < annual yiel
 Alphabet Inc.,02079KCX3,3.700% Notes due 2028,V6,pass,"trade 2026-11-02 ≤ sett 2026-11-05 < mat 2028-11-05, year 2028 ✓"
 Alphabet Inc.,02079KCX3,3.700% Notes due 2028,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KCX3,3.700% Notes due 2028,V8,pass,CUSIP 02079KCX3 is unique in this deal
+Alphabet Inc.,02079KCX3,3.700% Notes due 2028,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCY1,4.050% Notes due 2030,V1,pass,check digit 1 verified
 Alphabet Inc.,02079KCY1,4.050% Notes due 2030,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KCY1,4.050% Notes due 2030,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -719,6 +808,7 @@ Alphabet Inc.,02079KCY1,4.050% Notes due 2030,V5,pass,"coupon 4.05% < annual yie
 Alphabet Inc.,02079KCY1,4.050% Notes due 2030,V6,pass,"trade 2026-11-02 ≤ sett 2026-11-05 < mat 2030-11-05, year 2030 ✓"
 Alphabet Inc.,02079KCY1,4.050% Notes due 2030,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KCY1,4.050% Notes due 2030,V8,pass,CUSIP 02079KCY1 is unique in this deal
+Alphabet Inc.,02079KCY1,4.050% Notes due 2030,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KCZ8,4.250% Notes due 2032,V1,pass,check digit 8 verified
 Alphabet Inc.,02079KCZ8,4.250% Notes due 2032,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCZ8,4.250% Notes due 2032,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -727,6 +817,7 @@ Alphabet Inc.,02079KCZ8,4.250% Notes due 2032,V5,pass,"coupon 4.25% < annual yie
 Alphabet Inc.,02079KCZ8,4.250% Notes due 2032,V6,pass,"trade 2026-11-02 ≤ sett 2026-11-05 < mat 2032-11-05, year 2032 ✓"
 Alphabet Inc.,02079KCZ8,4.250% Notes due 2032,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KCZ8,4.250% Notes due 2032,V8,pass,CUSIP 02079KCZ8 is unique in this deal
+Alphabet Inc.,02079KCZ8,4.250% Notes due 2032,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KDA2,4.500% Notes due 2035,V1,pass,check digit 2 verified
 Alphabet Inc.,02079KDA2,4.500% Notes due 2035,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KDA2,4.500% Notes due 2035,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -735,6 +826,7 @@ Alphabet Inc.,02079KDA2,4.500% Notes due 2035,V5,pass,"coupon 4.5% < annual yiel
 Alphabet Inc.,02079KDA2,4.500% Notes due 2035,V6,pass,"trade 2026-11-02 ≤ sett 2026-11-05 < mat 2035-11-05, year 2035 ✓"
 Alphabet Inc.,02079KDA2,4.500% Notes due 2035,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KDA2,4.500% Notes due 2035,V8,pass,CUSIP 02079KDA2 is unique in this deal
+Alphabet Inc.,02079KDA2,4.500% Notes due 2035,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KDB0,4.875% Notes due 2039,V1,pass,check digit 0 verified
 Alphabet Inc.,02079KDB0,4.875% Notes due 2039,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KDB0,4.875% Notes due 2039,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -743,6 +835,7 @@ Alphabet Inc.,02079KDB0,4.875% Notes due 2039,V5,pass,"coupon 4.875% < annual yi
 Alphabet Inc.,02079KDB0,4.875% Notes due 2039,V6,pass,"trade 2026-11-02 ≤ sett 2026-11-05 < mat 2039-11-05, year 2039 ✓"
 Alphabet Inc.,02079KDB0,4.875% Notes due 2039,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KDB0,4.875% Notes due 2039,V8,pass,CUSIP 02079KDB0 is unique in this deal
+Alphabet Inc.,02079KDB0,4.875% Notes due 2039,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079KDC8,5.250% Notes due 2045,V1,pass,check digit 8 verified
 Alphabet Inc.,02079KDC8,5.250% Notes due 2045,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KDC8,5.250% Notes due 2045,V3,pass,bond prefix 02079K = stock prefix 02079K
@@ -751,6 +844,7 @@ Alphabet Inc.,02079KDC8,5.250% Notes due 2045,V5,pass,"coupon 5.25% < annual yie
 Alphabet Inc.,02079KDC8,5.250% Notes due 2045,V6,pass,"trade 2026-11-02 ≤ sett 2026-11-05 < mat 2045-11-05, year 2045 ✓"
 Alphabet Inc.,02079KDC8,5.250% Notes due 2045,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Alphabet Inc.,02079KDC8,5.250% Notes due 2045,V8,pass,CUSIP 02079KDC8 is unique in this deal
+Alphabet Inc.,02079KDC8,5.250% Notes due 2045,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079WAK7,4.100% Notes due 2029,V1,pass,check digit 7 verified
 Alphabet Inc.,02079WAK7,4.100% Notes due 2029,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079WAK7,4.100% Notes due 2029,V3,pass,prefix 02079W approved in issuer_prefixes.csv for 'Alphabet Inc.'
@@ -759,6 +853,7 @@ Alphabet Inc.,02079WAK7,4.100% Notes due 2029,V5,pass,"coupon 4.1% < semi-annual
 Alphabet Inc.,02079WAK7,4.100% Notes due 2029,V6,pass,"trade 2026-11-19 ≤ sett 2026-11-24 < mat 2029-11-24, year 2029 ✓"
 Alphabet Inc.,02079WAK7,4.100% Notes due 2029,V7,pass,ratings/dates uniform; day_count='Actual/365' ✓
 Alphabet Inc.,02079WAK7,4.100% Notes due 2029,V8,pass,CUSIP 02079WAK7 is unique in this deal
+Alphabet Inc.,02079WAK7,4.100% Notes due 2029,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079WAM3,4.800% Notes due 2034,V1,pass,check digit 3 verified
 Alphabet Inc.,02079WAM3,4.800% Notes due 2034,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079WAM3,4.800% Notes due 2034,V3,pass,prefix 02079W approved in issuer_prefixes.csv for 'Alphabet Inc.'
@@ -767,6 +862,7 @@ Alphabet Inc.,02079WAM3,4.800% Notes due 2034,V5,pass,"coupon 4.8% < semi-annual
 Alphabet Inc.,02079WAM3,4.800% Notes due 2034,V6,pass,"trade 2026-11-19 ≤ sett 2026-11-24 < mat 2034-11-24, year 2034 ✓"
 Alphabet Inc.,02079WAM3,4.800% Notes due 2034,V7,pass,ratings/dates uniform; day_count='Actual/365' ✓
 Alphabet Inc.,02079WAM3,4.800% Notes due 2034,V8,pass,CUSIP 02079WAM3 is unique in this deal
+Alphabet Inc.,02079WAM3,4.800% Notes due 2034,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079WAL5,5.325% Notes due 2038,V1,pass,check digit 5 verified
 Alphabet Inc.,02079WAL5,5.325% Notes due 2038,V2,pass,Luhn sum 40 ≡ 0
 Alphabet Inc.,02079WAL5,5.325% Notes due 2038,V3,pass,prefix 02079W approved in issuer_prefixes.csv for 'Alphabet Inc.'
@@ -775,6 +871,7 @@ Alphabet Inc.,02079WAL5,5.325% Notes due 2038,V5,pass,"coupon 5.325% < semi-annu
 Alphabet Inc.,02079WAL5,5.325% Notes due 2038,V6,pass,"trade 2026-11-19 ≤ sett 2026-11-24 < mat 2038-11-24, year 2038 ✓"
 Alphabet Inc.,02079WAL5,5.325% Notes due 2038,V7,pass,ratings/dates uniform; day_count='Actual/365' ✓
 Alphabet Inc.,02079WAL5,5.325% Notes due 2038,V8,pass,CUSIP 02079WAL5 is unique in this deal
+Alphabet Inc.,02079WAL5,5.325% Notes due 2038,V9,pass,"Moody's=Aa2, S&P=AA+"
 Alphabet Inc.,02079WAN1,6.000% Notes due 2066,V1,pass,check digit 1 verified
 Alphabet Inc.,02079WAN1,6.000% Notes due 2066,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079WAN1,6.000% Notes due 2066,V3,pass,prefix 02079W approved in issuer_prefixes.csv for 'Alphabet Inc.'
@@ -783,6 +880,7 @@ Alphabet Inc.,02079WAN1,6.000% Notes due 2066,V5,pass,"coupon 6.0% < semi-annual
 Alphabet Inc.,02079WAN1,6.000% Notes due 2066,V6,pass,"trade 2026-11-19 ≤ sett 2026-11-24 < mat 2066-11-24, year 2066 ✓"
 Alphabet Inc.,02079WAN1,6.000% Notes due 2066,V7,pass,ratings/dates uniform; day_count='Actual/365' ✓
 Alphabet Inc.,02079WAN1,6.000% Notes due 2066,V8,pass,CUSIP 02079WAN1 is unique in this deal
+Alphabet Inc.,02079WAN1,6.000% Notes due 2066,V9,pass,"Moody's=Aa2, S&P=AA+"
 Johnson & Johnson,478160CY8,3.200% Notes due 2032,V1,pass,check digit 8 verified
 Johnson & Johnson,478160CY8,3.200% Notes due 2032,V2,pass,Luhn sum 70 ≡ 0
 Johnson & Johnson,478160CY8,3.200% Notes due 2032,V3,pass,bond prefix 478160 = stock prefix 478160
@@ -791,6 +889,7 @@ Johnson & Johnson,478160CY8,3.200% Notes due 2032,V5,pass,"coupon 3.2% < annual 
 Johnson & Johnson,478160CY8,3.200% Notes due 2032,V6,pass,"trade 2024-05-14 ≤ sett 2024-05-20 < mat 2032-06-01, year 2032 ✓"
 Johnson & Johnson,478160CY8,3.200% Notes due 2032,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Johnson & Johnson,478160CY8,3.200% Notes due 2032,V8,pass,CUSIP 478160CY8 is unique in this deal
+Johnson & Johnson,478160CY8,3.200% Notes due 2032,V9,pass,"Moody's=Aaa, S&P=AAA"
 Johnson & Johnson,478160CZ5,3.350% Notes due 2036,V1,pass,check digit 5 verified
 Johnson & Johnson,478160CZ5,3.350% Notes due 2036,V2,pass,Luhn sum 60 ≡ 0
 Johnson & Johnson,478160CZ5,3.350% Notes due 2036,V3,pass,bond prefix 478160 = stock prefix 478160
@@ -799,6 +898,7 @@ Johnson & Johnson,478160CZ5,3.350% Notes due 2036,V5,pass,"coupon 3.35% < annual
 Johnson & Johnson,478160CZ5,3.350% Notes due 2036,V6,pass,"trade 2024-05-14 ≤ sett 2024-05-20 < mat 2036-06-01, year 2036 ✓"
 Johnson & Johnson,478160CZ5,3.350% Notes due 2036,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Johnson & Johnson,478160CZ5,3.350% Notes due 2036,V8,pass,CUSIP 478160CZ5 is unique in this deal
+Johnson & Johnson,478160CZ5,3.350% Notes due 2036,V9,pass,"Moody's=Aaa, S&P=AAA"
 Johnson & Johnson,478160DA9,3.550% Notes due 2044,V1,pass,check digit 9 verified
 Johnson & Johnson,478160DA9,3.550% Notes due 2044,V2,pass,Luhn sum 70 ≡ 0
 Johnson & Johnson,478160DA9,3.550% Notes due 2044,V3,pass,bond prefix 478160 = stock prefix 478160
@@ -807,6 +907,7 @@ Johnson & Johnson,478160DA9,3.550% Notes due 2044,V5,pass,"coupon 3.55% < annual
 Johnson & Johnson,478160DA9,3.550% Notes due 2044,V6,pass,"trade 2024-05-14 ≤ sett 2024-05-20 < mat 2044-06-01, year 2044 ✓"
 Johnson & Johnson,478160DA9,3.550% Notes due 2044,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Johnson & Johnson,478160DA9,3.550% Notes due 2044,V8,pass,CUSIP 478160DA9 is unique in this deal
+Johnson & Johnson,478160DA9,3.550% Notes due 2044,V9,pass,"Moody's=Aaa, S&P=AAA"
 Johnson & Johnson,478160DB7,2.700% Notes due 2029,V1,pass,check digit 7 verified
 Johnson & Johnson,478160DB7,2.700% Notes due 2029,V2,pass,Luhn sum 50 ≡ 0
 Johnson & Johnson,478160DB7,2.700% Notes due 2029,V3,pass,bond prefix 478160 = stock prefix 478160
@@ -815,6 +916,7 @@ Johnson & Johnson,478160DB7,2.700% Notes due 2029,V5,pass,"coupon 2.7% < annual 
 Johnson & Johnson,478160DB7,2.700% Notes due 2029,V6,pass,"trade 2025-02-19 ≤ sett 2025-02-26 < mat 2029-02-26, year 2029 ✓"
 Johnson & Johnson,478160DB7,2.700% Notes due 2029,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Johnson & Johnson,478160DB7,2.700% Notes due 2029,V8,pass,CUSIP 478160DB7 is unique in this deal
+Johnson & Johnson,478160DB7,2.700% Notes due 2029,V9,not_found,Moody's not found
 Johnson & Johnson,478160DC5,3.050% Notes due 2033,V1,pass,check digit 5 verified
 Johnson & Johnson,478160DC5,3.050% Notes due 2033,V2,pass,Luhn sum 60 ≡ 0
 Johnson & Johnson,478160DC5,3.050% Notes due 2033,V3,pass,bond prefix 478160 = stock prefix 478160
@@ -823,6 +925,7 @@ Johnson & Johnson,478160DC5,3.050% Notes due 2033,V5,pass,"coupon 3.05% < annual
 Johnson & Johnson,478160DC5,3.050% Notes due 2033,V6,pass,"trade 2025-02-19 ≤ sett 2025-02-26 < mat 2033-02-26, year 2033 ✓"
 Johnson & Johnson,478160DC5,3.050% Notes due 2033,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Johnson & Johnson,478160DC5,3.050% Notes due 2033,V8,pass,CUSIP 478160DC5 is unique in this deal
+Johnson & Johnson,478160DC5,3.050% Notes due 2033,V9,not_found,Moody's not found
 Johnson & Johnson,478160DD3,3.350% Notes due 2037,V1,pass,check digit 3 verified
 Johnson & Johnson,478160DD3,3.350% Notes due 2037,V2,pass,Luhn sum 70 ≡ 0
 Johnson & Johnson,478160DD3,3.350% Notes due 2037,V3,pass,bond prefix 478160 = stock prefix 478160
@@ -831,6 +934,7 @@ Johnson & Johnson,478160DD3,3.350% Notes due 2037,V5,pass,"coupon 3.35% < annual
 Johnson & Johnson,478160DD3,3.350% Notes due 2037,V6,pass,"trade 2025-02-19 ≤ sett 2025-02-26 < mat 2037-02-26, year 2037 ✓"
 Johnson & Johnson,478160DD3,3.350% Notes due 2037,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Johnson & Johnson,478160DD3,3.350% Notes due 2037,V8,pass,CUSIP 478160DD3 is unique in this deal
+Johnson & Johnson,478160DD3,3.350% Notes due 2037,V9,not_found,Moody's not found
 Johnson & Johnson,478160DE1,3.600% Notes due 2045,V1,pass,check digit 1 verified
 Johnson & Johnson,478160DE1,3.600% Notes due 2045,V2,pass,Luhn sum 50 ≡ 0
 Johnson & Johnson,478160DE1,3.600% Notes due 2045,V3,pass,bond prefix 478160 = stock prefix 478160
@@ -839,6 +943,7 @@ Johnson & Johnson,478160DE1,3.600% Notes due 2045,V5,pass,"coupon 3.6% < annual 
 Johnson & Johnson,478160DE1,3.600% Notes due 2045,V6,pass,"trade 2025-02-19 ≤ sett 2025-02-26 < mat 2045-02-26, year 2045 ✓"
 Johnson & Johnson,478160DE1,3.600% Notes due 2045,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Johnson & Johnson,478160DE1,3.600% Notes due 2045,V8,pass,CUSIP 478160DE1 is unique in this deal
+Johnson & Johnson,478160DE1,3.600% Notes due 2045,V9,not_found,Moody's not found
 Johnson & Johnson,478160DF8,3.700% Notes due 2055,V1,pass,check digit 8 verified
 Johnson & Johnson,478160DF8,3.700% Notes due 2055,V2,pass,Luhn sum 60 ≡ 0
 Johnson & Johnson,478160DF8,3.700% Notes due 2055,V3,pass,bond prefix 478160 = stock prefix 478160
@@ -847,3 +952,4 @@ Johnson & Johnson,478160DF8,3.700% Notes due 2055,V5,pass,"coupon 3.7% < annual 
 Johnson & Johnson,478160DF8,3.700% Notes due 2055,V6,pass,"trade 2025-02-19 ≤ sett 2025-02-26 < mat 2055-02-26, year 2055 ✓"
 Johnson & Johnson,478160DF8,3.700% Notes due 2055,V7,pass,ratings/dates uniform; day_count='Actual/Actual (ICMA)' ✓
 Johnson & Johnson,478160DF8,3.700% Notes due 2055,V8,pass,CUSIP 478160DF8 is unique in this deal
+Johnson & Johnson,478160DF8,3.700% Notes due 2055,V9,not_found,Moody's not found

@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from validate_build_tranches import (
     check_v1, check_v2, check_v3, check_v4, check_v5,
-    check_v6, check_v7, check_v8,
+    check_v6, check_v7, check_v8, check_v9,
     load_issuer_prefixes, load_day_count_conventions,
     load_benchmark_conventions, load_expected_exceptions,
     run_all_checks,
@@ -88,7 +88,7 @@ def main():
     val.to_csv(OUT_CSV, index=False)
     print(f"\nWrote {len(val)} rows → {OUT_CSV.name}")
 
-    checks    = ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"]
+    checks    = ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9"]
     companies = ["Meta", "Broadcom"]
 
     def _pivot(result_val):
@@ -108,6 +108,12 @@ def main():
     fail_piv = _pivot(FAIL)
     print("\nFailure counts (0 = all passed):")
     print(fail_piv.to_string())
+
+    nf_piv = _pivot("not_found")
+    nf_piv = nf_piv[nf_piv["TOTAL"] > 0]
+    if not nf_piv.empty:
+        print("\nnot_found counts (rating absent from document):")
+        print(nf_piv.to_string())
 
     na_piv = _pivot(NOT_APPLICABLE)
     na_piv = na_piv[na_piv["TOTAL"] > 0]

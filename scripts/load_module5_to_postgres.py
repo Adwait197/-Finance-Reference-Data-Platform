@@ -17,8 +17,8 @@ What it does, in plain English:
   3. Creates reporting.bond_terms  — one row per bond (142 bonds total),
      with company, set, deal date, all extracted fields, and both document URLs.
   4. Reads both validation files (build and test run 2) and creates
-     reporting.bond_checks — one row per bond per check, V1 through V8
-     (8 checks × 142 bonds = 1136 rows total).
+     reporting.bond_checks — one row per bond per check, V1 through V9
+     (9 checks × 142 bonds = 1278 rows total).
   5. Reads the official run-1 test files alongside the run-2 equivalents and
      builds reporting.module5_scorecard — one row per measure.
   6. Grants SELECT on all three tables to the powerbi_reader role.
@@ -88,6 +88,7 @@ CHECK_NAMES = {
     "V6": "Trade date, settlement date, maturity present",
     "V7": "Day count convention valid for currency",
     "V8": "CUSIP unique within deal",
+    "V9": "Moody's and S&P ratings are recognized grades",
 }
 
 # Fields that are only applicable for floating-rate bonds
@@ -455,7 +456,7 @@ def main():
     print(f"  source_doc_url: {changed}/{total} bonds changed vs nearest-date version"
           f"  ({'0 = exact match confirms no ambiguity' if changed == 0 else 'some URLs differ — see note'})")
 
-    print("Building bond_checks (8 checks × 142 bonds = 1136 rows) ...")
+    print("Building bond_checks (9 checks × 142 bonds = 1278 rows) ...")
     bond_checks = build_bond_checks()
 
     print("Building module5_scorecard (run 1 vs run 2) ...")
