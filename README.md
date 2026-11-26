@@ -152,13 +152,10 @@ bonds in this dataset:
 - `yield_annual`: only reported for EUR-denominated bonds (annual yield
   convention).  USD/CAD bonds use the semi-annual convention (`yield_pct`).
 
-> **Why the scorecard showed different numbers at different times:**  
-> The first conversational estimate ("50% / 95%") was a rough visual
-> estimate, not computed from data.  The first load script ("62% / 85%")
-> included all 24 CSV columns in the denominator for every bond, penalising
-> fixed-rate USD bonds for the three always-null columns above.  The correct
-> definition ("71% / 97%") removes those planned-empty cells from the
-> denominator so the percentage reflects genuine completeness.
+> **Computed values**: run 1 = **71%**, run 2 = **97%** (applicable-fields
+> definition above).  An earlier script reported 62% / 85% because it
+> included all 24 columns in the denominator for every bond, penalising
+> fixed-rate USD bonds for the three structurally-empty columns listed above.
 
 ### Reporting tables
 
