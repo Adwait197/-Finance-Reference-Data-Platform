@@ -473,7 +473,7 @@ Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V1,pass,check digit 5 veri
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V2,pass,Luhn sum 80 ≡ 0
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V3,pass,bond prefix 594918 = stock prefix 594918
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V4,pass,|4.619+25.0/100−4.869| = 0.0000 ≤ 0.005 (yield_pct)
-Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V5,pass,"coupon 4.85% < yield_pct yield 4.869%, price 99.964 ✓"
+Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V5,pass,"coupon 4.85% < semi-annual yield 4.869%, price 99.964 ✓"
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2028-11-03, year 2028 ✓"
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918CZ5,4.850% Notes due 2028,V8,pass,CUSIP 594918CZ5 is unique in this deal
@@ -493,7 +493,7 @@ Microsoft Corporation,594918DA9,5.000% Notes due 2029,V1,pass,check digit 9 veri
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V2,pass,Luhn sum 80 ≡ 0
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V3,pass,bond prefix 594918 = stock prefix 594918
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V4,pass,|4.686+35.0/100−5.036| = 0.0000 ≤ 0.005 (yield_pct)
-Microsoft Corporation,594918DA9,5.000% Notes due 2029,V5,pass,"coupon 5.0% < yield_pct yield 5.036%, price 99.901 ✓"
+Microsoft Corporation,594918DA9,5.000% Notes due 2029,V5,pass,"coupon 5.0% < semi-annual yield 5.036%, price 99.901 ✓"
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2029-11-03, year 2029 ✓"
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DA9,5.000% Notes due 2029,V8,pass,CUSIP 594918DA9 is unique in this deal
@@ -503,7 +503,7 @@ Microsoft Corporation,594918DB7,5.200% Notes due 2031,V1,pass,check digit 7 veri
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V2,pass,Luhn sum 70 ≡ 0
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V3,pass,bond prefix 594918 = stock prefix 594918
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V4,pass,|4.754+45.0/100−5.204| = 0.0000 ≤ 0.005 (yield_pct)
-Microsoft Corporation,594918DB7,5.200% Notes due 2031,V5,pass,"coupon 5.2% < yield_pct yield 5.204%, price 99.983 ✓"
+Microsoft Corporation,594918DB7,5.200% Notes due 2031,V5,pass,"coupon 5.2% < semi-annual yield 5.204%, price 99.983 ✓"
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2031-11-03, year 2031 ✓"
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DB7,5.200% Notes due 2031,V8,pass,CUSIP 594918DB7 is unique in this deal
@@ -513,7 +513,7 @@ Microsoft Corporation,594918DC5,5.350% Notes due 2033,V1,pass,check digit 5 veri
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V2,pass,Luhn sum 70 ≡ 0
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V3,pass,bond prefix 594918 = stock prefix 594918
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V4,pass,|4.836+55.0/100−5.386| = 0.0000 ≤ 0.005 (yield_pct)
-Microsoft Corporation,594918DC5,5.350% Notes due 2033,V5,pass,"coupon 5.35% < yield_pct yield 5.386%, price 99.793 ✓"
+Microsoft Corporation,594918DC5,5.350% Notes due 2033,V5,pass,"coupon 5.35% < semi-annual yield 5.386%, price 99.793 ✓"
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2033-11-03, year 2033 ✓"
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DC5,5.350% Notes due 2033,V8,pass,CUSIP 594918DC5 is unique in this deal
@@ -523,7 +523,7 @@ Microsoft Corporation,594918DD3,5.550% Notes due 2036,V1,pass,check digit 3 veri
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V2,pass,Luhn sum 80 ≡ 0
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V3,pass,bond prefix 594918 = stock prefix 594918
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V4,pass,|4.945+65.0/100−5.595| = 0.0000 ≤ 0.005 (yield_pct)
-Microsoft Corporation,594918DD3,5.550% Notes due 2036,V5,pass,"coupon 5.55% < yield_pct yield 5.595%, price 99.659 ✓"
+Microsoft Corporation,594918DD3,5.550% Notes due 2036,V5,pass,"coupon 5.55% < semi-annual yield 5.595%, price 99.659 ✓"
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2036-11-03, year 2036 ✓"
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DD3,5.550% Notes due 2036,V8,pass,CUSIP 594918DD3 is unique in this deal
@@ -533,7 +533,7 @@ Microsoft Corporation,594918DE1,6.150% Notes due 2046,V1,pass,check digit 1 veri
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V2,pass,Luhn sum 70 ≡ 0
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V3,pass,bond prefix 594918 = stock prefix 594918
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V4,pass,|5.333+85.0/100−6.183| = 0.0000 ≤ 0.005 (yield_pct)
-Microsoft Corporation,594918DE1,6.150% Notes due 2046,V5,pass,"coupon 6.15% < yield_pct yield 6.183%, price 99.624 ✓"
+Microsoft Corporation,594918DE1,6.150% Notes due 2046,V5,pass,"coupon 6.15% < semi-annual yield 6.183%, price 99.624 ✓"
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2046-11-03, year 2046 ✓"
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DE1,6.150% Notes due 2046,V8,pass,CUSIP 594918DE1 is unique in this deal
@@ -543,7 +543,7 @@ Microsoft Corporation,594918DF8,6.250% Notes due 2056,V1,pass,check digit 8 veri
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V2,pass,Luhn sum 80 ≡ 0
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V3,pass,bond prefix 594918 = stock prefix 594918
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V4,pass,|5.306+95.0/100−6.256| = 0.0000 ≤ 0.005 (yield_pct)
-Microsoft Corporation,594918DF8,6.250% Notes due 2056,V5,pass,"coupon 6.25% < yield_pct yield 6.256%, price 99.919 ✓"
+Microsoft Corporation,594918DF8,6.250% Notes due 2056,V5,pass,"coupon 6.25% < semi-annual yield 6.256%, price 99.919 ✓"
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2056-11-03, year 2056 ✓"
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DF8,6.250% Notes due 2056,V8,pass,CUSIP 594918DF8 is unique in this deal
@@ -553,7 +553,7 @@ Microsoft Corporation,594918DG6,6.350% Notes due 2066,V1,pass,check digit 6 veri
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V2,pass,Luhn sum 80 ≡ 0
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V3,pass,bond prefix 594918 = stock prefix 594918
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V4,pass,|5.306+105.0/100−6.356| = 0.0000 ≤ 0.005 (yield_pct)
-Microsoft Corporation,594918DG6,6.350% Notes due 2066,V5,pass,"coupon 6.35% < yield_pct yield 6.356%, price 99.914 ✓"
+Microsoft Corporation,594918DG6,6.350% Notes due 2066,V5,pass,"coupon 6.35% < semi-annual yield 6.356%, price 99.914 ✓"
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V6,pass,"trade 2026-10-29 ≤ sett 2026-11-04 < mat 2066-11-03, year 2066 ✓"
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Microsoft Corporation,594918DG6,6.350% Notes due 2066,V8,pass,CUSIP 594918DG6 is unique in this deal
@@ -613,7 +613,7 @@ Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V1,pass,check digit 9 verified
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V4,pass,|3.605+30.0/100−3.905| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V5,pass,"coupon 3.875% < yield_pct yield 3.905%, price 99.914 ✓"
+Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V5,pass,"coupon 3.875% < semi-annual yield 3.905%, price 99.914 ✓"
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2028-11-15, year 2028 ✓"
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KAV9,3.875% Notes due 2028,V8,pass,CUSIP 02079KAV9 is unique in this deal
@@ -623,7 +623,7 @@ Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V1,pass,check digit 7 verified
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V4,pass,|3.708+40.0/100−4.108| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V5,pass,"coupon 4.1% < yield_pct yield 4.108%, price 99.963 ✓"
+Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V5,pass,"coupon 4.1% < semi-annual yield 4.108%, price 99.963 ✓"
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2030-11-15, year 2030 ✓"
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KAW7,4.100% Notes due 2030,V8,pass,CUSIP 02079KAW7 is unique in this deal
@@ -633,7 +633,7 @@ Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V1,pass,check digit 5 verified
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V4,pass,|3.894+50.0/100−4.394| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V5,pass,"coupon 4.375% < yield_pct yield 4.394%, price 99.885 ✓"
+Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V5,pass,"coupon 4.375% < semi-annual yield 4.394%, price 99.885 ✓"
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2032-11-15, year 2032 ✓"
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KAX5,4.375% Notes due 2032,V8,pass,CUSIP 02079KAX5 is unique in this deal
@@ -643,7 +643,7 @@ Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V1,pass,check digit 3 verified
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V4,pass,|4.097+62.0/100−4.717| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V5,pass,"coupon 4.7% < yield_pct yield 4.717%, price 99.864 ✓"
+Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V5,pass,"coupon 4.7% < semi-annual yield 4.717%, price 99.864 ✓"
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2035-11-15, year 2035 ✓"
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KAY3,4.700% Notes due 2035,V8,pass,CUSIP 02079KAY3 is unique in this deal
@@ -653,7 +653,7 @@ Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V1,pass,check digit 0 verified
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V4,pass,|4.648+72.0/100−5.368| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V5,pass,"coupon 5.35% < yield_pct yield 5.368%, price 99.779 ✓"
+Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V5,pass,"coupon 5.35% < semi-annual yield 5.368%, price 99.779 ✓"
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2045-11-15, year 2045 ✓"
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KAZ0,5.350% Notes due 2045,V8,pass,CUSIP 02079KAZ0 is unique in this deal
@@ -663,7 +663,7 @@ Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V1,pass,check digit 4 verified
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V4,pass,|4.675+82.0/100−5.495| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V5,pass,"coupon 5.45% < yield_pct yield 5.495%, price 99.34 ✓"
+Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V5,pass,"coupon 5.45% < semi-annual yield 5.495%, price 99.34 ✓"
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2055-11-15, year 2055 ✓"
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KBA4,5.450% Notes due 2055,V8,pass,CUSIP 02079KBA4 is unique in this deal
@@ -673,7 +673,7 @@ Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V1,pass,check digit 2 verified
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V4,pass,|4.675+107.0/100−5.745| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V5,pass,"coupon 5.7% < yield_pct yield 5.745%, price 99.261 ✓"
+Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V5,pass,"coupon 5.7% < semi-annual yield 5.745%, price 99.261 ✓"
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V6,pass,"trade 2025-11-03 ≤ sett 2025-11-06 < mat 2075-11-15, year 2075 ✓"
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KBB2,5.700% Notes due 2075,V8,pass,CUSIP 02079KBB2 is unique in this deal
@@ -783,7 +783,7 @@ Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V1,pass,check digit 9 verified
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V4,pass,|4.245+33.0/100−4.575| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V5,pass,"coupon 4.5% < yield_pct yield 4.575%, price 99.858 ✓"
+Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V5,pass,"coupon 4.5% < semi-annual yield 4.575%, price 99.858 ✓"
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2028-08-10, year 2028 ✓"
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCL9,4.500% Notes due 2028,V8,pass,CUSIP 02079KCL9 is unique in this deal
@@ -803,7 +803,7 @@ Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V1,pass,check digit 5 verified
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V4,pass,|4.304+43.0/100−4.734| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V5,pass,"coupon 4.625% < yield_pct yield 4.734%, price 99.698 ✓"
+Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V5,pass,"coupon 4.625% < semi-annual yield 4.734%, price 99.698 ✓"
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2029-08-10, year 2029 ✓"
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCN5,4.625% Notes due 2029,V8,pass,CUSIP 02079KCN5 is unique in this deal
@@ -813,7 +813,7 @@ Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V1,pass,check digit 8 verified
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V4,pass,|4.391+60.0/100−4.991| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V5,pass,"coupon 4.875% < yield_pct yield 4.991%, price 99.49 ✓"
+Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V5,pass,"coupon 4.875% < semi-annual yield 4.991%, price 99.49 ✓"
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2031-08-15, year 2031 ✓"
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCQ8,4.875% Notes due 2031,V8,pass,CUSIP 02079KCQ8 is unique in this deal
@@ -823,7 +823,7 @@ Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V1,pass,check digit 6 verified
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V4,pass,|4.525+75.0/100−5.275| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V5,pass,"coupon 5.2% < yield_pct yield 5.275%, price 99.564 ✓"
+Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V5,pass,"coupon 5.2% < semi-annual yield 5.275%, price 99.564 ✓"
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2033-08-15, year 2033 ✓"
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCR6,5.200% Notes due 2033,V8,pass,CUSIP 02079KCR6 is unique in this deal
@@ -833,7 +833,7 @@ Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V1,pass,check digit 4 verified
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V4,pass,|4.67+85.0/100−5.52| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V5,pass,"coupon 5.45% < yield_pct yield 5.52%, price 99.466 ✓"
+Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V5,pass,"coupon 5.45% < semi-annual yield 5.52%, price 99.466 ✓"
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2036-08-15, year 2036 ✓"
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCS4,5.450% Notes due 2036,V8,pass,CUSIP 02079KCS4 is unique in this deal
@@ -843,7 +843,7 @@ Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V1,pass,check digit 2 verified
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V4,pass,|5.233+105.0/100−6.283| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V5,pass,"coupon 6.25% < yield_pct yield 6.283%, price 99.626 ✓"
+Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V5,pass,"coupon 6.25% < semi-annual yield 6.283%, price 99.626 ✓"
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2046-08-15, year 2046 ✓"
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCT2,6.250% Notes due 2046,V8,pass,CUSIP 02079KCT2 is unique in this deal
@@ -853,7 +853,7 @@ Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V1,pass,check digit 9 verified
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V2,pass,Luhn sum 60 ≡ 0
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V4,pass,|5.227+115.0/100−6.377| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V5,pass,"coupon 6.375% < yield_pct yield 6.377%, price 99.972 ✓"
+Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V5,pass,"coupon 6.375% < semi-annual yield 6.377%, price 99.972 ✓"
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2056-08-15, year 2056 ✓"
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCU9,6.375% Notes due 2056,V8,pass,CUSIP 02079KCU9 is unique in this deal
@@ -863,7 +863,7 @@ Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V1,pass,check digit 7 verified
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V2,pass,Luhn sum 50 ≡ 0
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V3,pass,bond prefix 02079K = stock prefix 02079K
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V4,pass,|5.227+130.0/100−6.527| = 0.0000 ≤ 0.005 (yield_pct)
-Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V5,pass,"coupon 6.5% < yield_pct yield 6.527%, price 99.617 ✓"
+Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V5,pass,"coupon 6.5% < semi-annual yield 6.527%, price 99.617 ✓"
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V6,pass,"trade 2026-08-06 ≤ sett 2026-08-10 < mat 2066-08-15, year 2066 ✓"
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Alphabet Inc.,02079KCV7,6.500% Notes due 2066,V8,pass,CUSIP 02079KCV7 is unique in this deal

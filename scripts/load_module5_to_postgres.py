@@ -207,7 +207,7 @@ def build_bond_terms(docs_df):
         "company", "set", "deal_date", "issuer",
         "bond_name", "currency",
         "principal_amount", "principal_amount_text", "principal_source",
-        "rate_type", "coupon_pct", "coupon_frequency",
+        "rate_type", "coupon_pct", "coupon_frequency", "interest_payment_dates",
         "floating_benchmark", "floating_spread_pct",
         "maturity_date", "price_to_public_pct",
         "benchmark_treasury_yield_pct", "spread_to_treasury_bps",

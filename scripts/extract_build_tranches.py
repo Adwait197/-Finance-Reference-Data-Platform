@@ -23,7 +23,7 @@ RAW_DIR   = Path(__file__).parent.parent / "data" / "raw" / "prospectus"
 
 OUTPUT_COLUMNS = [
     "issuer", "bond_name", "currency", "principal_amount", "principal_source",
-    "rate_type", "coupon_pct", "coupon_frequency",
+    "rate_type", "coupon_pct", "coupon_frequency", "interest_payment_dates",
     "floating_benchmark", "floating_spread_pct",
     "maturity_date", "price_to_public_pct",
     "benchmark_treasury_yield_pct", "spread_to_treasury_bps",
@@ -127,6 +127,43 @@ def detect_coupon_frequency(text):
             if not two_dates:
                 return "annual"
     return "semi-annual"
+
+_MONTHS_PAT = (
+    r"(?:January|February|March|April|May|June|July|August"
+    r"|September|October|November|December)"
+)
+
+def _parse_ip_text(text):
+    """Return (frequency, date_string) from an Interest Payment Dates value.
+    frequency: 'quarterly', 'semi-annual', 'annual', or ''
+    date_string: e.g. 'February 15 and August 15' or 'May 3 and November 3'
+    """
+    if not text:
+        return '', ''
+    t = text[:400]
+    if re.search(r'(?i)\bquarterly\b', t):
+        freq = 'quarterly'
+    elif re.search(r'(?i)\bsemi.annually\b', t):
+        freq = 'semi-annual'
+    else:
+        # Deduplicate: "February 13 of each year, beginning on February 13" → 1 unique date
+        raw = re.findall(rf'(?i){_MONTHS_PAT}\s+\d{{1,2}}\b', t)
+        unique = list(dict.fromkeys(d.title() for d in raw))
+        if len(unique) >= 4:
+            freq = 'quarterly'
+        elif len(unique) >= 2:
+            freq = 'semi-annual'
+        elif unique:
+            freq = 'annual'
+        else:
+            freq = ''
+    dates_all = list(dict.fromkeys(
+        d.title() for d in re.findall(rf'(?i)({_MONTHS_PAT}\s+\d{{1,2}})\b', t)
+    ))
+    n = {'quarterly': 4, 'semi-annual': 2, 'annual': 1}.get(freq, 2)
+    date_str = ' and '.join(dates_all[:n]) if dates_all else ''
+    return freq, date_str
+
 
 def load_html(issuer, accession):
     p = RAW_DIR / issuer / f"{accession}.htm"
@@ -758,8 +795,13 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
     day_count       = all_dcs[0] if all_dcs else ""   # first occurrence (floating section default)
     day_count_fixed = next((d for d in all_dcs if d != "Actual/360"), "") or day_count
 
-    # Coupon frequency for the whole document (shared across all bonds)
+    # Coupon frequency for the whole document (fallback only)
     doc_coupon_freq = detect_coupon_frequency(doc_flat)
+
+    # Per-bond IP dates lookup (avoids contamination from floating-rate section)
+    _ip_sec   = find_all_field_sections(doc_flat, r"Interest Payment Date")
+    _fixed_m  = re.search(r"Fixed Rate Notes\s+(.*)", doc_flat, re.DOTALL | re.I)
+    _fixed_flat = _fixed_m.group(1) if _fixed_m else None
 
     rows = []
     for full_name, label in bond_pairs:
@@ -866,6 +908,12 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
         if not fields["isin"]:
             missing.append("isin")
 
+        # Per-bond IP dates: try labeled lookup first; fall back to fixed section
+        _ip_val = find_labeled_value(_ip_sec, label)
+        if not _ip_val and not is_float and _fixed_flat:
+            _ip_val = find_field_section(_fixed_flat, r"Interest Payment Date")
+        _b_freq, _b_ip_dates = _parse_ip_text(_ip_val or "")
+
         # Rate-specific
         if is_float:
             cf_sec = find_all_field_sections(doc_flat, r"Coupon(?: \(Interest Rate\))?")
@@ -890,7 +938,8 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
             fields["yield_pct"]        = ""
             fields["yield_semiannual"] = ""
             fields["yield_annual"]     = ""
-            fields["coupon_frequency"] = doc_coupon_freq
+            fields["coupon_frequency"]       = _b_freq or doc_coupon_freq
+            fields["interest_payment_dates"] = _b_ip_dates
         else:
             # Yield — handle dual format "X% / Y%" (GBP bonds quote semi-annual then annual)
             ys = find_all_field_sections(doc_flat, r"Yield to Maturity(?:\s*\([^)]*\))?")
@@ -918,7 +967,8 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
                 fields["yield_semiannual"] = ""
                 fields["yield_annual"]     = ""
                 missing.append("yield_pct")
-            fields["coupon_frequency"] = doc_coupon_freq
+            fields["coupon_frequency"]       = _b_freq or doc_coupon_freq
+            fields["interest_payment_dates"] = _b_ip_dates
 
             # Spread
             sps = (find_all_field_sections(doc_flat, r"Spread to(?:\s+Benchmark)?\s+(?:Treasury|Gilt|Bund|GoC|Mid.Swap)")
