@@ -31,6 +31,7 @@ OUTPUT_COLUMNS = [
     "trade_date", "settlement_date", "day_count", "day_count_source",
     "rating_moodys", "rating_sp",
     "cusip", "isin",
+    "fwp_accession",
     "missing_fields",
 ]
 
@@ -1318,7 +1319,7 @@ def detect_alpha_format(raw_html, flat):
 
 
 # ─── Company processors ───────────────────────────────────────────────────────
-def process_apple():
+def process_apple(docs_df):
     """Load Apple bonds from existing CSV; ensure currency column."""
     df = pd.read_csv(APPLE_CSV)
     if "currency" not in df.columns:
@@ -1332,6 +1333,14 @@ def process_apple():
     df["yield_semiannual"] = df["yield_pct"].apply(  # semi-annual yield = yield_pct for USD
         lambda v: "" if pd.isna(v) else str(v))
     df["yield_annual"]     = ""
+    # Map each bond to its FWP accession via the deal year (Apple has one deal per year)
+    apple_deals = docs_df[docs_df["issuer"] == "Apple"].dropna(subset=["fwp_accession"])
+    year_to_acc = {str(d["deal_date"])[:4]: str(d["fwp_accession"])
+                   for _, d in apple_deals.iterrows()}
+    def _apple_acc(td_str):
+        m = re.search(r'\b(\d{4})\b', str(td_str))
+        return year_to_acc.get(m.group(1), "") if m else ""
+    df["fwp_accession"] = df["trade_date"].apply(_apple_acc)
     rows = df[OUTPUT_COLUMNS].to_dict("records")
     print(f"  Apple:  {len(rows)} bonds (from {APPLE_CSV.name})")
     return rows
@@ -1372,6 +1381,7 @@ def process_eli_lilly(docs):
                 prosp_val, prosp_found = prosp_dc.get(rate_key, ("", False))
                 fields["day_count"]        = prosp_val if prosp_found else ""
                 fields["day_count_source"] = "prospectus" if prosp_found else "not_found"
+            fields["fwp_accession"]  = str(deal["fwp_accession"])
             fields["missing_fields"] = ", ".join(miss)
             rows.append(fields)
     return rows
@@ -1389,6 +1399,8 @@ def process_microsoft(docs):
         flat = html_to_flat(raw)
         prosp_dc = lookup_day_count_from_prospectus("Microsoft", deal["fwp_accession"])
         bond_rows = extract_flat_labeled(flat, "Microsoft Corporation", prospectus_dc=prosp_dc)
+        for r in bond_rows:
+            r["fwp_accession"] = str(deal["fwp_accession"])
         print(f"    {deal['fwp_accession']}  → {len(bond_rows)} bonds")
         rows.extend(bond_rows)
     return rows
@@ -1418,16 +1430,22 @@ def process_alphabet(docs):
             # all labeled per-bond data lives in the preamble's flat-labeled sections.
             # Use extract_flat_labeled on the full flat text.
             bond_rows = extract_flat_labeled(flat, "Alphabet Inc.")
+            for r in bond_rows:
+                r["fwp_accession"] = acc
             print(f"      → {len(bond_rows)} bonds (block_b → flat_labeled)")
             rows.extend(bond_rows)
 
         elif fmt == "hybrid_eur":
             bond_rows = extract_alphabet_hybrid_eur(raw)
+            for r in bond_rows:
+                r["fwp_accession"] = acc
             print(f"      → {len(bond_rows)} bonds (hybrid_eur)")
             rows.extend(bond_rows)
 
         else:  # flat_labeled
             bond_rows = extract_flat_labeled(flat, "Alphabet Inc.")
+            for r in bond_rows:
+                r["fwp_accession"] = acc
             print(f"      → {len(bond_rows)} bonds (flat_labeled)")
             rows.extend(bond_rows)
 
@@ -1449,6 +1467,8 @@ def process_jj(docs):
             print(f"    SKIP — file not found: {acc}")
             continue
         bond_rows = extract_jj(raw)
+        for r in bond_rows:
+            r["fwp_accession"] = acc
         print(f"    {acc}  → {len(bond_rows)} bonds")
         rows.extend(bond_rows)
     return rows
@@ -1464,7 +1484,7 @@ print("Build-set FWP extractor")
 print("=" * 70)
 
 all_rows = []
-all_rows.extend(process_apple())
+all_rows.extend(process_apple(build))
 all_rows.extend(process_eli_lilly(build))
 all_rows.extend(process_microsoft(build))
 all_rows.extend(process_alphabet(build))

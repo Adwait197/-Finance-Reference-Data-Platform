@@ -194,6 +194,8 @@ def process_meta(docs):
         if not bond_rows:
             bond_rows = extract_grouped_labeled(flat, "Meta Platforms, Inc.",
                                                 prospectus_dc=prosp_dc)
+        for r in bond_rows:
+            r["fwp_accession"] = acc
         layout = "flat" if bond_rows and not any(
             r.get("bond_name", "").startswith("Note") for r in bond_rows) else "grouped"
         print(f"    {acc}  → {len(bond_rows)} bond(s)")
@@ -228,6 +230,8 @@ def process_broadcom(docs):
         if not bond_rows:
             bond_rows = extract_grouped_labeled(flat, "Broadcom Inc.",
                                                 prospectus_dc=prosp_dc)
+        for r in bond_rows:
+            r["fwp_accession"] = acc
         print(f"    {acc}  → {len(bond_rows)} bond(s)")
         rows.extend(bond_rows)
     return rows
