@@ -1,0 +1,163 @@
+statement_row_id,value_date,cusip,amount,description
+S-0001,2026-01-12,11135FBX8,252500.0,Coupon received — Broadcom
+S-0002,2026-01-12,11135FBZ3,252500.0,Coupon received — Broadcom
+S-0003,2026-01-15,11135FCK5,230000.0,Coupon received — Broadcom
+S-0004,2026-01-15,11135FCL3,245000.0,Coupon received — Broadcom
+S-0005,2026-01-15,11135FCM1,260000.0,Coupon received — Broadcom
+S-0006,2026-01-15,11135FCZ2,215000.0,Coupon received — Broadcom
+S-0007,2026-01-15,11135FDA6,230000.0,Coupon received — Broadcom
+S-0008,2026-01-15,11135FDB4,247500.0,Coupon received — Broadcom
+S-0009,2026-01-15,11135FDD0,285000.0,Coupon received — Broadcom
+S-0010,2026-02-09,532457CJ5,225000.0,Coupon received — Eli Lilly
+S-0011,2026-02-09,532457CK2,225000.0,Coupon received — Eli Lilly
+S-0012,2026-02-09,532457CL0,235000.0,Coupon received — Eli Lilly
+S-0013,2026-02-09,532457CM8,250000.0,Coupon received — Eli Lilly
+S-0014,2026-02-09,532457CN6,255000.0,Coupon received — Eli Lilly
+S-0015,2026-02-12,532457CU0,227500.0,Coupon received — Eli Lilly
+S-0016,2026-02-12,532457CV8,237500.0,Coupon received — Eli Lilly
+S-0017,2026-02-12,532457CW6,245000.0,Coupon received — Eli Lilly
+S-0018,2026-02-12,532457CX4,255000.0,Coupon received — Eli Lilly
+S-0019,2026-02-12,532457CY2,275000.0,Coupon received — Eli Lilly
+S-0020,2026-02-12,532457CZ9,280000.0,Coupon received — Eli Lilly
+S-0021,2026-02-17,11135FCA7,207500.0,Coupon received — Broadcom
+S-0022,2026-02-17,11135FCB5,217500.0,Coupon received — Broadcom
+S-0023,2026-02-17,11135FCC3,227500.0,Coupon received — Broadcom
+S-0024,2026-02-17,11135FCX7,245000.0,Coupon received — Broadcom
+S-0025,2026-02-17,11135FCY5,240000.0,Coupon received — Broadcom
+S-0026,2026-02-17,30303M8S4,215000.0,Coupon received — Meta
+S-0027,2026-02-17,30303M8T2,227500.0,Coupon received — Meta
+S-0028,2026-02-17,30303M8U9,237500.0,Coupon received — Meta
+S-0029,2026-02-17,30303M8V7,270000.0,Coupon received — Meta
+S-0030,2026-02-17,30303M8W5,277500.0,Coupon received — Meta
+S-0031,2026-02-17,532457CP1,207500.0,Coupon received — Eli Lilly
+S-0032,2026-02-17,532457CQ9,210000.0,Coupon received — Eli Lilly
+S-0033,2026-02-17,532457CR7,230000.0,Coupon received — Eli Lilly
+S-0034,2026-02-17,532457CS5,252500.0,Coupon received — Eli Lilly
+S-0035,2026-02-17,532457CT3,260000.0,Coupon received — Eli Lilly
+S-0036,2026-03-16,532457DC9,212500.0,Coupon received — Eli Lilly
+S-0037,2026-04-15,11135FCD1,240000.0,Coupon received — Broadcom
+S-0038,2026-04-15,11135FCE9,240000.0,Coupon received — Broadcom
+S-0039,2026-04-15,11135FCF6,252500.0,Coupon received — Broadcom
+S-0040,2026-04-15,11135FCG4,260000.0,Coupon received — Broadcom
+S-0041,2026-04-15,11135FCW9,210000.0,Coupon received — Broadcom
+S-0042,2026-04-15,532457DD7,227500.0,Coupon received — Eli Lilly
+S-0043,2026-04-15,532457DE5,245000.0,Coupon received — Eli Lilly
+S-0044,2026-04-15,532457DF2,277500.0,Coupon received — Eli Lilly
+S-0045,2026-04-15,532457DG0,282500.0,Coupon received — Eli Lilly
+S-0046,2026-04-15,912828YR5,175000.0,Coupon received — Innovatech Securitized
+S-0047,2026-04-27,532457DB1,200000.0,Coupon received — Eli Lilly
+S-0048,2026-05-08,037833ES5,221050.0,Coupon received — Apple
+S-0049,2026-05-08,037833ES5,10000000.0,Principal received — Apple
+S-0050,2026-05-11,037833ET3,407500.0,Coupon received — Apple
+S-0051,2026-05-11,037833EV8,215000.0,Coupon received — Apple
+S-0052,2026-05-11,037833EW6,242500.0,Coupon received — Apple
+S-0053,2026-05-12,037833EY2,200000.0,Coupon received — Apple
+S-0054,2026-05-12,037833EZ9,210000.0,Coupon received — Apple
+S-0055,2026-05-12,037833FA3,191250.0,Coupon received — Apple
+S-0056,2026-05-12,037833FB1,237500.0,Coupon received — Apple
+S-0057,2026-05-15,02079KAV9,193750.0,Coupon received — Alphabet
+S-0058,2026-05-15,02079KAW7,205000.0,Coupon received — Alphabet
+S-0059,2026-05-15,02079KAX5,218750.0,Coupon received — Alphabet
+S-0060,2026-05-15,02079KAY3,235000.0,Coupon received — Alphabet
+S-0061,2026-05-15,02079KAZ0,267500.0,Coupon received — Alphabet
+S-0062,2026-05-15,02079KBA4,272500.0,Coupon received — Alphabet
+S-0063,2026-05-15,02079KBB2,285000.0,Coupon received — Alphabet
+S-0064,2026-05-15,11135FBY6,257500.0,Coupon received — Broadcom
+S-0065,2026-05-15,30303M8L9,230000.0,Coupon received — Meta
+S-0066,2026-05-15,30303M8M7,240000.0,Coupon received — Meta
+S-0067,2026-05-15,30303M8N5,247500.0,Coupon received — Meta
+S-0068,2026-05-15,30303M8Q8,280000.0,Coupon received — Meta
+S-0069,2026-05-15,30303M8R6,287500.0,Coupon received — Meta
+S-0070,2026-05-15,30303MAF9,227500.0,Coupon received — Meta
+S-0071,2026-05-15,30303MAG7,243750.0,Coupon received — Meta
+S-0072,2026-05-15,30303MAH5,262500.0,Coupon received — Meta
+S-0073,2026-05-15,30303MAJ1,310000.0,Coupon received — Meta
+S-0074,2026-05-15,30303MAK8,315000.0,Coupon received — Meta
+S-0075,2026-05-15,30303MAL6,322500.0,Coupon received — Meta
+S-0076,2026-07-13,11135FBX8,252500.0,Coupon received — Broadcom
+S-0077,2026-07-13,11135FBZ3,252500.0,Coupon received — Broadcom
+S-0078,2026-07-15,11135FCK5,230000.0,Coupon received — Broadcom
+S-0079,2026-07-15,11135FCL3,245000.0,Coupon received — Broadcom
+S-0080,2026-07-15,11135FCM1,260000.0,Coupon received — Broadcom
+S-0081,2026-07-15,11135FCZ2,215000.0,Coupon received — Broadcom
+S-0082,2026-07-15,11135FDA6,230000.0,Coupon received — Broadcom
+S-0083,2026-07-15,11135FDB4,247500.0,Coupon received — Broadcom
+S-0084,2026-07-15,11135FDD0,285000.0,Coupon received — Broadcom
+S-0085,2026-08-10,532457CJ5,225000.0,Coupon received — Eli Lilly
+S-0086,2026-08-10,532457CK2,225000.0,Coupon received — Eli Lilly
+S-0087,2026-08-10,532457CL0,235000.0,Coupon received — Eli Lilly
+S-0088,2026-08-10,532457CM8,250000.0,Coupon received — Eli Lilly
+S-0089,2026-08-10,532457CN6,255000.0,Coupon received — Eli Lilly
+S-0090,2026-08-12,532457CU0,227500.0,Coupon received — Eli Lilly
+S-0091,2026-08-12,532457CV8,237500.0,Coupon received — Eli Lilly
+S-0092,2026-08-12,532457CW6,245000.0,Coupon received — Eli Lilly
+S-0093,2026-08-12,532457CX4,255000.0,Coupon received — Eli Lilly
+S-0094,2026-08-12,532457CY2,275000.0,Coupon received — Eli Lilly
+S-0095,2026-08-12,532457CZ9,280000.0,Coupon received — Eli Lilly
+S-0096,2026-08-14,532457CP1,207500.0,Coupon received — Eli Lilly
+S-0097,2026-08-14,532457CQ9,210000.0,Coupon received — Eli Lilly
+S-0098,2026-08-14,532457CR7,230000.0,Coupon received — Eli Lilly
+S-0099,2026-08-14,532457CS5,252500.0,Coupon received — Eli Lilly
+S-0100,2026-08-14,532457CT3,260000.0,Coupon received — Eli Lilly
+S-0101,2026-08-17,02079KCQ8,243750.0,Coupon received — Alphabet
+S-0102,2026-08-17,02079KCR6,260000.0,Coupon received — Alphabet
+S-0103,2026-08-17,02079KCS4,272500.0,Coupon received — Alphabet
+S-0104,2026-08-17,02079KCT2,312500.0,Coupon received — Alphabet
+S-0105,2026-08-17,02079KCU9,318750.0,Coupon received — Alphabet
+S-0106,2026-08-17,02079KCV7,325000.0,Coupon received — Alphabet
+S-0107,2026-08-17,11135FCA7,207500.0,Coupon received — Broadcom
+S-0108,2026-08-17,11135FCB5,217500.0,Coupon received — Broadcom
+S-0109,2026-08-17,11135FCC3,227500.0,Coupon received — Broadcom
+S-0110,2026-08-17,11135FCX7,245000.0,Coupon received — Broadcom
+S-0111,2026-08-17,11135FCY5,240000.0,Coupon received — Broadcom
+S-0112,2026-08-17,30303M8S4,215000.0,Coupon received — Meta
+S-0113,2026-08-17,30303M8T2,227500.0,Coupon received — Meta
+S-0114,2026-08-17,30303M8U9,237500.0,Coupon received — Meta
+S-0115,2026-08-17,30303M8V7,270000.0,Coupon received — Meta
+S-0116,2026-08-17,30303M8W5,277500.0,Coupon received — Meta
+S-0117,2026-09-15,532457DC9,212500.0,Coupon received — Eli Lilly
+S-0118,2026-10-15,11135FCD1,240000.0,Coupon received — Broadcom
+S-0119,2026-10-15,11135FCE9,240000.0,Coupon received — Broadcom
+S-0120,2026-10-15,11135FCF6,252500.0,Coupon received — Broadcom
+S-0121,2026-10-15,11135FCG4,260000.0,Coupon received — Broadcom
+S-0122,2026-10-15,11135FCW9,210000.0,Coupon received — Broadcom
+S-0123,2026-10-15,532457DB1,200000.0,Coupon received — Eli Lilly
+S-0124,2026-10-15,532457DD7,227500.0,Coupon received — Eli Lilly
+S-0125,2026-10-15,532457DE5,245000.0,Coupon received — Eli Lilly
+S-0126,2026-10-15,532457DF2,277500.0,Coupon received — Eli Lilly
+S-0127,2026-10-15,532457DG0,282500.0,Coupon received — Eli Lilly
+S-0128,2026-10-15,9128284W7,325000.0,Coupon received — Innovatech Securitized
+S-0129,2026-11-10,037833ET3,200000.0,Coupon received — Apple
+S-0130,2026-11-10,037833EV8,215000.0,Coupon received — Apple
+S-0131,2026-11-10,037833EW6,242500.0,Coupon received — Apple
+S-0132,2026-11-12,037833EY2,200000.0,Coupon received — Apple
+S-0133,2026-11-12,037833FA3,225000.0,Coupon received — Apple
+S-0134,2026-11-12,037833FB1,237500.0,Coupon received — Apple
+S-0135,2026-11-13,037833EU0,207475.0,Coupon received — Apple
+S-0136,2026-11-16,02079KAW7,174250.0,Coupon received — Alphabet
+S-0137,2026-11-16,02079KAX5,218750.0,Coupon received — Alphabet
+S-0138,2026-11-16,02079KAY3,117500.0,Coupon received — Alphabet
+S-0139,2026-11-16,02079KAY3,117500.0,Coupon received — Alphabet
+S-0140,2026-11-16,02079KAZ0,267500.0,Coupon received — Alphabet
+S-0141,2026-11-16,02079KBA4,272500.0,Coupon received — Alphabet
+S-0142,2026-11-16,02079KBB2,285000.0,Coupon received — Alphabet
+S-0143,2026-11-16,037833EZ9,209975.0,Coupon received — Apple
+S-0144,2026-11-16,11135FBY6,257500.0,Coupon received — Broadcom
+S-0145,2026-11-16,30303M8L9,230000.0,Coupon received — Meta
+S-0146,2026-11-16,30303M8M7,240000.0,Coupon received — Meta
+S-0147,2026-11-16,30303M8N5,247500.0,Coupon received — Meta
+S-0148,2026-11-16,30303M8Q8,280000.0,Coupon received — Meta
+S-0149,2026-11-16,30303M8R6,287500.0,Coupon received — Meta
+S-0150,2026-11-16,30303MAF9,227500.0,Coupon received — Meta
+S-0151,2026-11-16,30303MAG7,243750.0,Coupon received — Meta
+S-0152,2026-11-16,30303MAH5,262500.0,Coupon received — Meta
+S-0153,2026-11-16,30303MAJ1,310000.0,Coupon received — Meta
+S-0154,2026-11-16,30303MAK8,315000.0,Coupon received — Meta
+S-0155,2026-11-16,30303MAL6,322500.0,Coupon received — Meta
+S-0156,2026-11-20,532457DK1,207500.0,Coupon received — Eli Lilly
+S-0157,2026-11-20,532457DL9,218750.0,Coupon received — Eli Lilly
+S-0158,2026-11-20,532457DM7,232500.0,Coupon received — Eli Lilly
+S-0159,2026-11-20,532457DP0,280000.0,Coupon received — Eli Lilly
+S-0160,2026-11-20,532457DQ8,285000.0,Coupon received — Eli Lilly
+S-0161,2026-11-20,532457DR6,242500.0,Coupon received — Eli Lilly
+S-0162,2026-11-27,02079KAV9,193750.0,Coupon received — Alphabet

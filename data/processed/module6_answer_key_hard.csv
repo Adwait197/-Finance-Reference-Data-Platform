@@ -1,0 +1,12 @@
+statement_row_id,payment_id,break_type,detail
+S-0046,,valid_surprise,CUSIP 912828YR5 not in books; check digit PASS
+S-0047,M6-0042,very_late,8 business days late
+S-0050,M6-0049,combined,combined with M6-0050 into one row
+S-0050,M6-0050,combined,combined with M6-0049 into one row
+S-0055,M6-0055,large_deduction,15% deducted from expected amount
+S-0128,,valid_surprise,CUSIP 9128284W7 not in books; check digit PASS
+S-0135,M6-0129,late_and_short,2 biz days late + $25 fee deducted
+S-0136,M6-0137,large_deduction,15% deducted from expected amount
+S-0143,M6-0133,late_and_short,2 biz days late + $25 fee deducted
+S-0162,M6-0136,very_late,8 business days late
+,M6-0139,split,"payment split into two equal halves, same day"
