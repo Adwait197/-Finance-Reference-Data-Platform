@@ -157,11 +157,12 @@ if _err_lines:
     for l in _err_lines:
         print(f"    {l}")
 
-extract_flat_labeled            = _ext.extract_flat_labeled
-extract_grouped_labeled         = _ext.extract_grouped_labeled
+extract_flat_labeled             = _ext.extract_flat_labeled
+extract_grouped_labeled          = _ext.extract_grouped_labeled
 lookup_day_count_from_prospectus = _ext.lookup_day_count_from_prospectus
-html_to_flat                    = _ext.html_to_flat
-load_html                       = _ext.load_html
+html_to_flat                     = _ext.html_to_flat
+load_html                        = _ext.load_html
+extract_principal_from_html      = _ext.extract_principal_from_html
 OUTPUT_COLUMNS                  = _ext.OUTPUT_COLUMNS
 
 
@@ -210,8 +211,23 @@ def process_broadcom(docs):
     Five of six Broadcom FWPs use flat-labeled layout; one (Jul 2024) uses
     grouped-table.  Try flat first; fall back to grouped if no bonds found.
     Pass day count from 424B2 prospectus (Broadcom FWPs omit the Day Count label).
+
+    Principal amount: Broadcom FWPs list it in a grouped preamble section rather
+    than in the term-sheet table, so the flat/grouped extractors cannot see it.
+    After extraction, fill principal_amount from extract_principal_from_html:
+    try the FWP first; fall back to the matching 424B2 if the FWP misses a bond.
     """
-    deals = docs[docs["issuer"] == "Broadcom"].dropna(subset=["fwp_accession"])
+    import re as _re
+    bc_docs = docs[docs["issuer"] == "Broadcom"].dropna(subset=["fwp_accession"])
+
+    # Build FWP → 424B2 accession map (one 424B2 per FWP)
+    fwp_to_b2 = {
+        str(row["fwp_accession"]).strip(): str(row["accession_number"]).strip()
+        for _, row in bc_docs.iterrows()
+        if pd.notna(row.get("accession_number"))
+    }
+
+    deals = bc_docs.copy()
     rows, seen = [], set()
     print(f"  Broadcom: {len(deals)} FWP(s)")
     for _, deal in deals.iterrows():
@@ -232,6 +248,40 @@ def process_broadcom(docs):
                                                 prospectus_dc=prosp_dc)
         for r in bond_rows:
             r["fwp_accession"] = acc
+
+        # Build principal lookup from FWP preamble
+        fwp_principal = extract_principal_from_html(raw)
+
+        # Optionally load 424B2 as fallback
+        b2_principal = {}
+        b2_acc = fwp_to_b2.get(acc, "")
+        if b2_acc:
+            b2_raw = load_html("Broadcom", b2_acc)
+            if b2_raw:
+                b2_principal = extract_principal_from_html(b2_raw)
+
+        # Fill principal_amount and principal_source for each bond
+        for r in bond_rows:
+            mat_yr_m = _re.search(r'(\d{4})', str(r.get("maturity_date", ""))[-8:])
+            mat_yr   = int(mat_yr_m.group(1)) if mat_yr_m else None
+            try:
+                coupon = round(float(r.get("coupon_pct", "") or ""), 4)
+            except (ValueError, TypeError):
+                coupon = None
+
+            if coupon is not None and mat_yr is not None:
+                key = (coupon, mat_yr)
+                if key in fwp_principal:
+                    r["principal_amount"] = f'${fwp_principal[key]}'
+                    r["principal_source"] = "fwp"
+                elif key in b2_principal:
+                    r["principal_amount"] = f'${b2_principal[key]}'
+                    r["principal_source"] = "prospectus"
+                else:
+                    r["principal_source"] = "not_found"
+            else:
+                r["principal_source"] = "not_found"
+
         print(f"    {acc}  → {len(bond_rows)} bond(s)")
         rows.extend(bond_rows)
     return rows

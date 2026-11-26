@@ -22,7 +22,7 @@ OUT_CSV   = Path(__file__).parent.parent / "data" / "processed" / "module5_build
 RAW_DIR   = Path(__file__).parent.parent / "data" / "raw" / "prospectus"
 
 OUTPUT_COLUMNS = [
-    "issuer", "bond_name", "currency", "principal_amount",
+    "issuer", "bond_name", "currency", "principal_amount", "principal_source",
     "rate_type", "coupon_pct", "coupon_frequency",
     "floating_benchmark", "floating_spread_pct",
     "maturity_date", "price_to_public_pct",
@@ -163,6 +163,44 @@ def lookup_day_count_from_prospectus(issuer_folder, fwp_accession):
         flat, re.I,
     ):
         result["Floating"] = ("Actual/360", True)
+    return result
+
+
+# ─── Principal-amount extractor for grouped-preamble FWPs (Broadcom) ─────────
+import html as _html_mod
+
+# Format A: "$AMOUNT aggregate principal amount of COUPON% ... Notes ... due/mature YEAR"
+_PAT_PRINCIPAL_A = re.compile(
+    r'\$([0-9,]+)\s+aggregate\s+principal\s+amount\s+of\s+([\d.]+)%'
+    r'\s+\S+\s+Notes[^$]{0,300}?'
+    r'(?:due\s+|mature[sd]?\s+on\s+(?:\S+\s+\d{1,2},?\s+)?)(\d{4})',
+    re.I,
+)
+# Format B: cover-page title "$AMOUNT COUPON% Senior Notes due YEAR"
+_PAT_PRINCIPAL_B = re.compile(
+    r'\$([0-9,]+)\s+([\d.]+)%\s+\w+\s+Notes\s+due\s+(\d{4})',
+    re.I,
+)
+
+def extract_principal_from_html(raw):
+    """
+    Return {(coupon_float, maturity_year_int): amount_string} from raw HTML.
+
+    Handles two FWP layouts Broadcom uses:
+      Format A: "$1,250,000,000 aggregate principal amount of 5.050% ... due 2027"
+                or "... mature on July 12, 2027"
+      Format B: "$1,250,000,000 5.050% Senior Notes due 2027" (cover-page title)
+    """
+    plain = re.sub(r'<[^>]+>', ' ', raw)
+    plain = _html_mod.unescape(plain)
+    plain = re.sub(r'\s+', ' ', plain)
+    result = {}
+    for pat in (_PAT_PRINCIPAL_A, _PAT_PRINCIPAL_B):
+        for m in pat.finditer(plain):
+            coupon = round(float(m.group(2)), 4)
+            year   = int(m.group(3))
+            if (coupon, year) not in result:
+                result[(coupon, year)] = m.group(1)
     return result
 
 
@@ -1359,6 +1397,9 @@ def process_apple(docs_df):
         m = re.search(r'\b(\d{4})\b', str(td_str))
         return year_to_acc.get(m.group(1), "") if m else ""
     df["fwp_accession"] = df["trade_date"].apply(_apple_acc)
+    for col in OUTPUT_COLUMNS:
+        if col not in df.columns:
+            df[col] = ""
     rows = df[OUTPUT_COLUMNS].to_dict("records")
     print(f"  Apple:  {len(rows)} bonds (from {APPLE_CSV.name})")
     return rows

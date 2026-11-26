@@ -98,6 +98,35 @@ _FLOAT_ONLY = {"floating_benchmark", "floating_spread_pct"}
 _EUR_ONLY = {"yield_annual"}
 
 
+def _loud_numeric(df, col):
+    """
+    Convert df[col] to float.  Print every value that cannot be converted
+    (company, cusip, column, original text) so nothing turns into NULL silently.
+    Returns a float Series; raises RuntimeError if any conversions fail.
+    """
+    failures = []
+    out = pd.to_numeric(df[col], errors="coerce")
+    # Find rows where the input was non-null/non-empty but the output is NaN
+    mask_input_present = df[col].notna() & (df[col].astype(str).str.strip().str.lower() != "") & (df[col].astype(str).str.strip().str.lower() != "nan")
+    mask_coerced_null  = out.isna()
+    bad = df[mask_input_present & mask_coerced_null]
+    for _, row in bad.iterrows():
+        failures.append(
+            f"  CANNOT CONVERT: company={row.get('company','?')}  "
+            f"cusip={row.get('cusip','?')}  col={col}  "
+            f"value={repr(row[col])}"
+        )
+    if failures:
+        print(f"\nERROR — {len(failures)} non-convertible value(s) in '{col}':")
+        for f in failures:
+            print(f)
+        raise RuntimeError(
+            f"{len(failures)} value(s) in '{col}' could not be converted to float — "
+            "fix the extractor or expected_exceptions before reloading."
+        )
+    return out
+
+
 def _build_doc_lookups(docs_df):
     """
     Build two dicts from module5_documents.csv, keyed by fwp_accession:
@@ -161,8 +190,9 @@ def build_bond_terms(docs_df):
             return None
     df["principal_amount"] = df["principal_amount"].apply(_parse_principal)
 
-    # Cast all numeric fields to float so PostgreSQL stores double precision,
-    # not text. The CSVs are read with dtype=str so every column starts as object.
+    # Cast all numeric fields to float so PostgreSQL stores double precision.
+    # _loud_numeric raises if any non-null, non-empty value cannot be converted,
+    # so nothing is silently coerced to NULL.
     _NUMERIC_COLS = [
         "coupon_pct", "price_to_public_pct", "yield_pct",
         "spread_to_treasury_bps", "benchmark_treasury_yield_pct",
@@ -170,12 +200,12 @@ def build_bond_terms(docs_df):
     ]
     for col in _NUMERIC_COLS:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
+            df[col] = _loud_numeric(df, col)
 
     keep = [
         "company", "set", "deal_date", "issuer",
         "bond_name", "currency",
-        "principal_amount", "principal_amount_text",
+        "principal_amount", "principal_amount_text", "principal_source",
         "rate_type", "coupon_pct", "coupon_frequency",
         "floating_benchmark", "floating_spread_pct",
         "maturity_date", "price_to_public_pct",
