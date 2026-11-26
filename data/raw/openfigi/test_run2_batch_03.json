@@ -1,0 +1,162 @@
+[
+  {
+    "data": [
+      {
+        "figi": "BBG01Q1SWD86",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 4.35 02/15/30",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 4.35 02/15/30"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01Q1SWD95",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 4.55 02/15/32 .",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 4.55 02/15/32"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01Q1SWDB2",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 4.8 10/15/34",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 4.8 10/15/34"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01RMKWD15",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 4.8 04/15/28",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 4.8 04/15/28"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01RMKWD42",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 5.05 04/15/30",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 5.05 04/15/30"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01RMKWD88",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 5.2 04/15/32",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 5.2 04/15/32"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01VYG56P1",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 4.6 07/15/30",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 4.6 07/15/30"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01VYG56R9",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 4.9 07/15/32",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 4.9 07/15/32"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01VYG56Z0",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 5.2 07/15/35",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 5.2 07/15/35"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01XH8TNC5",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 4.2 10/15/30",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 4.2 10/15/30"
+      }
+    ]
+  }
+]

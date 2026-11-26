@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
-Module 5 — test-set FWP extractor (Meta, Broadcom).
+Module 5 — test-set FWP extractor, run 2 (Meta, Broadcom).
 
-Downloads FWP HTML files from EDGAR for the test set and processes them with
-the UNCHANGED extract_flat_labeled function from extract_build_tranches.py.
-No field-specific tuning is applied; this measures how well the existing
-extractor generalises to new issuers.
+Re-runs extraction with the improved extractor that adds grouped-layout
+support, label aliases (Pricing/Closing Date), maturity truncation fix,
+ISIN Number: support, and benchmark "and X%" pattern.
 
-Output: data/processed/module5_test_tranches.csv
+Reads the same raw HTML files downloaded for run 1 (no new downloads).
+Run 1 output files (module5_test_tranches.csv, etc.) are NEVER overwritten.
+
+Output: data/processed/module5_test_run2_tranches.csv
 """
 import io, sys, re, csv, time
 from datetime import datetime
@@ -19,7 +21,7 @@ import requests
 # ── paths ─────────────────────────────────────────────────────────────────────
 ROOT     = Path(__file__).parent.parent
 DOCS_CSV = ROOT / "data" / "processed" / "module5_documents.csv"
-OUT_CSV  = ROOT / "data" / "processed" / "module5_test_tranches.csv"
+OUT_CSV  = ROOT / "data" / "processed" / "module5_test_run2_tranches.csv"
 RAW_DIR  = ROOT / "data" / "raw" / "prospectus"
 LINEAGE  = ROOT / "data" / "raw" / "lineage_log.csv"
 
@@ -155,18 +157,23 @@ if _err_lines:
     for l in _err_lines:
         print(f"    {l}")
 
-extract_flat_labeled = _ext.extract_flat_labeled
-html_to_flat         = _ext.html_to_flat
-load_html            = _ext.load_html
-OUTPUT_COLUMNS       = _ext.OUTPUT_COLUMNS
+extract_flat_labeled            = _ext.extract_flat_labeled
+extract_grouped_labeled         = _ext.extract_grouped_labeled
+lookup_day_count_from_prospectus = _ext.lookup_day_count_from_prospectus
+html_to_flat                    = _ext.html_to_flat
+load_html                       = _ext.load_html
+OUTPUT_COLUMNS                  = _ext.OUTPUT_COLUMNS
 
 
 # ── processors ────────────────────────────────────────────────────────────────
 
 def process_meta(docs):
     """
-    Apply extract_flat_labeled to each Meta FWP with no issuer-specific tuning.
-    Meta issues USD bonds; the flat-labeled format matches Microsoft/Alphabet.
+    Extract Meta bonds with improved extractor.
+
+    Meta FWPs use the grouped-table layout: one row per field, all bonds listed
+    with bond-label prefixes.  Try flat first (future-proofs against format
+    changes), then fall back to grouped.  Look up day count from 424B2.
     """
     deals = docs[docs["issuer"] == "Meta"].dropna(subset=["fwp_accession"])
     rows, seen = [], set()
@@ -181,7 +188,14 @@ def process_meta(docs):
             print(f"    SKIP — file not found: {acc}")
             continue
         flat      = html_to_flat(raw)
-        bond_rows = extract_flat_labeled(flat, "Meta Platforms, Inc.")
+        prosp_dc  = lookup_day_count_from_prospectus("Meta", acc)
+        bond_rows = extract_flat_labeled(flat, "Meta Platforms, Inc.",
+                                         prospectus_dc=prosp_dc)
+        if not bond_rows:
+            bond_rows = extract_grouped_labeled(flat, "Meta Platforms, Inc.",
+                                                prospectus_dc=prosp_dc)
+        layout = "flat" if bond_rows and not any(
+            r.get("bond_name", "").startswith("Note") for r in bond_rows) else "grouped"
         print(f"    {acc}  → {len(bond_rows)} bond(s)")
         rows.extend(bond_rows)
     return rows
@@ -189,7 +203,11 @@ def process_meta(docs):
 
 def process_broadcom(docs):
     """
-    Apply extract_flat_labeled to each Broadcom FWP with no issuer-specific tuning.
+    Extract Broadcom bonds with improved extractor.
+
+    Five of six Broadcom FWPs use flat-labeled layout; one (Jul 2024) uses
+    grouped-table.  Try flat first; fall back to grouped if no bonds found.
+    Pass day count from 424B2 prospectus (Broadcom FWPs omit the Day Count label).
     """
     deals = docs[docs["issuer"] == "Broadcom"].dropna(subset=["fwp_accession"])
     rows, seen = [], set()
@@ -203,8 +221,13 @@ def process_broadcom(docs):
         if not raw:
             print(f"    SKIP — file not found: {acc}")
             continue
-        flat      = html_to_flat(raw)
-        bond_rows = extract_flat_labeled(flat, "Broadcom Inc.")
+        flat     = html_to_flat(raw)
+        prosp_dc = lookup_day_count_from_prospectus("Broadcom", acc)
+        bond_rows = extract_flat_labeled(flat, "Broadcom Inc.",
+                                         prospectus_dc=prosp_dc)
+        if not bond_rows:
+            bond_rows = extract_grouped_labeled(flat, "Broadcom Inc.",
+                                                prospectus_dc=prosp_dc)
         print(f"    {acc}  → {len(bond_rows)} bond(s)")
         rows.extend(bond_rows)
     return rows
@@ -215,19 +238,25 @@ docs = pd.read_csv(DOCS_CSV)
 test = docs[docs["set"] == "test"].copy()
 
 print("=" * 70)
-print("Test-set FWP downloader (Meta + Broadcom)")
+print("Test-set FWP downloader — run 2 (Meta + Broadcom)")
 print("=" * 70)
 
+# Download FWPs (usually cached from run 1) and 424B2 prospectuses (for day count)
 for issuer in ["Meta", "Broadcom"]:
     cik   = COMPANY_CIKS[issuer]
     sub   = test[test["issuer"] == issuer].dropna(subset=["fwp_accession"])
-    print(f"\n{issuer} (CIK {cik}) — {len(sub)} accession(s):")
+    print(f"\n{issuer} (CIK {cik}) — {len(sub)} FWP(s):")
     for _, row in sub.iterrows():
         download_fwp(issuer, row["fwp_accession"])
-        time.sleep(0.4)
+        time.sleep(0.3)
+        # 424B2 prospectus (needed for day count lookup)
+        b2_acc = str(row.get("accession_number", "")).strip()
+        if b2_acc:
+            download_fwp(issuer, b2_acc)
+            time.sleep(0.3)
 
 print("\n" + "=" * 70)
-print("Test-set FWP extractor (extract_flat_labeled, unchanged)")
+print("Test-set FWP extractor — run 2 (grouped layout + label aliases)")
 print("=" * 70)
 
 all_rows = []

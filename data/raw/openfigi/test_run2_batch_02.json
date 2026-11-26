@@ -1,0 +1,162 @@
+[
+  {
+    "data": [
+      {
+        "figi": "BBG02211LSD0",
+        "name": "META PLATFORMS INC",
+        "ticker": "META 4.55 05/15/31",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "META 4.55 05/15/31"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG02211LSQ6",
+        "name": "META PLATFORMS INC",
+        "ticker": "META 4.875 05/15/33",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "META 4 7/8 05/15/33"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG02211LTF6",
+        "name": "META PLATFORMS INC",
+        "ticker": "META 5.25 05/15/36",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "META 5 1/4 05/15/36"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG02211LV07",
+        "name": "META PLATFORMS INC",
+        "ticker": "META 6.2 05/15/46",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "META 6.2 05/15/46"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG02211LW05",
+        "name": "META PLATFORMS INC",
+        "ticker": "META 6.3 05/15/56",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "META 6.3 05/15/56"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG02211LW69",
+        "name": "META PLATFORMS INC",
+        "ticker": "META 6.45 05/15/66",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "META 6.45 05/15/66"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01NP9B8R2",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 5.05 07/12/27",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 5.05 07/12/27"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01NP9BB13",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 5.05 07/12/29",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 5.05 07/12/29"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01NP9BC84",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 5.15 11/15/31",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 5.15 11/15/31"
+      }
+    ]
+  },
+  {
+    "data": [
+      {
+        "figi": "BBG01Q1SWD59",
+        "name": "BROADCOM INC",
+        "ticker": "AVGO 4.15 02/15/28",
+        "exchCode": "TRACE",
+        "compositeFIGI": null,
+        "securityType": "GLOBAL",
+        "marketSector": "Corp",
+        "shareClassFIGI": null,
+        "securityType2": "Corp",
+        "securityDescription": "AVGO 4.15 02/15/28"
+      }
+    ]
+  }
+]

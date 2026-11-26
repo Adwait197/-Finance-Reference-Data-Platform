@@ -229,7 +229,9 @@ def find_labeled_value(section, bond_label):
     """Within a field section, find the value for bond_label."""
     if not section or not bond_label:
         return None
-    term = r"(?=\s+\d{4}\s+[A-Z][^:\n]{0,35}:|\s*$|\Z)"
+    # Require "Notes" or "Floating" after the year to avoid stopping at a year
+    # that is part of a date (e.g. "October 15, 2034 Redemption at Broadcom's Option:").
+    term = r"(?=\s+\d{4}\s+(?:Notes?|Floating)[^:\n]{0,35}:|\s*$|\Z)"
     lm = re.search(
         rf"(?i){re.escape(bond_label)}\s*:\s*(.*?){term}",
         section, re.DOTALL,
@@ -254,8 +256,19 @@ def find_cusip_labeled(doc_flat, bond_label):
     return cm.group(1) if cm else None
 
 def find_isin_labeled(doc_flat, bond_label):
-    """Find ISIN for bond_label in a labeled CUSIP/ISIN block."""
-    sec = find_all_field_sections(doc_flat, r"CUSIP(?:\s*/\s*(?:Common\s+Code|ISIN))*")
+    """Find ISIN for bond_label in a labeled CUSIP/ISIN block.
+
+    Checks both combined 'CUSIP / ISIN:' sections and separate 'ISIN Number:'
+    sections (the latter is used by Broadcom FWPs).
+    """
+    # Put the pure ISIN section first so find_labeled_value returns the ISIN
+    # (12-char "USxxxxx"), not the CUSIP (9-char "11135FCA7").
+    # Broadcom FWPs have separate "CUSIP Number:" and "ISIN Number:" fields;
+    # for combined "CUSIP / ISIN:" sections (e.g. Meta, Apple) s2 also exists
+    # and find_isin() can recover the ISIN from either order.
+    s1 = find_all_field_sections(doc_flat, r"CUSIP(?:\s*/\s*(?:Common\s+Code|ISIN))*")
+    s2 = find_all_field_sections(doc_flat, r"ISIN(?:\s+Number)?")
+    sec = " ".join(filter(None, [s2, s1])) or None
     if not sec:
         return None
     term = r"(?=\s+\d{4}\s+(?:Notes?|Floating)|\Z)"
@@ -570,13 +583,89 @@ def get_bond_labels(doc_flat):
     return pairs
 
 
+# ─── Grouped-format helpers ───────────────────────────────────────────────────
+def _normalize_grouped_flat(flat):
+    """
+    Normalize year-with-space artifacts that appear after HTML→flat conversion
+    in some FWPs (e.g. Broadcom Jul 2024):
+      "20 27 Notes: ..." → "2027 Notes: ..."
+      "July 12, 20 27"   → "July 12, 2027"
+    Safe to call on any flat text; non-matching text is unchanged.
+    """
+    # Bond labels: "20 27 Notes" → "2027 Notes"
+    flat = re.sub(
+        r'\b(\d{2})\s+(\d{2})\s+((?:Floating\s+Rate\s+)?Notes?)\b',
+        lambda m: m.group(1) + m.group(2) + ' ' + m.group(3).strip(),
+        flat, flags=re.I,
+    )
+    # Dates: ", 20 27" → ", 2027"
+    flat = re.sub(r'(?<=,\s)(\d{2})\s+(\d{2})\b', r'\1\2', flat)
+    return flat
+
+
+def get_bond_labels_grouped(doc_flat):
+    """
+    Discover (full_name, label) pairs from a grouped-table FWP.
+
+    In grouped FWPs every field row lists values for all bonds with their label
+    as a prefix: "Coupon: 2028 Notes: 4.6%  2030 Notes: 4.8%".
+    Bond labels are discovered from the CUSIP/ISIN block at the bottom.
+    Returns the same (full_name, label) format as get_bond_labels().
+    """
+    # Find the combined or separate CUSIP block
+    sec = (find_all_field_sections(doc_flat, r"CUSIP(?:\s*/\s*(?:Common\s+Code|ISIN))*")
+           or find_all_field_sections(doc_flat, r"CUSIP(?:\s+Number)?"))
+    if not sec:
+        return []
+
+    # Extract bond labels — "2028 Notes:", "2033 Notes:", "2027 Floating Rate Notes:" etc.
+    labels, seen = [], set()
+    for m in re.finditer(r'\b(\d{4})\s+((?:Floating\s+Rate\s+)?Notes?)\s*:', sec, re.I):
+        label = f"{m.group(1)} {m.group(2).strip()}"
+        key = label.lower()
+        if key not in seen:
+            seen.add(key)
+            labels.append(label)
+    if not labels:
+        return []
+
+    # For each label extract coupon from the grouped fields to build a full_name
+    cpn_sec = (find_all_field_sections(doc_flat, r"Coupon(?:\s*\(Interest Rate\))?")
+               or find_all_field_sections(doc_flat, r"Interest\s+Rate(?!\s+Notes?)"))
+
+    pairs = []
+    for label in labels:
+        yr_m = re.search(r'\d{4}', label)
+        yr = yr_m.group(0) if yr_m else "????"
+        is_float = bool(re.search(r'Floating', label, re.I))
+
+        coupon = None
+        if not is_float and cpn_sec:
+            cpn_val = find_labeled_value(cpn_sec, label)
+            if cpn_val:
+                cpn_m = re.search(r'(\d+\.\d+)\s*%', cpn_val)
+                if cpn_m:
+                    coupon = cpn_m.group(1)
+
+        if is_float:
+            full_name = f"Floating Rate Notes due {yr}"
+        elif coupon:
+            full_name = f"{coupon}% Notes due {yr}"
+        else:
+            full_name = f"Notes due {yr}"
+        pairs.append((full_name, label))
+
+    return pairs
+
+
 # ─── Flat-labeled full extractor (Microsoft, Alphabet flat) ──────────────────
-def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=None):
+def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=None,
+                         _bond_pairs=None):
     """
     Extract all bonds from a flat multi-bond document.
     Returns list of field dicts.
     """
-    bond_pairs = get_bond_labels(doc_flat)
+    bond_pairs = _bond_pairs if _bond_pairs is not None else get_bond_labels(doc_flat)
     if not bond_pairs:
         return []
 
@@ -585,11 +674,13 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
         m = re.search(rf"(?i){label_re}:?\s*(.*?){_TERM}", doc_flat, re.DOTALL)
         return m.group(1).strip() if m else None
 
-    trade_raw  = top(r"Trade Date")
+    # "Pricing Date" is an alias for "Trade Date" (used by Broadcom FWPs)
+    trade_raw  = top(r"(?:Trade Date|Pricing Date)")
     trade_date = re.search(r"([A-Z][a-z]+ \d+, \d{4})", trade_raw or "")
     trade_date = trade_date.group(1) if trade_date else ""
 
-    sett_raw   = top(r"Settlement Date[^:]{0,30}")
+    # "Closing Date" is an alias for "Settlement Date" (used by Broadcom FWPs)
+    sett_raw   = top(r"(?:Settlement Date[^:]{0,30}|Closing Date[^:]{0,30})")
     sett_date  = re.search(r"([A-Z][a-z]+ \d+, \d{4})", sett_raw or "")
     sett_date  = sett_date.group(1) if sett_date else ""
 
@@ -633,7 +724,9 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
             missing.append("coupon_pct")
 
         # Principal & currency (search all occurrences — docs may split by bond group)
-        pa_sec  = find_all_field_sections(doc_flat, r"Aggregate Principal Amount")
+        # Meta uses "Principal Amount:" (no "Aggregate"); try both
+        pa_sec  = (find_all_field_sections(doc_flat, r"Aggregate Principal Amount")
+                   or find_all_field_sections(doc_flat, r"Principal Amount(?!\s+Offered)"))
         pa_val  = find_labeled_value(pa_sec, label)
         # Truncate to just the currency amount (strip redemption/make-whole text)
         if pa_val:
@@ -771,19 +864,20 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
                 fields["spread_to_treasury_bps"] = ""
                 missing.append("spread_to_treasury_bps")
 
-            # Benchmark yield — require "Price and Yield" to avoid the bare
+            # Benchmark yield — require "Price and/or Yield" to avoid the bare
             # "Benchmark Treasury: UST 4.75%..." label that only names the ref bond.
             # Also covers J&J "Benchmark Security Price and Yield" (EUR bonds).
+            # "Price/Yield" (Meta/Broadcom grouped) is matched by "and|/"  separator.
             bps = find_all_field_sections(doc_flat,
-                r"Benchmark(?:\s+Treasury|\s+Gilt|\s+Bund|\s+Bond|\s+Security)\s+Price\s+and\s+Yield")
+                r"Benchmark(?:\s+Treasury|\s+Gilt|\s+Bund|\s+Bond|\s+Security)\s+Price\s*(?:and|/)\s*Yield")
             bpv = find_labeled_value(bps, label)
             if bpv:
                 # "XX.XXX% / Y.YYY%" (pct/pct format, some Alphabet EUR)
                 b2 = re.search(r"[\d.]+%\s*/\s*(\d+\.\d+)%", bpv)
                 # "(yield to maturity: X.XXX%)" (some Apple / older FWPs)
                 b1 = re.search(r"\(yield to maturity:\s*(\d+\.\d+)\s*%\)", bpv, re.I)
-                # "99-14+ / 4.030%" or "€82.73/ 2.476%" (bond-price / yield format)
-                b3 = re.search(r"/\s*(\d+\.\d+)\s*%", bpv)
+                # "99-14+ / 4.030%", "99-09+ and 3.655%" (bond-price / or and / yield)
+                b3 = re.search(r"(?:/|and)\s*(\d+\.\d+)\s*%", bpv, re.I)
                 byv = (b2 or b1 or b3).group(1) if (b2 or b1 or b3) else ""
                 fields["benchmark_treasury_yield_pct"] = byv
                 if not byv:
@@ -799,6 +893,29 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
         rows.append(fields)
 
     return rows
+
+
+# ─── Grouped-table extractor (Meta, oldest Broadcom FWP) ─────────────────────
+def extract_grouped_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=None):
+    """
+    Extract bonds from a grouped-table FWP where every field row lists all
+    bonds' values with their bond-label as a prefix, e.g.:
+      "Coupon: 2028 Notes: 4.6%  2030 Notes: 4.8%"
+      "CUSIP / ISIN: 2028 Notes: 30303M8L9 / US30303M8L96"
+
+    Also normalises year-with-space rendering artefacts before processing
+    (e.g. Broadcom Jul 2024 FWP: "20 27 Notes:" → "2027 Notes:").
+
+    Delegates to extract_flat_labeled with the pre-discovered bond-label pairs.
+    """
+    flat = _normalize_grouped_flat(doc_flat)
+    bond_pairs = get_bond_labels_grouped(flat)
+    if not bond_pairs:
+        return []
+    return extract_flat_labeled(flat, shared_issuer,
+                                fwp_date=fwp_date,
+                                prospectus_dc=prospectus_dc,
+                                _bond_pairs=bond_pairs)
 
 
 # ─── J&J flat-positional extractor ───────────────────────────────────────────
