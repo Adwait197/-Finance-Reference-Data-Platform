@@ -27,7 +27,28 @@ RATE_SLEEP   = 12.0
 
 
 def _parse_sec_desc(desc):
-    m = re.search(r"([\d.]+)\s+(\d{2}/\d{2}/(\d{2}|\d{4}))\s*", str(desc))
+    """Parse coupon (%) and maturity (YYYY-MM-DD) from an OpenFIGI description.
+
+    OpenFIGI may return a decimal ticker ("META 5.75 05/15/63") or a fractional
+    securityDescription ("META 5 3/4 05/15/63").  Try fractional first because
+    the decimal pattern can accidentally match the denominator digit as a coupon
+    (e.g. reading "4" from "5 3/4 05/15/63" → Δ 1.75%).
+    """
+    s = str(desc)
+    # Fractional coupon: "META 5 3/4 05/15/63" → 5 + 3/4 = 5.75
+    mf = re.search(r"(\d+)\s+(\d+)/(\d+)\s+(\d{2}/\d{2}/(\d{2}|\d{4}))", s)
+    if mf:
+        try:
+            coupon = str(round(int(mf.group(1)) + int(mf.group(2)) / int(mf.group(3)), 6))
+        except ZeroDivisionError:
+            coupon = mf.group(1)
+        date_str = mf.group(4)
+        parts = date_str.split("/")
+        mm, dd, yy = parts
+        yr = int(yy) + (2000 if int(yy) < 100 else 0)
+        return coupon, f"{yr:04d}-{mm}-{dd}"
+    # Decimal coupon: "AVGO 4.15 02/15/28"
+    m = re.search(r"([\d.]+)\s+(\d{2}/\d{2}/(\d{2}|\d{4}))\s*", s)
     if not m:
         return "", ""
     coupon = m.group(1)
