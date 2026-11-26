@@ -1,0 +1,20 @@
+statement_row_id,payment_id,break_type,detail
+,M6-0043,missing,payment not received
+,M6-0063,missing,payment not received
+,M6-0091,missing,payment not received
+,M6-0120,missing,payment not received
+S-0002,M6-0001,cusip_typo,CUSIP shown as 11235FBX8; correct is 11135FBX8
+S-0020,M6-0019,duplicate,extra copy of M6-0019
+S-0027,M6-0031,short,0.5% deduction applied
+S-0037,,surprise,CUSIP ZZZZZZ001 not in books
+S-0068,M6-0068,short,$25.00 processing fee deducted
+S-0089,M6-0087,late,1 business day(s) late
+S-0098,M6-0098,duplicate,extra copy of M6-0098
+S-0117,,surprise,CUSIP ZZZZZZ002 not in books
+S-0121,M6-0121,cusip_typo,CUSIP shown as 11135FCG5; correct is 11135FCG4
+S-0124,M6-0124,short,0.5% deduction applied
+S-0131,M6-0128,late,1 business day(s) late
+S-0149,M6-0152,short,$25.00 processing fee deducted
+S-0152,M6-0134,late,3 business day(s) late
+S-0153,M6-0137,late,3 business day(s) late
+S-0154,M6-0144,late,3 business day(s) late

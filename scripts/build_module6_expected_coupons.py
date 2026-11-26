@@ -178,17 +178,23 @@ def main():
         # Anchors from maturity-day rule (used as cross-check / fallback)
         rule_anchors = _anchors_from_maturity(mat, cf or 'semi-annual')
 
-        if doc_anchors:
+        if doc_anchors and (mat.month, mat.day) in doc_anchors:
+            # Document dates available and maturity aligns → use document
             anchors = doc_anchors
-            # Cross-check: maturity month/day should appear in doc anchors
-            if (mat.month, mat.day) not in doc_anchors:
-                disagreements.append(dict(
-                    company=co, cusip=cu, bond_name=bn, maturity=mat,
-                    doc_anchors=doc_anchors, rule_anchors=rule_anchors,
-                ))
+            src     = "document"
+        elif doc_anchors:
+            # Document dates available but maturity NOT in them → cross-check fails
+            # Fall back to rule and record the disagreement
+            disagreements.append(dict(
+                company=co, cusip=cu, bond_name=bn, maturity=mat,
+                doc_anchors=doc_anchors, rule_anchors=rule_anchors,
+            ))
+            anchors = rule_anchors
+            src     = "rule"
         else:
             no_doc_dates.append((co, cu, bn))
             anchors = rule_anchors
+            src     = "rule"
 
         n_per_year    = max(len(anchors), 1)
         coupon_amount = round(FACE * cpn / 100 / n_per_year, 2)
@@ -198,30 +204,32 @@ def main():
             adj_d = _next_business_day(raw_d)
             if YEAR_START <= adj_d <= YEAR_END:
                 all_rows.append({
-                    "company":         co,
-                    "cusip":           cu,
-                    "bond_name":       bn,
-                    "flow_type":       "coupon",
-                    "scheduled_date":  raw_d,
-                    "payment_date":    adj_d,
-                    "face_held":       FACE,
-                    "coupon_pct":      cpn,
-                    "expected_amount": coupon_amount,
+                    "company":           co,
+                    "cusip":             cu,
+                    "bond_name":         bn,
+                    "flow_type":         "coupon",
+                    "payment_date_source": src,
+                    "scheduled_date":    raw_d,
+                    "payment_date":      adj_d,
+                    "face_held":         FACE,
+                    "coupon_pct":        cpn,
+                    "expected_amount":   coupon_amount,
                 })
 
         # Principal repayment row for bonds maturing in 2026
         if YEAR_START <= mat <= YEAR_END:
             mat_adj = _next_business_day(mat)
             all_rows.append({
-                "company":         co,
-                "cusip":           cu,
-                "bond_name":       bn,
-                "flow_type":       "principal",
-                "scheduled_date":  mat,
-                "payment_date":    mat_adj,
-                "face_held":       FACE,
-                "coupon_pct":      cpn,
-                "expected_amount": FACE,
+                "company":           co,
+                "cusip":             cu,
+                "bond_name":         bn,
+                "flow_type":         "principal",
+                "payment_date_source": "document",
+                "scheduled_date":    mat,
+                "payment_date":      mat_adj,
+                "face_held":         FACE,
+                "coupon_pct":        cpn,
+                "expected_amount":   FACE,
             })
 
     # ── Cross-check results ───────────────────────────────────────────────────
@@ -249,6 +257,7 @@ def main():
         for co, cu, bn in no_doc_dates:
             print(f"    {co:<12} {cu}  {bn[:50]}")
 
+
     if skipped:
         print(f"\nSkipped {len(skipped)} bond(s):")
         for cu, reason in skipped:
@@ -258,13 +267,25 @@ def main():
     df = pd.DataFrame(all_rows)
     df["payment_id"] = [f"M6-{i+1:04d}" for i in range(len(df))]
     df = df[["payment_id", "company", "cusip", "bond_name", "flow_type",
-             "scheduled_date", "payment_date",
+             "payment_date_source", "scheduled_date", "payment_date",
              "face_held", "coupon_pct", "expected_amount"]]
     df = df.sort_values(["payment_date", "company", "cusip"]).reset_index(drop=True)
     df["payment_id"] = [f"M6-{i+1:04d}" for i in range(len(df))]
 
     OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(OUT_CSV, index=False)
+
+    # ── Payment date source counts ────────────────────────────────────────────
+    coupon_rows = df[df["flow_type"] == "coupon"]
+    src_counts  = coupon_rows.groupby("payment_date_source")["cusip"].agg(
+        rows="count", bonds="nunique"
+    ).reset_index()
+    print(f"\n{'='*60}")
+    print(f"PAYMENT DATE SOURCE (coupon rows only)")
+    print(f"{'='*60}")
+    for _, r in src_counts.iterrows():
+        print(f"  {r['payment_date_source']:<10} : {int(r['rows']):>4} rows  "
+              f"({int(r['bonds'])} bond(s))")
 
     # ── Overall summary ───────────────────────────────────────────────────────
     coupon_df    = df[df["flow_type"] == "coupon"]

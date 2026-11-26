@@ -621,11 +621,15 @@ def extract_fields_block(text, heading, doc_flat=None, bond_label=None, block_te
         opt("floating_benchmark",  "")
         opt("floating_spread_pct", "")
 
-        # Coupon frequency: all block-extractor bonds are USD → semi-annual
-        opt("coupon_frequency", detect_coupon_frequency(text) or "semi-annual")
+        # Coupon frequency and payment dates from document
+        ip_raw = find_raw(r"Interest Payment Date")
+        _b_freq, _b_ip_dates = _parse_ip_text(ip_raw or "")
+        opt("coupon_frequency", _b_freq or detect_coupon_frequency(text) or "semi-annual")
+        opt("interest_payment_dates", _b_ip_dates)
 
     else:  # Floating
         opt("coupon_frequency", "")
+        opt("interest_payment_dates", "")
         opt("yield_semiannual", "")
         opt("yield_annual",     "")
         fb = re.search(
@@ -908,10 +912,17 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
         if not fields["isin"]:
             missing.append("isin")
 
-        # Per-bond IP dates: try labeled lookup first; fall back to fixed section
+        # Per-bond IP dates: try labeled lookup first; fall back to fixed section;
+        # final fallback: shared IP section (safe only when it has exactly 2 unique
+        # dates — skipped when multiple bond groups are merged into _ip_sec, which
+        # would produce 4+ dates and a spurious 'quarterly' classification)
         _ip_val = find_labeled_value(_ip_sec, label)
         if not _ip_val and not is_float and _fixed_flat:
             _ip_val = find_field_section(_fixed_flat, r"Interest Payment Date")
+        if not _ip_val and not is_float and _ip_sec:
+            _test_freq, _ = _parse_ip_text(_ip_sec)
+            if _test_freq == "semi-annual":
+                _ip_val = _ip_sec
         _b_freq, _b_ip_dates = _parse_ip_text(_ip_val or "")
 
         # Rate-specific
@@ -1458,6 +1469,19 @@ def process_apple(docs_df):
         m = re.search(r'\b(\d{4})\b', str(td_str))
         return year_to_acc.get(m.group(1), "") if m else ""
     df["fwp_accession"] = df["trade_date"].apply(_apple_acc)
+    # Extract interest_payment_dates from Apple FWP HTML (all bonds in a deal share dates)
+    _ip_cache: dict = {}
+    def _apple_ip(acc):
+        if not acc:
+            return ""
+        if acc not in _ip_cache:
+            raw = load_html("Apple", acc)
+            flat = html_to_flat(raw) if raw else ""
+            ip_raw = find_field_section(flat, r"Interest Payment Date")
+            _, ip_str = _parse_ip_text(ip_raw or "")
+            _ip_cache[acc] = ip_str
+        return _ip_cache[acc]
+    df["interest_payment_dates"] = df["fwp_accession"].apply(_apple_ip)
     for col in OUTPUT_COLUMNS:
         if col not in df.columns:
             df[col] = ""
