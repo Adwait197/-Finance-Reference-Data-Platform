@@ -1,0 +1,3 @@
+rule_name,threshold_value,unit,label_within,label_beyond,plain_english
+late_window,5,business_days,late,late_needs_review,"Payments arriving 1–5 business days after the expected date are labelled 'late' — a small calendar slip. Beyond 5 business days the delay is too large to auto-approve; use 'late_needs_review' so an analyst can confirm the reason."
+short_threshold,1.0,percent,short_paid,large_deduction_needs_review,"A shortfall of up to 1% of the expected amount is treated as a standard processing fee and labelled 'short_paid'. A shortfall larger than 1% is unusual (possible tax withholding, penalty, or data error); use 'large_deduction_needs_review' so an analyst can investigate."

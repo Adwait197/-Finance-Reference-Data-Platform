@@ -1,0 +1,17 @@
+statement_row_id,payment_id,break_type,detail
+,M6-0079,missing,payment not received
+,M6-0021,missing,payment not received
+S-0008,M6-0007,duplicate,extra copy of M6-0007
+S-0011,M6-0011,cusip_typo,CUSIP shown as 032457CK2; correct is 532457CK2
+S-0035,M6-0015,late_and_short,2 biz days late + $25 fee deducted
+S-0071,M6-0072,large_deduction,15% deducted from expected amount
+S-0075,M6-0067,late,1 business day(s) late
+S-0076,,surprise,CUSIP ZZZZZZ003 not in books
+S-0083,M6-0084,short,$25.00 processing fee deducted
+S-0084,,valid_surprise,CUSIP 38141GXZ2 not in books; check digit PASS
+S-0085,M6-0080,very_late,8 business days late
+S-0086,M6-0085,combined,combined with M6-0086 into one row
+S-0086,M6-0086,combined,combined with M6-0085 into one row
+S-0128,M6-0125,late,2 business day(s) late
+S-0140,M6-0139,short,0.5% deduction applied
+,M6-0117,split,"payment split into two equal halves, same day"
