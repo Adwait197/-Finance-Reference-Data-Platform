@@ -41,6 +41,7 @@ Re-runnable: each of the three tables is dropped and recreated on every run.
 """
 
 import os
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -142,9 +143,39 @@ def build_bond_terms(docs_df):
     df["prospectus_url"]  = df["fwp_accession"].map(prospectus_url_map).fillna("")
     df["deal_date"]       = df["fwp_accession"].map(deal_date_map).fillna("")
 
+    # principal_amount: preserve original text, then parse to plain number.
+    # Formats seen: '$1,000,000,000', '€700,000,000', '£750,000,000',
+    #               'C$2,250,000,000' — strip everything except digits and '.'.
+    df["principal_amount_text"] = (
+        df["principal_amount"].astype(str).str.strip()
+        .where(df["principal_amount"].notna() &
+               (df["principal_amount"].astype(str).str.strip() != "nan"), "")
+    )
+    def _parse_principal(val):
+        if pd.isna(val) or str(val).strip().lower() in ("", "nan"):
+            return None
+        cleaned = re.sub(r"[^\d.]", "", str(val))
+        try:
+            return float(cleaned) if cleaned else None
+        except ValueError:
+            return None
+    df["principal_amount"] = df["principal_amount"].apply(_parse_principal)
+
+    # Cast all numeric fields to float so PostgreSQL stores double precision,
+    # not text. The CSVs are read with dtype=str so every column starts as object.
+    _NUMERIC_COLS = [
+        "coupon_pct", "price_to_public_pct", "yield_pct",
+        "spread_to_treasury_bps", "benchmark_treasury_yield_pct",
+        "yield_semiannual", "yield_annual", "floating_spread_pct",
+    ]
+    for col in _NUMERIC_COLS:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
     keep = [
         "company", "set", "deal_date", "issuer",
-        "bond_name", "currency", "principal_amount",
+        "bond_name", "currency",
+        "principal_amount", "principal_amount_text",
         "rate_type", "coupon_pct", "coupon_frequency",
         "floating_benchmark", "floating_spread_pct",
         "maturity_date", "price_to_public_pct",
