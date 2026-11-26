@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from validate_build_tranches import (
     check_v1, check_v2, check_v3, check_v4, check_v5,
-    check_v6, check_v7, check_v8, check_v9,
+    check_v6, check_v7, check_v8, check_v9, check_v10,
     load_issuer_prefixes, load_day_count_conventions,
     load_benchmark_conventions, load_expected_exceptions,
     run_all_checks,
@@ -88,7 +88,7 @@ def main():
     val.to_csv(OUT_CSV, index=False)
     print(f"\nWrote {len(val)} rows → {OUT_CSV.name}")
 
-    checks    = ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9"]
+    checks    = ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10"]
     companies = ["Meta", "Broadcom"]
 
     def _pivot(result_val):

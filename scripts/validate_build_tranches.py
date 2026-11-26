@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Module 5 — Validation checks V1-V8 for all 106 build-set bonds.
+Module 5 — Validation checks V1-V10 for all 106 build-set bonds.
 
 Changes from the previous version:
   V3  — also accepts CUSIP prefixes listed in data/reference/issuer_prefixes.csv
@@ -376,6 +376,34 @@ _VALID_SP = {
     "B+",   "B",   "B-",   "CCC+", "CCC", "CCC-", "CC", "C", "D",
 }
 
+def check_v10(principal_amount):
+    """
+    principal_amount must be a whole number of millions (divisible by 1,000,000).
+    Missing principal → not_applicable.  Non-round amount → needs_review (not fail).
+    Accepts both pre-parsed floats and raw strings like '€750,000,000' or '$1,250,000,000'.
+    """
+    import pandas as _pd
+    val = principal_amount
+    if _pd.isna(val) or val is None:
+        return NOT_APPLICABLE, "principal_amount is null"
+    s = str(val).strip()
+    if s.lower() in ("", "nan", "none"):
+        return NOT_APPLICABLE, "principal_amount is empty"
+    # Strip currency symbols, commas, spaces so '€750,000,000' → '750000000'
+    s = re.sub(r"[^\d.]", "", s)
+    if not s:
+        return NOT_APPLICABLE, f"principal_amount not numeric: {val!r}"
+    try:
+        v = float(s)
+    except ValueError:
+        return NOT_APPLICABLE, f"principal_amount not numeric: {val!r}"
+    if v == 0:
+        return NOT_APPLICABLE, "principal_amount is zero"
+    if v % 1_000_000 == 0:
+        return PASS, f"principal_amount {v:,.0f} is a whole number of millions"
+    return NEEDS_REVIEW, f"principal_amount {v:,.0f} is not a whole number of millions"
+
+
 def check_v9(rating_moodys, rating_sp):
     """
     Both ratings must be recognized credit grades.
@@ -445,7 +473,8 @@ def run_all_checks(df, prefix_map, extra_prefixes, conventions,
                            str(bond["maturity_date"])),
             "V7": check_v7(bond, df, conventions),
             "V8": check_v8(bond, df),
-            "V9": check_v9(bond.get("rating_moodys", ""), bond.get("rating_sp", "")),
+            "V9":  check_v9(bond.get("rating_moodys", ""), bond.get("rating_sp", "")),
+            "V10": check_v10(bond.get("principal_amount")),
         }
         for check_id, (result, detail) in checks.items():
             rows.append({
@@ -514,7 +543,7 @@ def main():
     fails["company"] = fails["issuer"].map(ISSUER_SHORT)
 
     companies = ["Apple", "Alphabet", "Eli Lilly", "J&J", "Microsoft"]
-    checks    = ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9"]
+    checks    = ["V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10"]
 
     pivot = (
         fails.groupby(["check", "company"])

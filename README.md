@@ -152,17 +152,19 @@ bonds in this dataset:
 - `yield_annual`: only reported for EUR-denominated bonds (annual yield
   convention).  USD/CAD bonds use the semi-annual convention (`yield_pct`).
 
-> **Computed values**: run 1 = **71%**, run 2 = **97%** (applicable-fields
-> definition above).  An earlier script reported 62% / 85% because it
-> included all 24 columns in the denominator for every bond, penalising
-> fixed-rate USD bonds for the three structurally-empty columns listed above.
+> **Computed values**: run 1 = **71%**, run 2 = **98%** (applicable-fields
+> definition above).  Increased from 97% to 98% after Broadcom's 20 principal
+> amounts were filled from the FWP preamble text (previously `not_found`).
+> An earlier script reported 62% / 85% because it included all 24 columns in
+> the denominator for every bond, penalising fixed-rate USD bonds for the
+> three structurally-empty columns listed above.
 
 ### Reporting tables
 
 | Table | Rows | Description |
 |-------|------|-------------|
 | `reporting.bond_terms` | 142 | One row per bond, all fields + source URLs |
-| `reporting.bond_checks` | 1136 | One row per bond per check (142 × 8) |
+| `reporting.bond_checks` | 1420 | One row per bond per check (142 × 10) |
 | `reporting.module5_scorecard` | 9 | Run-1 vs run-2 test comparison |
 
 Run `scripts/load_module5_to_postgres.py` to load or reload all three tables.

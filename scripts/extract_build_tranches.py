@@ -790,6 +790,16 @@ def extract_flat_labeled(doc_flat, shared_issuer, fwp_date=None, prospectus_dc=N
             am = re.match(r'((?:C\s?)?[$\u20ac\xa3]\s*[\d,]+(?:\.\d+)?)', pa_val)
             if am:
                 pa_val = am.group(1)
+        # Fallback for floating rate bonds whose principal section is standalone
+        # (unlabeled leading amount, before any "NNNN Notes:" entries).
+        # E.g. Alphabet Nov-2026: floating rate note in its own <u> block \u2192 principal
+        # section = "\u20ac750,000,000 2028 Notes: \u20ac750,000,000 2030 Notes: ..." and the
+        # label "2028 Floating Rate Notes" never appears with a colon.
+        if not pa_val and is_float and pa_sec:
+            first_amt = re.match(r'\s*((?:C\s?)?[$\u20ac\xa3]\s*[\d,]+(?:\.\d+)?)', pa_sec)
+            first_lbl = re.search(r'\d{4}\s+Notes?:', pa_sec)
+            if first_amt and (not first_lbl or first_amt.end() < first_lbl.start()):
+                pa_val = first_amt.group(1)
         fields["principal_amount"] = pa_val or ""
         if not pa_val:
             missing.append("principal_amount")
@@ -1180,9 +1190,10 @@ def extract_alphabet_hybrid_eur(raw_html):
         f["coupon_pct"] = ""
         f["currency"] = "EUR"
 
-        # Principal (single €X value)
-        pa_m = re.search(r"€([\d,]+(?:,\d{3})*)", fsec)
-        f["principal_amount"] = f"€{pa_m.group(1)}" if pa_m else ""
+        # Principal: search for the labeled "Aggregate Principal Amount:" field.
+        # Must NOT use "first € number" — the preamble contains Denominations: €100,000.
+        pa_m = re.search(r"Aggregate Principal Amount[^:]*:\s*(€[\d,]+)", fsec, re.I)
+        f["principal_amount"] = pa_m.group(1) if pa_m else ""
         if not f["principal_amount"]:
             miss.append("principal_amount")
 

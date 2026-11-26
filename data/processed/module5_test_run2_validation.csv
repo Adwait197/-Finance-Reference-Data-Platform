@@ -8,6 +8,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303M8L9,4.600% Notes due 2028,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303M8L9,4.600% Notes due 2028,V8,pass,CUSIP 30303M8L9 is unique in this deal
 "Meta Platforms, Inc.",30303M8L9,4.600% Notes due 2028,V9,pass,"Moody's=A1, S&P=AA-"
+"Meta Platforms, Inc.",30303M8L9,4.600% Notes due 2028,V10,pass,"principal_amount 1,500,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303M8M7,4.800% Notes due 2030,V1,pass,check digit 7 verified
 "Meta Platforms, Inc.",30303M8M7,4.800% Notes due 2030,V2,pass,Luhn sum 70 ≡ 0
 "Meta Platforms, Inc.",30303M8M7,4.800% Notes due 2030,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -17,6 +18,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303M8M7,4.800% Notes due 2030,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303M8M7,4.800% Notes due 2030,V8,pass,CUSIP 30303M8M7 is unique in this deal
 "Meta Platforms, Inc.",30303M8M7,4.800% Notes due 2030,V9,pass,"Moody's=A1, S&P=AA-"
+"Meta Platforms, Inc.",30303M8M7,4.800% Notes due 2030,V10,pass,"principal_amount 1,000,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303M8N5,4.950% Notes due 2033,V1,pass,check digit 5 verified
 "Meta Platforms, Inc.",30303M8N5,4.950% Notes due 2033,V2,pass,Luhn sum 60 ≡ 0
 "Meta Platforms, Inc.",30303M8N5,4.950% Notes due 2033,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -26,6 +28,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303M8N5,4.950% Notes due 2033,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303M8N5,4.950% Notes due 2033,V8,pass,CUSIP 30303M8N5 is unique in this deal
 "Meta Platforms, Inc.",30303M8N5,4.950% Notes due 2033,V9,pass,"Moody's=A1, S&P=AA-"
+"Meta Platforms, Inc.",30303M8N5,4.950% Notes due 2033,V10,pass,"principal_amount 1,750,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303M8Q8,5.600% Notes due 2053,V1,pass,check digit 8 verified
 "Meta Platforms, Inc.",30303M8Q8,5.600% Notes due 2053,V2,pass,Luhn sum 70 ≡ 0
 "Meta Platforms, Inc.",30303M8Q8,5.600% Notes due 2053,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -35,6 +38,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303M8Q8,5.600% Notes due 2053,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303M8Q8,5.600% Notes due 2053,V8,pass,CUSIP 30303M8Q8 is unique in this deal
 "Meta Platforms, Inc.",30303M8Q8,5.600% Notes due 2053,V9,pass,"Moody's=A1, S&P=AA-"
+"Meta Platforms, Inc.",30303M8Q8,5.600% Notes due 2053,V10,pass,"principal_amount 2,500,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303M8R6,5.750% Notes due 2063,V1,pass,check digit 6 verified
 "Meta Platforms, Inc.",30303M8R6,5.750% Notes due 2063,V2,pass,Luhn sum 70 ≡ 0
 "Meta Platforms, Inc.",30303M8R6,5.750% Notes due 2063,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -44,6 +48,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303M8R6,5.750% Notes due 2063,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303M8R6,5.750% Notes due 2063,V8,pass,CUSIP 30303M8R6 is unique in this deal
 "Meta Platforms, Inc.",30303M8R6,5.750% Notes due 2063,V9,pass,"Moody's=A1, S&P=AA-"
+"Meta Platforms, Inc.",30303M8R6,5.750% Notes due 2063,V10,pass,"principal_amount 1,750,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303M8S4,4.300% Notes due 2029,V1,pass,check digit 4 verified
 "Meta Platforms, Inc.",30303M8S4,4.300% Notes due 2029,V2,pass,Luhn sum 70 ≡ 0
 "Meta Platforms, Inc.",30303M8S4,4.300% Notes due 2029,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -53,6 +58,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303M8S4,4.300% Notes due 2029,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303M8S4,4.300% Notes due 2029,V8,pass,CUSIP 30303M8S4 is unique in this deal
 "Meta Platforms, Inc.",30303M8S4,4.300% Notes due 2029,V9,pass,"Moody's=Aa3, S&P=AA-"
+"Meta Platforms, Inc.",30303M8S4,4.300% Notes due 2029,V10,pass,"principal_amount 1,000,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303M8T2,4.550% Notes due 2031,V1,pass,check digit 2 verified
 "Meta Platforms, Inc.",30303M8T2,4.550% Notes due 2031,V2,pass,Luhn sum 70 ≡ 0
 "Meta Platforms, Inc.",30303M8T2,4.550% Notes due 2031,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -62,6 +68,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303M8T2,4.550% Notes due 2031,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303M8T2,4.550% Notes due 2031,V8,pass,CUSIP 30303M8T2 is unique in this deal
 "Meta Platforms, Inc.",30303M8T2,4.550% Notes due 2031,V9,pass,"Moody's=Aa3, S&P=AA-"
+"Meta Platforms, Inc.",30303M8T2,4.550% Notes due 2031,V10,pass,"principal_amount 1,000,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303M8U9,4.750% Notes due 2034,V1,pass,check digit 9 verified
 "Meta Platforms, Inc.",30303M8U9,4.750% Notes due 2034,V2,pass,Luhn sum 70 ≡ 0
 "Meta Platforms, Inc.",30303M8U9,4.750% Notes due 2034,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -71,6 +78,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303M8U9,4.750% Notes due 2034,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303M8U9,4.750% Notes due 2034,V8,pass,CUSIP 30303M8U9 is unique in this deal
 "Meta Platforms, Inc.",30303M8U9,4.750% Notes due 2034,V9,pass,"Moody's=Aa3, S&P=AA-"
+"Meta Platforms, Inc.",30303M8U9,4.750% Notes due 2034,V10,pass,"principal_amount 2,500,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303M8V7,5.400% Notes due 2054,V1,pass,check digit 7 verified
 "Meta Platforms, Inc.",30303M8V7,5.400% Notes due 2054,V2,pass,Luhn sum 70 ≡ 0
 "Meta Platforms, Inc.",30303M8V7,5.400% Notes due 2054,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -80,6 +88,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303M8V7,5.400% Notes due 2054,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303M8V7,5.400% Notes due 2054,V8,pass,CUSIP 30303M8V7 is unique in this deal
 "Meta Platforms, Inc.",30303M8V7,5.400% Notes due 2054,V9,pass,"Moody's=Aa3, S&P=AA-"
+"Meta Platforms, Inc.",30303M8V7,5.400% Notes due 2054,V10,pass,"principal_amount 3,250,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303M8W5,5.550% Notes due 2064,V1,pass,check digit 5 verified
 "Meta Platforms, Inc.",30303M8W5,5.550% Notes due 2064,V2,pass,Luhn sum 60 ≡ 0
 "Meta Platforms, Inc.",30303M8W5,5.550% Notes due 2064,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -89,6 +98,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303M8W5,5.550% Notes due 2064,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303M8W5,5.550% Notes due 2064,V8,pass,CUSIP 30303M8W5 is unique in this deal
 "Meta Platforms, Inc.",30303M8W5,5.550% Notes due 2064,V9,pass,"Moody's=Aa3, S&P=AA-"
+"Meta Platforms, Inc.",30303M8W5,5.550% Notes due 2064,V10,pass,"principal_amount 2,750,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303MAF9,4.550% Notes due 2031,V1,pass,check digit 9 verified
 "Meta Platforms, Inc.",30303MAF9,4.550% Notes due 2031,V2,pass,Luhn sum 50 ≡ 0
 "Meta Platforms, Inc.",30303MAF9,4.550% Notes due 2031,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -98,6 +108,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303MAF9,4.550% Notes due 2031,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303MAF9,4.550% Notes due 2031,V8,pass,CUSIP 30303MAF9 is unique in this deal
 "Meta Platforms, Inc.",30303MAF9,4.550% Notes due 2031,V9,pass,"Moody's=Aa3, S&P=AA-"
+"Meta Platforms, Inc.",30303MAF9,4.550% Notes due 2031,V10,pass,"principal_amount 3,000,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303MAG7,4.875% Notes due 2033,V1,pass,check digit 7 verified
 "Meta Platforms, Inc.",30303MAG7,4.875% Notes due 2033,V2,pass,Luhn sum 50 ≡ 0
 "Meta Platforms, Inc.",30303MAG7,4.875% Notes due 2033,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -107,6 +118,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303MAG7,4.875% Notes due 2033,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303MAG7,4.875% Notes due 2033,V8,pass,CUSIP 30303MAG7 is unique in this deal
 "Meta Platforms, Inc.",30303MAG7,4.875% Notes due 2033,V9,pass,"Moody's=Aa3, S&P=AA-"
+"Meta Platforms, Inc.",30303MAG7,4.875% Notes due 2033,V10,pass,"principal_amount 2,000,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303MAH5,5.250% Notes due 2036,V1,pass,check digit 5 verified
 "Meta Platforms, Inc.",30303MAH5,5.250% Notes due 2036,V2,pass,Luhn sum 40 ≡ 0
 "Meta Platforms, Inc.",30303MAH5,5.250% Notes due 2036,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -116,6 +128,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303MAH5,5.250% Notes due 2036,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303MAH5,5.250% Notes due 2036,V8,pass,CUSIP 30303MAH5 is unique in this deal
 "Meta Platforms, Inc.",30303MAH5,5.250% Notes due 2036,V9,pass,"Moody's=Aa3, S&P=AA-"
+"Meta Platforms, Inc.",30303MAH5,5.250% Notes due 2036,V10,pass,"principal_amount 6,000,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303MAJ1,6.200% Notes due 2046,V1,pass,check digit 1 verified
 "Meta Platforms, Inc.",30303MAJ1,6.200% Notes due 2046,V2,pass,Luhn sum 50 ≡ 0
 "Meta Platforms, Inc.",30303MAJ1,6.200% Notes due 2046,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -125,6 +138,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303MAJ1,6.200% Notes due 2046,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303MAJ1,6.200% Notes due 2046,V8,pass,CUSIP 30303MAJ1 is unique in this deal
 "Meta Platforms, Inc.",30303MAJ1,6.200% Notes due 2046,V9,pass,"Moody's=Aa3, S&P=AA-"
+"Meta Platforms, Inc.",30303MAJ1,6.200% Notes due 2046,V10,pass,"principal_amount 4,000,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303MAK8,6.300% Notes due 2056,V1,pass,check digit 8 verified
 "Meta Platforms, Inc.",30303MAK8,6.300% Notes due 2056,V2,pass,Luhn sum 40 ≡ 0
 "Meta Platforms, Inc.",30303MAK8,6.300% Notes due 2056,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -134,6 +148,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303MAK8,6.300% Notes due 2056,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303MAK8,6.300% Notes due 2056,V8,pass,CUSIP 30303MAK8 is unique in this deal
 "Meta Platforms, Inc.",30303MAK8,6.300% Notes due 2056,V9,pass,"Moody's=Aa3, S&P=AA-"
+"Meta Platforms, Inc.",30303MAK8,6.300% Notes due 2056,V10,pass,"principal_amount 6,000,000,000 is a whole number of millions"
 "Meta Platforms, Inc.",30303MAL6,6.450% Notes due 2066,V1,pass,check digit 6 verified
 "Meta Platforms, Inc.",30303MAL6,6.450% Notes due 2066,V2,pass,Luhn sum 40 ≡ 0
 "Meta Platforms, Inc.",30303MAL6,6.450% Notes due 2066,V3,pass,bond prefix 30303M = stock prefix 30303M
@@ -143,6 +158,7 @@ issuer,cusip,bond_name,check,result,detail
 "Meta Platforms, Inc.",30303MAL6,6.450% Notes due 2066,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 "Meta Platforms, Inc.",30303MAL6,6.450% Notes due 2066,V8,pass,CUSIP 30303MAL6 is unique in this deal
 "Meta Platforms, Inc.",30303MAL6,6.450% Notes due 2066,V9,pass,"Moody's=Aa3, S&P=AA-"
+"Meta Platforms, Inc.",30303MAL6,6.450% Notes due 2066,V10,pass,"principal_amount 4,000,000,000 is a whole number of millions"
 Broadcom Inc.,11135FBZ3,5.050% Notes due 2027,V1,pass,check digit 3 verified
 Broadcom Inc.,11135FBZ3,5.050% Notes due 2027,V2,pass,Luhn sum 60 ≡ 0
 Broadcom Inc.,11135FBZ3,5.050% Notes due 2027,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -152,6 +168,7 @@ Broadcom Inc.,11135FBZ3,5.050% Notes due 2027,V6,pass,"trade 2024-07-08 ≤ sett
 Broadcom Inc.,11135FBZ3,5.050% Notes due 2027,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FBZ3,5.050% Notes due 2027,V8,pass,CUSIP 11135FBZ3 is unique in this deal
 Broadcom Inc.,11135FBZ3,5.050% Notes due 2027,V9,pass,"Moody's=Baa3, S&P=BBB"
+Broadcom Inc.,11135FBZ3,5.050% Notes due 2027,V10,pass,"principal_amount 1,250,000,000 is a whole number of millions"
 Broadcom Inc.,11135FBX8,5.050% Notes due 2029,V1,pass,check digit 8 verified
 Broadcom Inc.,11135FBX8,5.050% Notes due 2029,V2,pass,Luhn sum 60 ≡ 0
 Broadcom Inc.,11135FBX8,5.050% Notes due 2029,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -161,6 +178,7 @@ Broadcom Inc.,11135FBX8,5.050% Notes due 2029,V6,pass,"trade 2024-07-08 ≤ sett
 Broadcom Inc.,11135FBX8,5.050% Notes due 2029,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FBX8,5.050% Notes due 2029,V8,pass,CUSIP 11135FBX8 is unique in this deal
 Broadcom Inc.,11135FBX8,5.050% Notes due 2029,V9,pass,"Moody's=Baa3, S&P=BBB"
+Broadcom Inc.,11135FBX8,5.050% Notes due 2029,V10,pass,"principal_amount 2,250,000,000 is a whole number of millions"
 Broadcom Inc.,11135FBY6,5.150% Notes due 2031,V1,pass,check digit 6 verified
 Broadcom Inc.,11135FBY6,5.150% Notes due 2031,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FBY6,5.150% Notes due 2031,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -170,6 +188,7 @@ Broadcom Inc.,11135FBY6,5.150% Notes due 2031,V6,pass,"trade 2024-07-08 ≤ sett
 Broadcom Inc.,11135FBY6,5.150% Notes due 2031,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FBY6,5.150% Notes due 2031,V8,pass,CUSIP 11135FBY6 is unique in this deal
 Broadcom Inc.,11135FBY6,5.150% Notes due 2031,V9,pass,"Moody's=Baa3, S&P=BBB"
+Broadcom Inc.,11135FBY6,5.150% Notes due 2031,V10,pass,"principal_amount 1,500,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V1,pass,check digit 7 verified
 Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -179,6 +198,7 @@ Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V6,pass,"trade 2024-09-26 �
 Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V8,pass,CUSIP 11135FCA7 is unique in this deal
 Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V9,pass,"Moody's=Baa3, S&P=BBB"
+Broadcom Inc.,11135FCA7,4.150% Senior Notes due 2028,V10,pass,"principal_amount 875,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V1,pass,check digit 5 verified
 Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -188,6 +208,7 @@ Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V6,pass,"trade 2024-09-26 �
 Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V8,pass,CUSIP 11135FCB5 is unique in this deal
 Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V9,pass,"Moody's=Baa3, S&P=BBB"
+Broadcom Inc.,11135FCB5,4.350% Senior Notes due 2030,V10,pass,"principal_amount 1,500,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V1,pass,check digit 3 verified
 Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -197,6 +218,7 @@ Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V6,pass,"trade 2024-09-26 �
 Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V8,pass,CUSIP 11135FCC3 is unique in this deal
 Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V9,pass,"Moody's=Baa3, S&P=BBB"
+Broadcom Inc.,11135FCC3,4.550% Senior Notes due 2032,V10,pass,"principal_amount 875,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V1,pass,check digit 1 verified
 Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -206,6 +228,7 @@ Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V6,pass,"trade 2024-09-26 �
 Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V8,pass,CUSIP 11135FCD1 is unique in this deal
 Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V9,pass,"Moody's=Baa3, S&P=BBB"
+Broadcom Inc.,11135FCD1,4.800% Senior Notes due 2034,V10,pass,"principal_amount 1,750,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V1,pass,check digit 9 verified
 Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V2,pass,Luhn sum 60 ≡ 0
 Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -215,6 +238,7 @@ Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V6,pass,"trade 2025-01-06 �
 Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V8,pass,CUSIP 11135FCE9 is unique in this deal
 Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V9,pass,"Moody's=Baa1, S&P=BBB"
+Broadcom Inc.,11135FCE9,4.800% Senior Notes due 2028,V10,pass,"principal_amount 1,100,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V1,pass,check digit 6 verified
 Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -224,6 +248,7 @@ Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V6,pass,"trade 2025-01-06 �
 Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V8,pass,CUSIP 11135FCF6 is unique in this deal
 Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V9,pass,"Moody's=Baa1, S&P=BBB"
+Broadcom Inc.,11135FCF6,5.050% Senior Notes due 2030,V10,pass,"principal_amount 800,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V1,pass,check digit 4 verified
 Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V2,pass,Luhn sum 60 ≡ 0
 Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -233,6 +258,7 @@ Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V6,pass,"trade 2025-01-06 �
 Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V8,pass,CUSIP 11135FCG4 is unique in this deal
 Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V9,pass,"Moody's=Baa1, S&P=BBB"
+Broadcom Inc.,11135FCG4,5.200% Senior Notes due 2032,V10,pass,"principal_amount 1,100,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V1,pass,check digit 5 verified
 Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -242,6 +268,7 @@ Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V6,pass,"trade 2025-07-07 �
 Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V8,pass,CUSIP 11135FCK5 is unique in this deal
 Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V9,pass,"Moody's=Baa1, S&P=BBB+"
+Broadcom Inc.,11135FCK5,4.600% Senior Notes due 2030,V10,pass,"principal_amount 1,750,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V1,pass,check digit 3 verified
 Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -251,6 +278,7 @@ Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V6,pass,"trade 2025-07-07 �
 Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V8,pass,CUSIP 11135FCL3 is unique in this deal
 Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V9,pass,"Moody's=Baa1, S&P=BBB+"
+Broadcom Inc.,11135FCL3,4.900% Senior Notes due 2032,V10,pass,"principal_amount 1,750,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V1,pass,check digit 1 verified
 Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -260,6 +288,7 @@ Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V6,pass,"trade 2025-07-07 �
 Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V8,pass,CUSIP 11135FCM1 is unique in this deal
 Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V9,pass,"Moody's=Baa1, S&P=BBB+"
+Broadcom Inc.,11135FCM1,5.200% Senior Notes due 2035,V10,pass,"principal_amount 2,500,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V1,pass,check digit 9 verified
 Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V2,pass,Luhn sum 60 ≡ 0
 Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -269,6 +298,7 @@ Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V6,pass,"trade 2025-09-22 �
 Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V8,pass,CUSIP 11135FCW9 is unique in this deal
 Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V9,pass,"Moody's=A3, S&P=A-"
+Broadcom Inc.,11135FCW9,4.200% Senior Notes due 2030,V10,pass,"principal_amount 1,000,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V1,pass,check digit 5 verified
 Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -278,6 +308,7 @@ Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V6,pass,"trade 2025-09-22 �
 Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V8,pass,CUSIP 11135FCY5 is unique in this deal
 Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V9,pass,"Moody's=A3, S&P=A-"
+Broadcom Inc.,11135FCY5,4.800% Senior Notes due 2036,V10,pass,"principal_amount 2,250,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V1,pass,check digit 7 verified
 Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V2,pass,Luhn sum 60 ≡ 0
 Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -287,6 +318,7 @@ Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V6,pass,"trade 2025-09-22 �
 Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V8,pass,CUSIP 11135FCX7 is unique in this deal
 Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V9,pass,"Moody's=A3, S&P=A-"
+Broadcom Inc.,11135FCX7,4.900% Senior Notes due 2038,V10,pass,"principal_amount 1,750,000,000 is a whole number of millions"
 Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V1,pass,check digit 2 verified
 Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V2,pass,Luhn sum 60 ≡ 0
 Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -296,6 +328,7 @@ Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V6,pass,"trade 2026-01-06 �
 Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V8,pass,CUSIP 11135FCZ2 is unique in this deal
 Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V9,pass,"Moody's=A3, S&P=A-"
+Broadcom Inc.,11135FCZ2,4.300% Senior Notes due 2031,V10,pass,"principal_amount 750,000,000 is a whole number of millions"
 Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V1,pass,check digit 6 verified
 Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -305,6 +338,7 @@ Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V6,pass,"trade 2026-01-06 �
 Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V8,pass,CUSIP 11135FDA6 is unique in this deal
 Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V9,pass,"Moody's=A3, S&P=A-"
+Broadcom Inc.,11135FDA6,4.600% Senior Notes due 2033,V10,pass,"principal_amount 1,250,000,000 is a whole number of millions"
 Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V1,pass,check digit 4 verified
 Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -314,6 +348,7 @@ Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V6,pass,"trade 2026-01-06 �
 Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V8,pass,CUSIP 11135FDB4 is unique in this deal
 Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V9,pass,"Moody's=A3, S&P=A-"
+Broadcom Inc.,11135FDB4,4.950% Senior Notes due 2036,V10,pass,"principal_amount 1,250,000,000 is a whole number of millions"
 Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V1,pass,check digit 0 verified
 Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V2,pass,Luhn sum 50 ≡ 0
 Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V3,pass,bond prefix 11135F = stock prefix 11135F
@@ -323,3 +358,4 @@ Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V6,pass,"trade 2026-01-06 �
 Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V7,pass,ratings/dates uniform; day_count='30/360' ✓
 Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V8,pass,CUSIP 11135FDD0 is unique in this deal
 Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V9,pass,"Moody's=A3, S&P=A-"
+Broadcom Inc.,11135FDD0,5.700% Senior Notes due 2056,V10,pass,"principal_amount 1,250,000,000 is a whole number of millions"
