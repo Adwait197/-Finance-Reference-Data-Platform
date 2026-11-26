@@ -191,6 +191,162 @@ Each bond in `reporting.bond_terms` carries:
 
 ---
 
+## Module 6 — Simulated Cash Reconciliation
+
+### Why simulated
+
+Real custodian bank statements are not publicly available. To build a
+reconciliation engine that can be tested against ground truth, the module
+generates a synthetic bank statement from the Module 5 expected coupon
+schedule, plants a controlled set of realistic breaks, seals the answer key
+before the reconciler sees it, and then scores the reconciler objectively.
+
+This mirrors what a data team at a custodian bank or asset manager actually
+does when validating a new reconciliation system: build a test harness with
+known breaks, run the engine blind, compare output to the answer key.
+
+### What was built
+
+| Component | Description |
+|-----------|-------------|
+| `module6_expected_coupons.csv` | 160 expected cash flows for 2026 (159 coupons + 1 principal) |
+| `module6_bank_statement*.csv` | Synthetic bank statements with planted breaks (3 rounds) |
+| `module6_answer_key*.csv` | Sealed break lists — only the scorer reads these |
+| `reconcile_cash.py` | 9-pass reconciliation algorithm (v2) |
+| `score_reconciliation.py` | Objective scorer: compares recon output to answer key |
+| `reconciliation_rules.csv` | Machine-readable thresholds with plain-English rationale |
+
+### How breaks are planted
+
+Each round uses a fixed random seed to select expected payments and modify
+them into one of 12 break types:
+
+| Type | What it means |
+|------|---------------|
+| `missing` | Payment absent from the statement entirely |
+| `late` | Arrived 1–5 business days after the due date |
+| `very_late` | Arrived more than 5 business days late |
+| `short_paid` | Received ≤1% less than expected (processing fee) |
+| `large_deduction` | Received >1% less than expected (unusual shortfall) |
+| `late_and_short` | Both late and short |
+| `duplicate` | Same payment appears twice |
+| `surprise` | A CUSIP with an obviously fake check digit or format |
+| `valid_surprise` | A CUSIP that passes the check-digit algorithm but is not in the portfolio |
+| `cusip_typo` | A one-character transposition of a known CUSIP |
+| `split` | One expected payment arrives as two rows that sum to the total |
+| `combined` | Two separate expected payments arrive as a single statement row |
+
+The answer key is written to a separate sealed file *before* the reconciler
+runs. The reconciler script has a comment at the top explicitly stating it
+must never read the answer key — only `score_reconciliation.py` reads it.
+
+### Reconciliation algorithm (9 passes)
+
+`reconcile_cash.py` runs passes in order; a matched row is removed from the
+unmatched pool before the next pass:
+
+| Pass | Name | What it catches |
+|------|------|----------------|
+| 1 | Exact match | Same CUSIP, date, and amount within $0.01 |
+| 2 | Combined | One statement row = sum of 2+ same-company same-date expected rows |
+| 3 | Split | 2+ statement rows with same CUSIP+date sum to one expected amount |
+| 4 | CUSIP typo | Hamming distance = 1 from a known CUSIP, check digit fails |
+| 5 | Short paid | Same date, shortfall ≤1%, amount within tolerance |
+| 6 | Duplicate | Exact-match statement row that already has a matched expected row |
+| 7 | Late exact | Same CUSIP+amount, 1–5 business days late |
+| 8 | Same-bond pairing | Remaining in-books CUSIPs paired with nearest unmatched expected; labels `late_and_short`, `late_needs_review`, `large_deduction_needs_review`, or `needs_review` |
+| 9 | Remaining | Everything left becomes `unexpected` (statement) or `missing` (expected) |
+
+A statement row whose CUSIP is in the portfolio is **never** labelled
+`unexpected` — it always reaches pass 8 and gets a descriptive label.
+Thresholds (late_window = 5 business days, short_threshold = 1%) are loaded
+from `data/reference/reconciliation_rules.csv` at runtime.
+
+### How the scorer decides "correct"
+
+`score_reconciliation.py` reads the answer key and matches each planted break
+to a recon row by `expected_payment_id` or `statement_row_id`. A label is
+"correct" when it maps to the expected reconciler output for that break type:
+
+| Answer key type | Expected reconciler label |
+|----------------|--------------------------|
+| `missing` | `missing` |
+| `late` | `late` |
+| `very_late` | `late_needs_review` |
+| `short_paid` | `short_paid` |
+| `large_deduction` | `large_deduction_needs_review` |
+| `late_and_short` | `late_and_short` |
+| `duplicate` | `duplicate` |
+| `surprise` | `unexpected` |
+| `valid_surprise` | `unexpected` |
+| `cusip_typo` | `cusip_typo` |
+| `split` | `split` |
+| `combined` | `combined` |
+
+The `_needs_review` labels are intentional: very_late and large_deduction
+fall outside the auto-approve thresholds and are routed to analyst review
+rather than silently accepted. The scorer counts these as correct — matching
+them to `late` or `short_paid` would be a bug in the reconciler.
+
+A **false alarm** is any recon row not traced to an answer-key entry. For
+split breaks, the answer key has one entry but the recon produces two rows
+(one per half-payment); the scorer credits both rows to the single entry so
+neither generates a false alarm.
+
+### Before / after scores
+
+| Round | Statement | Reconciler | Planted | Found | Correct type | False alarms |
+|-------|-----------|-----------|---------|-------|-------------|-------------|
+| 1 | Easy (seed 42) | v2 | 19 | 19 | 19 | 0 |
+| 2 | Hard (seed 7) | **v1 before fix** | 11 | 11 | **2** | **7** |
+| 2 | Hard (seed 7) | v2 after fix | 11 | 11 | 11 | 0 |
+| 3 | Mixed (seed 99) | v2 | 16 | 16 | 16 | 0 |
+
+The v1 reconciler failed on Round 2 because it had no same-bond pairing pass:
+`very_late` and `large_deduction` rows were paired with the wrong expected
+payment and labelled `missing` / `unexpected`, causing 7 false alarms and
+only 2 correct type labels (the two `valid_surprise` entries it happened to
+get right).
+
+### Limits
+
+- **Round 1 surprise CUSIPs** (`ZZZZZZ001`, `ZZZZZZ002`) are obviously fake.
+  Real wire-fraud or erroneous-payment scenarios would have structurally valid
+  CUSIPs; the `valid_surprise` type in Rounds 2–3 covers this case.
+- **Round 3** tests new examples of the same 12 break types used in Rounds 1
+  and 2. It does not introduce new break categories — a reconciler that
+  handles all 12 types will score 16/16, but that does not mean it handles
+  every break that could appear in a real custodian statement.
+- The expected-cash-flow schedule is derived from Module 5 bond terms (SEC
+  EDGAR filings). Payment dates are correct for the bonds covered; bonds with
+  missing interest payment dates fall back to a maturity-day rule.
+
+### Reporting tables
+
+| Table | Rows | Description |
+|-------|------|-------------|
+| `reporting.cash_expected` | 160 | One row per expected cash flow in 2026 |
+| `reporting.cash_recon_results` | 491 | Recon results for all 3 rounds (164 + 163 + 164); includes matched rows |
+| `reporting.cash_recon_scorecard` | 4 | Before/after scores: v1 Round 2, v2 Rounds 1–3 |
+| `reporting.cash_recon_rules` | 2 | late_window and short_threshold with plain-English rationale |
+
+Run `scripts/load_module6_to_postgres.py` to load or reload all four tables.
+
+### Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/build_module6_expected_coupons.py` | Build expected cash flow schedule from Module 5 bond terms |
+| `scripts/build_module6_bank_statement.py` | Round 1 bank statement (seed 42, 19 breaks) |
+| `scripts/build_module6_bank_statement_hard.py` | Round 2 bank statement (seed 7, 11 harder breaks) |
+| `scripts/build_module6_bank_statement_round3.py` | Round 3 bank statement (seed 99, 16 breaks, all 12 types) |
+| `scripts/reconcile_cash.py` | 9-pass reconciliation algorithm (v2) |
+| `scripts/score_reconciliation.py` | Objective scorer — the only script that reads the answer key |
+| `scripts/score_all_rounds.py` | Runs all 3 rounds and prints the comparison table |
+| `scripts/load_module6_to_postgres.py` | Load all results into reporting schema |
+
+---
+
 ## Setup
 
 ```
