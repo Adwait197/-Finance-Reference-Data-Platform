@@ -95,8 +95,19 @@ CHECK_NAMES = {
 
 # Fields that are only applicable for floating-rate bonds
 _FLOAT_ONLY = {"floating_benchmark", "floating_spread_pct"}
-# yield_annual is only reported for EUR bonds (annual yield convention)
-_EUR_ONLY = {"yield_annual"}
+# yield_annual is only reported for EUR and GBP bonds (annual yield convention)
+_EUR_GBP_ONLY = {"yield_annual"}
+_EUR_ONLY = _EUR_GBP_ONLY  # alias kept for backwards compatibility
+
+# Columns that are NOT scored extraction fields: tracking/metadata columns and
+# columns added after the original test-set field list was frozen.  Excluded so
+# both runs are scored against the same 23-field canonical set.
+_SKIP_SCORED = {
+    "missing_fields",         # quality-tracking column, not an extracted value
+    "principal_source",       # metadata: where the principal figure came from
+    "interest_payment_dates", # added for Module 6 after the test field list was set
+    "fwp_accession",          # metadata: SEC accession number of the source FWP
+}
 
 
 def _loud_numeric(df, col):
@@ -318,17 +329,17 @@ def _pct_fields_filled(df):
     """
     Fields filled = non-null applicable cells / total applicable cells.
 
-    Applicable fields per bond:
-      - floating_benchmark, floating_spread_pct : only for floating-rate bonds
-      - yield_annual                            : only for EUR bonds
-      All other fields apply to every bond.
+    Scored on the canonical 23-field extraction list (columns present in the
+    original run-1 test CSV, minus missing_fields).  Columns in _SKIP_SCORED
+    are excluded so both runs are measured on the same field set regardless of
+    which extra columns a newer extractor writes.
 
-    This matches the definition written into README.md.  It excludes the
-    three structurally-null columns that are always empty for fixed-rate USD
-    bonds, so the percentage reflects genuine completeness rather than being
-    deflated by planned-empty cells.
+    Applicability rules:
+      - floating_benchmark, floating_spread_pct : only for floating-rate bonds
+      - yield_annual                            : only for EUR and GBP bonds
+      All other scored fields apply to every bond.
     """
-    data_cols = [c for c in df.columns if c != "missing_fields"]
+    data_cols = [c for c in df.columns if c not in _SKIP_SCORED]
     total_applicable = 0
     total_filled     = 0
     for _, row in df.iterrows():
@@ -341,7 +352,7 @@ def _pct_fields_filled(df):
             # For floating bonds, benchmark yield and spread are N/A (no fixed coupon)
             pass
         if cur not in ("EUR", "GBP"):
-            na_set |= _EUR_ONLY
+            na_set |= _EUR_GBP_ONLY
         for c in data_cols:
             if c in na_set:
                 continue
@@ -387,10 +398,12 @@ def build_scorecard():
                                   (t2["issuer"] == "Broadcom Inc.").sum(),  "count",
          "Bonds extracted for Broadcom"),
         ("pct_fields_filled",     pct1,   pct2,   "pct",
-         "Applicable fields filled (excludes floating cols for fixed bonds, "
-         "yield_annual for non-EUR bonds)"),
+         "Applicable fields filled on canonical 23-field list "
+         "(excludes floating cols for fixed bonds, "
+         "yield_annual for non-EUR/non-GBP bonds)"),
         ("bonds_pass_all_checks", pass1,  pass2,  "count",
-         "Bonds with zero failures across V1-V8"),
+         "Bonds with zero failures: V1-V8 for run 1 (V9/V10 not yet defined); "
+         "V1-V10 for run 2"),
         ("bonds_total",           total1, total2, "count",
          "Total bonds scored (denominator for pass rate)"),
         ("figi_coupon_pass",      int(coupon1_pass),   int(coupon2_pass),   "count",
@@ -440,7 +453,7 @@ def write_tables(bond_terms, bond_checks, scorecard):
                 f"GRANT SELECT ON reporting.{tbl} TO powerbi_reader"
             ))
         conn.commit()
-    print("  GRANT SELECT → powerbi_reader on all 3 tables  [done]")
+    print("  GRANT SELECT -> powerbi_reader on all 3 tables  [done]")
 
 
 def reconcile(bond_terms):

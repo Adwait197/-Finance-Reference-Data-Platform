@@ -4,9 +4,14 @@ A personal project to build finance-domain knowledge and upgrade my data skills:
 an end-to-end reference-data quality platform built on public SEC data for the
 iShares Core S&P 500 ETF (IVV).
 
-Data source: SEC EDGAR N-PORT filings (free, public, no sign-up required).
-Instrument universe: iShares Core S&P 500 ETF (IVV), series S000004310, 6
-quarters (Mar 2025 – Jun 2026, ~507–508 holdings per quarter).
+Built with AI-assisted development (Claude Code).
+
+**Data sources:** SEC EDGAR (N-PORT filings, 424B2 final prospectuses, FWP
+free-writing prospectuses), iShares public holdings CSV, OpenFIGI API.
+
+Instrument universe: iShares Core S&P 500 ETF (IVV), series S000004310.
+Holdings as of Mar 2025 to Jun 2026 (filed May 2025 to Aug 2026),
+507–508 holdings per filing.
 
 ---
 
@@ -14,19 +19,165 @@ quarters (Mar 2025 – Jun 2026, ~507–508 holdings per quarter).
 
 | # | Module | Status |
 |---|--------|--------|
-| 1 | Reference data ingestion (N-PORT → PostgreSQL security master) | Complete |
-| 2 | Cross-source reconciliation / break detection | Planned |
-| 3 | QC rule engine + ML anomaly detection | Complete |
-| 4 | Data quality dashboards (Streamlit + Power BI) | Complete |
-| 5 | Prospectus/document extraction | Planned |
-| 6 | Data governance documentation | Planned |
-| 7 | Innovation / self-service layer | Planned |
+| 1 | Get the data — N-PORT filings → PostgreSQL security master | Complete |
+| 2 | Compare two sources — cross-source reconciliation / break detection | Complete |
+| 3 | Quality checks + ML — QC rule engine + IsolationForest anomaly detection | Complete |
+| 4 | Dashboards — Streamlit + Power BI | Complete |
+| 5 | Read bond documents — structured extraction from SEC 424B2/FWP filings | Complete |
+| 6 | Simulated cash reconciliation | Complete |
 
 ---
 
-## Module 3 — QC Rule Engine
+## Problems found and how they were handled
 
-Nine rules applied to every holding each quarter:
+- **30 holdings reported without CUSIP** — these are foreign-domiciled companies
+  (Ireland, Switzerland, the Netherlands, etc.) that the SEC filing reports with
+  an ISIN rather than a CUSIP. Many have CINS identifiers (a CUSIP-format ID
+  for foreign securities), such as Accenture G1151C101, but the N-PORT field for
+  CUSIP is blank. A surrogate key (`id`) ensures every row is uniquely addressable.
+- **iShares endpoint ignores date parameters** — four methods were tried to get
+  a same-date snapshot; all serve today's data. The 84-day gap is documented as
+  a confirmed limitation of the free public source, not a project gap.
+- **ML flagged the 11 largest holdings as anomalous** — statistically unusual
+  because of extreme size, not data errors. One finding (balance ≈ valUSD for
+  non-STIV rows) was promoted to deterministic Rule R6.
+- **Alphabet EUR floating-rate note had wrong principal** — extractor picked up
+  the €100,000 denomination line instead of the €750,000,000 aggregate amount;
+  fixed by targeting the "Aggregate Principal Amount" label explicitly.
+- **Broadcom principals were `not_found`** — 20 bonds had no labeled principal
+  section; fixed by adding a fallback to read the preamble text.
+- **Run 1 extracted 0 Meta bonds** — Meta's FWP layout differed from the other
+  issuers; extractor needed updates before Meta bonds could be extracted (run 2).
+- **Guessed values removed** — day-count convention defaults and an unsupported
+  95% fields-filled figure were replaced with values extracted directly from the
+  source documents or computed from data.
+- **OpenFIGI fraction bug in comparison code** — the first run-2 OpenFIGI
+  comparison returned 32/36 matches because OpenFIGI sometimes returns coupons
+  as fractions ("5 3/4" instead of 5.75) and the comparison script read only the
+  integer part. Fixed to 36/36 by parsing the fractional notation explicitly.
+- **v1 reconciler scored 2/11 on the hard test round** — it had no same-bond
+  pairing pass, so very_late and large_deduction payments were mislabelled
+  `missing`/`unexpected`, causing 7 false alarms; fixed in v2 (9 passes).
+- **Microsoft bonds have no 2026 payments** — all 10 bonds settle Nov 4, 2026
+  with a maturity day of Nov 3; the first coupon falls after year end.
+
+---
+
+## Module 1 — N-PORT Data Ingestion
+
+IVV files a Form N-PORT-P with the SEC monthly. Only quarter-end filings are
+made public (filed within 60 days of quarter end); mid-quarter monthly filings
+go to the SEC but are not publicly available. Each quarterly filing contains
+the full portfolio — roughly 507–508 equity holdings and a few money-market or
+derivative positions.
+
+### What was downloaded
+
+6 filings were downloaded from EDGAR by their confirmed accession numbers
+(verified by checking that the target series ID `S000004310` appears in each
+file before saving):
+
+| Period end | Filing date | Holdings |
+|------------|-------------|----------|
+| 2025-03-31 | 2025-05-27 | 508 |
+| 2025-06-30 | 2025-08-28 | 508 |
+| 2025-09-30 | 2025-11-26 | 507 |
+| 2025-12-31 | 2026-02-25 | 507 |
+| 2026-03-31 | 2026-05-28 | 507 |
+| 2026-06-30 | 2026-08-25 | 508 |
+
+### PostgreSQL table
+
+All six quarters are loaded into `security_master_history` (one row per
+holding per filing date). Key design decisions:
+
+- **Surrogate key `id`**: 30 holdings per filing are reported without a CUSIP.
+  These are foreign-domiciled companies (Ireland, Switzerland, Netherlands, etc.)
+  that the SEC filing records with an ISIN rather than a CUSIP — even though
+  many have CINS identifiers (e.g. Accenture G1151C101). An auto-increment `id`
+  ensures every row is uniquely addressable.
+- **`isCashCollateral` flag**: used by the QC rule engine to separate
+  securities-lending cash collateral from direct equity holdings.
+
+### Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/download_historical_nport.py` | Download all 6 quarterly N-PORT filings |
+| `scripts/parse_holdings.py` | Parse individual N-PORT XML into a DataFrame |
+| `scripts/load_history_to_postgres.py` | Load all 6 quarters into `security_master_history` |
+
+---
+
+## Module 2 — Cross-Source Reconciliation
+
+Compares the N-PORT holdings (Aug 25, 2026) against the iShares public
+holdings CSV (downloaded Nov 17, 2026, reflects holdings as of Nov 16, 2026).
+
+### Method
+
+The two sources share no common identifier, so holdings are matched by
+normalised company name (stripped of legal suffixes, punctuation, and case
+differences). A **weight break** is flagged when a matched pair has
+|pctVal − Market Weight| > 0.15 percentage points.
+
+Weight was chosen over raw share count because an 84-day gap means share
+counts change with stock splits and rebalancing, so a raw share-count
+comparison would flag 433 of 455 matched pairs (those with >1% difference in
+share count). The weight-based criterion reduces this to 25 breaks.
+
+### Results
+
+| Category | Count |
+|----------|-------|
+| Matched by name | 455 |
+| N-PORT only (no iShares match) | 47 |
+| iShares only (no N-PORT match) | 47 |
+| Weight breaks (>0.15 pp difference) | 25 |
+| Stock-split flags | 3 |
+
+The 3 stock-split flags (CrowdStrike 4x, Amphenol 2x, Monster Beverage 2x)
+have a share ratio close to 2× or 4× — possible stock splits, not verified
+against corporate-action records.
+
+With an 84-day gap between the two sources, the 47 unmatched holdings per side
+and the 25 weight breaks cannot be distinguished from portfolio changes (index
+rebalancing, new inclusions, deletions). The 47 unmatched rows also reflect
+name-normalisation failures — without a shared identifier, any company whose
+name normalises differently in the two sources appears as unmatched.
+
+### Date-gap limitation
+
+The N-PORT reflects Aug 25, 2026; the iShares file reflects Nov 16, 2026 — an
+84-day gap. Four methods were tried to get a same-date iShares snapshot: the
+`asOfDate` URL parameter, the Wayback Machine, a manual browser download, and
+the open-source `etf_scraper` package. All four hit the same root cause —
+iShares' public AJAX endpoint ignores any date parameter and always serves the
+current snapshot. This is a confirmed limitation of the free public source.
+
+### Same-date internal consistency check
+
+As a separate sanity check, the N-PORT's own pctVal column was verified against
+the value implied by valUSD and total fund AUM for all 508 holdings on the same
+date (Aug 25, 2026). Result: **0 / 508 flagged** (maximum absolute difference
+0.009 percentage points, within rounding from the XML source).
+
+### Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/reconcile_sources.py` | Name-match, weight-break detection, split flag |
+| `scripts/internal_consistency_check.py` | Same-date pctVal vs implied weight |
+
+---
+
+## Module 3 — QC Rule Engine + ML Anomaly Detection
+
+### QC rules
+
+Six rules (R1–R6) detect data quality issues. Three review labels (N1, E1, D1)
+were added in Module 4 after the initial run, to distinguish new exceptions
+needing review from confirmed expected positions.
 
 | Code | Short name | Technical check |
 |------|-----------|-----------------|
@@ -42,9 +193,30 @@ Nine rules applied to every holding each quarter:
 
 **Expected exceptions** are recorded in `data/reference/expected_exceptions.csv`
 and reviewed manually before being promoted from N1 to E1 or D1. Only R1–R6 and
-N1 count toward the open-exception total; E1 and D1 are suppressed.
+N1 count toward the open-exception total; E1 and D1 are reported separately as
+Expected (reviewed) and not counted as open.
 
-Script: `scripts/qc_trend.py`
+Script: `scripts/qc_rules.py`
+
+### IsolationForest anomaly detection
+
+An IsolationForest model (`contamination=0.02`, `random_state=42`) was run on
+all 508 holdings for the Aug 2026 quarter using three features: `valUSD`,
+`pctVal`, and `balance` (all z-scored before fitting).
+
+**Result: 11 / 508 holdings flagged as anomalous** — mostly the largest
+positions: NVIDIA, Apple, Microsoft, Amazon, BlackRock Funds III (×2),
+Alphabet (×2), Broadcom, Micron, and Tesla. These are statistically unusual
+because of extreme size, not because they contain data errors.
+
+Of the two BlackRock Funds III rows: one was already flagged by the
+duplicate-CUSIP rule (R4); the other was a new ML finding — a money-market STIV
+position where balance ≈ valUSD on a non-STIV `isCashCollateral=N` row. That
+second finding became Rule R6 ("possible cash instrument"). The rule was
+subsequently narrowed in Module 4 to skip correctly-labelled STIV rows,
+leaving only genuinely mis-categorised positions in scope.
+
+Script: `scripts/ml_anomaly_detection.py`
 
 ---
 
@@ -63,8 +235,29 @@ Script: `scripts/qc_trend.py`
   isCashCollateral, balance, valUSD, pctVal.
 
 **Power BI file** (`PowerBI/IVV_Data_Quality.pbix`) — the same views rebuilt as
-an interactive Power BI report with a quarter slicer and drill-through. A PDF
-export is included as `PowerBI/IVV_Data_Quality.pdf`.
+an interactive Power BI report with a quarter slicer. A PDF export is included
+as `PowerBI/IVV_Data_Quality.pdf`.
+
+### What the trend revealed
+
+The first run of `qc_rules.py` produced 4–5 flags per quarter. Working through
+each one:
+
+- One flag was an **S&P 500 E-Mini futures contract** — no CUSIP or ISIN by
+  design, valUSD is unrealised P&L and can be negative. Not an error; promoted
+  to D1 (Derivative, reviewed).
+- Two flags were caused by **parser bugs in our own code** — the XML ingestion
+  script read `assetCat` and `issuerCat` from the wrong XML element and the wrong
+  collateral flag, causing R5 (missing category) hits on otherwise valid rows.
+  Fixed in the ingestion script.
+- Two more flags came from **over-broad rules** that were re-scoped:
+  R4 was narrowed to check for duplicate CUSIPs only within the same
+  `isCashCollateral` bucket (not across the whole portfolio); R6 was narrowed to
+  skip correctly-labelled STIV rows. The affected positions were promoted to E1
+  (Expected) after review.
+
+Final result: **0 open exceptions + 4 reviewed** (3 E1 BlackRock Funds III money-
+market positions, 1 D1 E-Mini futures) across all 6 quarters.
 
 ### Reporting schema (single source for both dashboards)
 
@@ -110,13 +303,16 @@ after running `qc_trend.py` to pick up the latest quarter.
 Extracts structured bond terms from SEC EDGAR free-writing prospectuses (FWP)
 and 424B2 final prospectuses for 7 issuers across 35 deals.
 
-### Issuers and sets
+### Issuers, deals, and bonds
 
-| Set | Issuers | Bonds | FWPs |
-|-----|---------|-------|------|
-| Build | Apple, Microsoft, Alphabet, Eli Lilly, Johnson & Johnson | 106 | 18 |
-| Test | Meta, Broadcom | 36 | 9 |
-| **Total** | | **142** | **27** |
+| Set | Issuers | Bonds | Deals | FWPs |
+|-----|---------|-------|-------|------|
+| Build | Apple (16), Microsoft (10), Alphabet (42), Eli Lilly (30), Johnson & Johnson (8) | 106 | 25 | 18 |
+| Test | Meta (16), Broadcom (20) | 36 | 10 | 9 |
+| **Total** | | **142** | **35** | **27** |
+
+(Alphabet has 11 deals sharing some FWPs; Microsoft has 1 deal covering 10
+bonds. FWP count is unique accessions — some deals share an FWP.)
 
 ### Extracted fields per bond
 
@@ -125,39 +321,100 @@ trade date, settlement date, day count convention, principal amount, price,
 yield, benchmark treasury yield, spread, ratings (Moody's + S&P), floating
 benchmark and spread, and the source document URL.
 
-### Validation checks (V1–V8)
+**Rate types in this dataset:** 133 fixed-rate, 9 floating-rate.
+**Currencies:** USD (109), EUR (20), CAD (8), GBP (5).
+
+### Validation checks (V1–V10)
 
 | Check | Description |
 |-------|-------------|
 | V1 | CUSIP format (9 characters, check digit valid) |
 | V2 | ISIN format (12 characters, Luhn check) |
 | V3 | CUSIP prefix matches issuer's equity CUSIP prefix |
-| V4 | Bond yield = benchmark treasury yield + spread (within 0.5 bps) |
-| V5 | Coupon / yield / price internally consistent |
-| V6 | Trade date, settlement date, and maturity date all present |
+| V4 | Bond yield = benchmark treasury yield + spread (within 0.5 bps); GBP bonds use `yield_semiannual` (Gilt spread is quoted semi-annually) |
+| V5 | Coupon / yield / price internally consistent; GBP bonds use `yield_annual` (annual-pay coupon) |
+| V6 | All three dates present, trade ≤ settlement < maturity, and maturity year matches the bond name |
 | V7 | Day count convention valid for the bond's currency |
 | V8 | CUSIP unique within the same deal |
+| V9 | Moody's and S&P ratings are recognised grades (e.g. Aaa, AA+) |
+| V10 | Principal amount is a whole number of millions |
 
 ### Fields-filled definition
 
 **Fields filled = non-null applicable cells ÷ total applicable cells.**
+Current value (run 2, from `reporting.module5_scorecard`): **96%**.
 
 A cell is "applicable" when the field makes sense for that specific bond's
-type and currency.  Three fields are excluded from the denominator for the
-bonds in this dataset:
+type and currency. Two groups of fields are excluded from the denominator for
+bonds where they do not apply:
 
-- `floating_benchmark` and `floating_spread_pct`: only relevant for
-  floating-rate bonds.  All 142 bonds in this dataset are fixed-rate, so
-  these fields are always null by design — not a data gap.
-- `yield_annual`: only reported for EUR-denominated bonds (annual yield
-  convention).  USD/CAD bonds use the semi-annual convention (`yield_pct`).
+- `floating_benchmark` and `floating_spread_pct`: only applicable to
+  floating-rate bonds; null by design for fixed-rate bonds.
+- `yield_annual`: only applicable to EUR and GBP bonds (annual-yield
+  convention); USD and CAD bonds use the semi-annual convention only.
 
-> **Computed values**: run 1 = **71%**, run 2 = **98%** (applicable-fields
-> definition above).  Increased from 97% to 98% after Broadcom's 20 principal
-> amounts were filled from the FWP preamble text (previously `not_found`).
-> An earlier script reported 62% / 85% because it included all 24 columns in
-> the denominator for every bond, penalising fixed-rate USD bonds for the
-> three structurally-empty columns listed above.
+Both runs are scored against the same canonical 23-field list (the columns
+present in the run-1 test CSV, minus tracking/metadata columns). Run-2 added
+three new columns (`interest_payment_dates`, `principal_source`, `fwp_accession`)
+that are not extraction fields; excluding them keeps the comparison fair.
+
+**Run 1: 71% | Run 2: 100%** (from `reporting.module5_scorecard`).
+An earlier figure of 96% for run 2 included the later-added columns in the
+denominator, deflating the score. The 100% figure is the correct value and is
+shown in the Power BI scorecard after the reporting schema is refreshed.
+
+Note: Meta and Broadcom have no EUR or GBP bonds, so `yield_annual` is excluded
+from the denominator for all 36 test bonds in both runs.
+
+### Apple validation (build set, 16 bonds, 3 deals)
+
+Three independent checks were run on the 16 Apple bonds before extending the
+extractor to other issuers:
+
+**FWP vs 424B2 reconciliation** — 67 field comparisons across 3 deals
+(principal amount, coupon, maturity year, price to public). Result:
+**65 / 65 applicable comparisons match** (2 not_applicable for floating-rate
+bonds where coupon is not a fixed field). Zero mismatches.
+
+**OpenFIGI cross-check** — issuer, coupon, and maturity date checked against
+OpenFIGI for all 16 bonds (48 checks total). Result: **46 / 46 applicable
+checks pass** (2 not_applicable for the two floating-rate Apple bonds where
+coupon is not applicable). Zero mismatches.
+
+**Blind hand-check** — 5 fields that OpenFIGI does not cover (Moody's rating,
+S&P rating, day count convention, trade date, settlement date) were manually
+looked up in the source FWPs for 3 bonds (one per deal). The extractor matched
+on **15 / 15**; the one disagreement was a human reading slip, confirmed by
+re-checking the source.
+
+### Test scorecard — run 1 vs run 2
+
+The extractor was scored twice on a held-out test set:
+
+| Measure | Run 1 (Meta + Broadcom; Meta 0, Broadcom 17) | Run 2 (Meta + Broadcom, 36 bonds) |
+|---------|---------------------------------------------|----------------------------------|
+| Bonds extracted | 17 | 36 |
+| Bonds passing all checks (V1–V8 for run 1; V1–V10 for run 2) | 0 | 36 |
+| Fields filled (23-field canonical list) | 71% | 100% |
+| OpenFIGI coupon match | 17 / 17 | 36 / 36 |
+| OpenFIGI maturity match | 12 / 17 | 36 / 36 |
+
+Run 1 attempted both Meta and Broadcom but extracted 0 Meta bonds because Meta's
+FWP layout was not yet handled. The 17 Broadcom bonds passed 0 of V1–V8 because
+the original extractor had multiple failures on Broadcom's formatting. V9 and
+V10 did not exist at the time of run 1; for the V1–V8 checks, V1, V3, V5, and
+V8 passed for all 17 bonds — the failures were mainly missing fields.
+
+The 5 maturity misses in Run 1 were extractor errors: the reader's date pattern
+stopped too early on these HTML documents, returning just the month name
+("October" instead of "October 15, 2028"), so the comparison reported
+`no_data (truncated)`. Fixed in run 2 by improving the date extraction pattern.
+
+The run-2 OpenFIGI comparison script also fixed a fraction-parsing bug —
+OpenFIGI sometimes returns coupons as "5 3/4" rather than 5.75; the first run-2
+comparison returned 32/36 matches because the script read only the integer part.
+Fixed to 36/36. Run-1 coupons were unaffected (17/17) because Broadcom's
+OpenFIGI entries used decimal notation.
 
 ### Reporting tables
 
@@ -184,9 +441,12 @@ Each bond in `reporting.bond_terms` carries:
 | `scripts/module5_fwp.py` | Match each deal to its FWP |
 | `scripts/extract_build_tranches.py` | Extract 106 build-set bonds |
 | `scripts/extract_test_tranches.py` | Extract 36 test-set bonds (run 2) |
-| `scripts/validate_build_tranches.py` | V1–V8 checks on build set |
-| `scripts/validate_test_run2.py` | V1–V8 checks on test set |
-| `scripts/check_test_openfigi_run2.py` | OpenFIGI coupon/maturity cross-check |
+| `scripts/validate_build_tranches.py` | V1–V10 checks on build set |
+| `scripts/validate_test_run2.py` | V1–V10 checks on test set (run 2) |
+| `scripts/reconcile_fwp_vs_prospectus.py` | FWP vs 424B2 reconciliation for Apple |
+| `scripts/check_cusips_openfigi.py` | OpenFIGI coupon/maturity check for build set |
+| `scripts/check_test_openfigi.py` | OpenFIGI coupon/maturity check — run 1 |
+| `scripts/check_test_openfigi_run2.py` | OpenFIGI coupon/maturity check — run 2 (fraction-parse fix) |
 | `scripts/load_module5_to_postgres.py` | Load all results into reporting schema |
 
 ---
@@ -197,13 +457,29 @@ Each bond in `reporting.bond_terms` carries:
 
 Real custodian bank statements are not publicly available. To build a
 reconciliation engine that can be tested against ground truth, the module
-generates a synthetic bank statement from the Module 5 expected coupon
-schedule, plants a controlled set of realistic breaks, seals the answer key
-before the reconciler sees it, and then scores the reconciler objectively.
+generates a synthetic bank statement from the expected cash-flow schedule built
+from Module 5 bond terms, plants a controlled set of realistic breaks, seals
+the answer key before the reconciler sees it, and then scores the reconciler
+objectively.
 
-This mirrors what a data team at a custodian bank or asset manager actually
-does when validating a new reconciliation system: build a test harness with
-known breaks, run the engine blind, compare output to the answer key.
+This is similar to how a new reconciliation system can be tested before it goes
+live: build a test harness with known breaks, run the engine blind, compare
+output to the answer key.
+
+### Assumptions
+
+- **Universe:** all 101 USD fixed-rate bonds in `reporting.bond_terms`
+  (both build and test sets; 86 have at least one 2026 payment, 15 do not).
+- **Hypothetical face holding:** $10,000,000 per bond (a uniform notional used
+  to generate coupon cash amounts; not derived from N-PORT positions).
+- **Year scope:** 2026 payments only (159 coupons + 1 principal repayment =
+  160 expected cash flows).
+- **Payment dates:** 66 bonds use interest payment dates extracted from the
+  FWP documents; 20 bonds (Apple 4, Broadcom 16) use the maturity-day rule
+  (payment on the day of the month matching the maturity date, six months apart)
+  because payment dates were not extracted reliably from their documents (e.g.
+  Apple's shared date line in the term sheet did not match 4 bonds). Weekend
+  and US federal holiday dates are rolled forward to the next business day.
 
 ### What was built
 
@@ -232,7 +508,7 @@ them into one of 12 break types:
 | `duplicate` | Same payment appears twice |
 | `surprise` | A CUSIP with an obviously fake check digit or format |
 | `valid_surprise` | A CUSIP that passes the check-digit algorithm but is not in the portfolio |
-| `cusip_typo` | A one-character transposition of a known CUSIP |
+| `cusip_typo` | One character changed in a known CUSIP |
 | `split` | One expected payment arrives as two rows that sum to the total |
 | `combined` | Two separate expected payments arrive as a single statement row |
 
@@ -317,9 +593,10 @@ get right).
   and 2. It does not introduce new break categories — a reconciler that
   handles all 12 types will score 16/16, but that does not mean it handles
   every break that could appear in a real custodian statement.
-- The expected-cash-flow schedule is derived from Module 5 bond terms (SEC
-  EDGAR filings). Payment dates are correct for the bonds covered; bonds with
-  missing interest payment dates fall back to a maturity-day rule.
+- **Payment dates** for 20 bonds are computed from the maturity-day rule
+  rather than document dates. If the actual interest payment dates differ from
+  the maturity month/day pattern, those bonds' payments will be on the wrong
+  day.
 
 ### Reporting tables
 
@@ -353,9 +630,34 @@ Run `scripts/load_module6_to_postgres.py` to load or reload all four tables.
 python -m venv venv
 venv\Scripts\activate          # Windows
 pip install -r requirements.txt
-cp .env.example .env           # then fill in PGPASSWORD and PBI_READER_PASSWORD
+copy .env.example .env         # then fill in PGPASSWORD and PBI_READER_PASSWORD
 ```
 
 PostgreSQL 18 must be running locally with a database named `finance_platform`.
-Run `scripts/download_historical_nport.py` to ingest N-PORT filings, then
-`scripts/qc_trend.py` to populate the reporting schema.
+
+### How to rebuild everything (run in this order)
+
+1. `scripts/download_historical_nport.py` — download 6 N-PORT filings
+2. `scripts/parse_holdings.py` + `scripts/load_history_to_postgres.py` — ingest into `security_master_history`
+3. `scripts/qc_rules.py` — run QC rule engine for all quarters
+4. `scripts/ml_anomaly_detection.py` — run IsolationForest on Aug 2026 quarter
+5. `scripts/qc_trend.py` — build reporting schema objects for dashboards
+6. `scripts/reconcile_sources.py` — Module 2 cross-source reconciliation
+7. `scripts/internal_consistency_check.py` — Module 2 same-date pctVal check
+8. `scripts/module5_documents.py` — fetch 424B2 filings for 7 issuers
+9. `scripts/module5_fwp.py` — match deals to FWPs
+10. `scripts/extract_build_tranches.py` — extract 106 build-set bonds
+11. `scripts/validate_build_tranches.py` — V1–V10 on build set
+12. `scripts/reconcile_fwp_vs_prospectus.py` — Apple FWP vs prospectus check
+13. `scripts/check_cusips_openfigi.py` — Apple/build OpenFIGI check
+14. `scripts/extract_test_tranches.py` — extract 36 test-set bonds
+15. `scripts/validate_test_run2.py` — V1–V10 on test set
+16. `scripts/check_test_openfigi_run2.py` — test-set OpenFIGI check (run 2)
+17. `scripts/load_module5_to_postgres.py` — load bond_terms, bond_checks, scorecard
+18. `scripts/build_module6_expected_coupons.py` — build 2026 cash-flow schedule
+19. `scripts/build_module6_bank_statement.py` — Round 1 synthetic statement
+20. `scripts/build_module6_bank_statement_hard.py` — Round 2 synthetic statement
+21. `scripts/build_module6_bank_statement_round3.py` — Round 3 synthetic statement
+22. `scripts/reconcile_cash.py` — run reconciliation (all 3 rounds)
+23. `scripts/score_all_rounds.py` — score all 3 rounds against answer keys
+24. `scripts/load_module6_to_postgres.py` — load cash recon results into reporting schema
