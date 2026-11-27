@@ -1,0 +1,26 @@
+nport_name,ishares_name,score,reviewed_by,reviewed_date,decision,note
+"Charles River Laboratories International, Inc.",CHARLES RIVER LABORATORIES INTERNA,91.891892,Adwait Gaur,2026-11-26,same,iShares name truncated at ~30 characters
+"Fidelity National Information Services, Inc.",FIDELITY NATIONAL INFORMATION SERV,94.444444,Adwait Gaur,2026-11-26,same,iShares name truncated at ~30 characters
+"Expeditors International of Washington, Inc.",EXPEDITORS INTERNATIONAL OF WASHIN,94.444444,Adwait Gaur,2026-11-26,same,iShares name truncated at ~30 characters
+"DR Horton, Inc.",D R HORTON,94.736842,Adwait Gaur,2026-11-26,same,Spacing difference in initials (D.R. Horton)
+Exxon Mobil Corp.,EXXONMOBIL HOLDINGS CORP,95.238095,Adwait Gaur,2026-11-26,same,Different legal entity name; ExxonMobil rebranded holding entity
+"J M Smucker Co. (The)",JM SMUCKER,95.238095,Adwait Gaur,2026-11-26,same,Spacing difference in initials
+"Texas Instruments, Inc.",TEXAS INSTRUMENT,96.969697,Adwait Gaur,2026-11-26,same,iShares name missing trailing 's'
+"Applied Materials, Inc.",APPLIED MATERIAL INC,96.969697,Adwait Gaur,2026-11-26,same,iShares name missing trailing 's'
+Westinghouse Air Brake Technologies Corp.,WESTINGHOUSE AIR BRAKE TECHNOLOGIE,98.550725,Adwait Gaur,2026-11-26,same,iShares name truncated at ~30 characters
+CRH plc,CRH PUBLIC LIMITED PLC,100.0,Adwait Gaur,2026-11-26,same,Full vs abbreviated public limited company designation
+"Illinois Tool Works, Inc.",ILLINOIS TOOL INC,100.0,Adwait Gaur,2026-11-26,same,Abbreviated name in iShares; Works omitted
+"Mettler-Toledo International, Inc.",METTLER TOLEDO,100.0,Adwait Gaur,2026-11-26,same,Abbreviated name in iShares; International omitted
+Cigna Group (The),CIGNA,100.0,Adwait Gaur,2026-11-26,same,Abbreviated name in iShares; Group omitted
+"Raymond James Financial, Inc.",RAYMOND JAMES,100.0,Adwait Gaur,2026-11-26,same,Abbreviated name in iShares; Financial omitted
+Cognizant Technology Solutions Corp.,COGNIZANT TECHNOLOGY SOLUTIONS CLA,100.0,Adwait Gaur,2026-11-26,same,iShares name truncated at ~30 characters (Class A)
+"Marsh & McLennan Cos., Inc.",MARSH,100.0,Adwait Gaur,2026-11-26,same,Heavily abbreviated in iShares; McLennan omitted
+Federal Realty Investment Trust,FEDERAL REALTY INVESTMENT TRUST RE,100.0,Adwait Gaur,2026-11-26,same,iShares name truncated at ~30 characters (REIT)
+Paramount Skydance Corp.,SKYDANCE SHS CLASS B,100.0,Adwait Gaur,2026-11-26,same,iShares lists under share-class description after the 2025 Paramount-Skydance merger
+SBA Communications Corp.,SBA COMMUNICATIONS REIT CORP CLASS,100.0,Adwait Gaur,2026-11-26,same,iShares name truncated at ~30 characters (Class A)
+"Alexandria Real Estate Equities, Inc.",ALEXANDRIA REAL ESTATE EQUITIES RE,100.0,Adwait Gaur,2026-11-26,same,iShares name truncated at ~30 characters (REIT)
+Hershey Co. (The),HERSHEY FOODS,100.0,Adwait Gaur,2026-11-26,same,Hershey's former corporate name (Hershey Foods Corporation); renamed in 2005
+Lennar Corp.,LENNAR A CLASS A,100.0,Adwait Gaur,2026-11-26,same,iShares holds and identifies the Class A shares; standard S&P 500 holding
+"McCormick & Co., Inc.",MCCORMICK & CO NON-VOTING,100.0,Adwait Gaur,2026-11-26,same,iShares holds the non-voting shares; standard S&P 500 holding
+Pinnacle West Capital Corp.,PINNACLE WEST,100.0,Adwait Gaur,2026-11-26,same,Abbreviated name in iShares; Capital omitted
+"Interactive Brokers Group, Inc.",INTERACTIVE BROKERS GROUP INC CLAS,100.0,Adwait Gaur,2026-11-26,same,iShares name truncated at ~30 characters (Class A)

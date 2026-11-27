@@ -1,4 +1,4 @@
-# Security Reference Data Governance & Analytics Platform
+# Finance Reference Data Platform
 
 A personal project to build finance-domain knowledge and upgrade my data skills:
 an end-to-end reference-data quality platform built on public SEC data for the
@@ -36,7 +36,7 @@ Holdings as of Mar 2025 to Jun 2026 (filed May 2025 to Aug 2026),
   for foreign securities), such as Accenture G1151C101, but the N-PORT field for
   CUSIP is blank. A surrogate key (`id`) ensures every row is uniquely addressable.
 - **iShares endpoint ignores date parameters** — four methods were tried to get
-  a same-date snapshot; all serve today's data. The 84-day gap is documented as
+  a same-date snapshot; all serve today's data. The 139-day gap is documented as
   a confirmed limitation of the free public source, not a project gap.
 - **ML flagged the 11 largest holdings as anomalous** — statistically unusual
   because of extreme size, not data errors. One finding (balance ≈ valUSD for
@@ -111,8 +111,12 @@ holding per filing date). Key design decisions:
 
 ## Module 2 — Cross-Source Reconciliation
 
-Compares the N-PORT holdings (Aug 25, 2026) against the iShares public
-holdings CSV (downloaded Nov 17, 2026, reflects holdings as of Nov 16, 2026).
+Compares the N-PORT holdings as of Jun 30, 2026 (filed Aug 25, 2026) against
+the iShares public holdings CSV (downloaded Nov 17, 2026, reflects holdings
+as of Nov 16, 2026).  Date gap: 139 days (Jun 30 to Nov 16, 2026).
+An earlier figure of 84 days used the SEC filing date instead of the
+N-PORT period-end date; 139 days is the correct gap between the two
+holdings dates.
 
 ### Method
 
@@ -121,35 +125,50 @@ normalised company name (stripped of legal suffixes, punctuation, and case
 differences). A **weight break** is flagged when a matched pair has
 |pctVal − Market Weight| > 0.15 percentage points.
 
-Weight was chosen over raw share count because an 84-day gap means share
+Weight was chosen over raw share count because a 139-day gap means share
 counts change with stock splits and rebalancing, so a raw share-count
-comparison would flag 433 of 455 matched pairs (those with >1% difference in
-share count). The weight-based criterion reduces this to 25 breaks.
+comparison would flag the majority of matched pairs (those with >1%
+difference in share count). The weight-based criterion reduces this to 28
+breaks across all 488 matched pairs.
 
 ### Results
 
 | Category | Count |
 |----------|-------|
-| Matched by name | 455 |
-| N-PORT only (no iShares match) | 47 |
-| iShares only (no N-PORT match) | 47 |
-| Weight breaks (>0.15 pp difference) | 25 |
+| Matched by name (exact normalisation) | 463 |
+| Matched by name (fuzzy, score ≥ 90) | 25 |
+| N-PORT only (no match found) | 14 |
+| iShares only (no match found) | 14 |
+| Weight breaks (>0.15 pp difference) | 28 |
 | Stock-split flags | 3 |
 
 The 3 stock-split flags (CrowdStrike 4x, Amphenol 2x, Monster Beverage 2x)
 have a share ratio close to 2× or 4× — possible stock splits, not verified
 against corporate-action records.
 
-With an 84-day gap between the two sources, the 47 unmatched holdings per side
-and the 25 weight breaks cannot be distinguished from portfolio changes (index
-rebalancing, new inclusions, deletions). The 47 unmatched rows also reflect
+A fuzzy second pass (rapidfuzz token_set_ratio, threshold 90) recovered 25
+pairs that exact normalisation missed, reducing unmatched rows from 39 per
+side to 14. A token_set_ratio score of 100 means one name's words are all
+contained in the other, not that the names are identical, so every fuzzy pair
+was reviewed by hand and recorded in fuzzy_matches_reviewed.csv. All 25 were
+confirmed as the same company.
+Improved name normalisation (stripping CORPORATION, COMPANIES, HOLDINGS,
+COS and other legal-suffix variants) moved a further 22 previously-unmatched
+companies into the exact-match pass.
+
+With a 139-day gap between the two sources, the 14 unmatched holdings per side
+and the 28 weight breaks cannot be distinguished from portfolio changes (index
+rebalancing, new inclusions, deletions). The unmatched rows also reflect
 name-normalisation failures — without a shared identifier, any company whose
 name normalises differently in the two sources appears as unmatched.
 
 ### Date-gap limitation
 
-The N-PORT reflects Aug 25, 2026; the iShares file reflects Nov 16, 2026 — an
-84-day gap. Four methods were tried to get a same-date iShares snapshot: the
+The N-PORT holds positions as of Jun 30, 2026 (filing date Aug 25, 2026); the
+iShares file reflects Nov 16, 2026 — a 139-day gap.  An earlier version of
+this file cited 84 days, computed from the SEC filing date (Aug 25) rather
+than the N-PORT period-end date (Jun 30); 139 days is correct.
+Four methods were tried to get a same-date iShares snapshot: the
 `asOfDate` URL parameter, the Wayback Machine, a manual browser download, and
 the open-source `etf_scraper` package. All four hit the same root cause —
 iShares' public AJAX endpoint ignores any date parameter and always serves the

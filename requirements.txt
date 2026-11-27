@@ -1,5 +1,7 @@
 pandas
 numpy
+rapidfuzz
+pytest
 scikit-learn
 psycopg2-binary
 sqlalchemy
