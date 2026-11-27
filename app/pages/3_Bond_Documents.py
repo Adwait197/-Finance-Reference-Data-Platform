@@ -256,12 +256,14 @@ st.divider()
 st.subheader("Test-set scorecard — run 1 vs run 2")
 
 st.markdown(
-    "Module 5 was first run on the 17 Broadcom bonds from the unseen test set "
-    "(run 1 = test set, Broadcom only; Meta bonds were not yet extracted).  "
-    "Run 2 added the remaining test-set company: Meta (16 bonds), giving a full test set "
-    "of 36 bonds (Meta 16 + Broadcom 20).  "
-    "Run 1 did not yet define V9 or V10, so all bonds failed 'pass all checks'.  "
-    "Run 2 defines all checks V1–V10."
+    "Module 5 was first run on the whole unseen test set (Meta + Broadcom).  "
+    "Meta's document layout was not yet supported, so 0 bonds were extracted from Meta; "
+    "Broadcom gave 17 bonds.  "
+    "Run 1 used checks V1–V8 only (V9 and V10 were not yet defined).  "
+    "0 of 17 bonds passed all checks, mainly because fields were missing "
+    "(ISIN, dates, day count); V1, V3, V5 and V8 passed for all 17.  "
+    "Run 2 added support for Meta's layout (16 bonds) and defined V9/V10, "
+    "giving a full test set of 36 bonds (Meta 16 + Broadcom 20)."
 )
 
 score_display = {
@@ -293,8 +295,11 @@ for key, label in score_display.items():
 sc_df = pd.DataFrame(rows_sc)
 st.dataframe(sc_df, use_container_width=True, hide_index=True)
 st.caption(
-    "Run 1 = Broadcom only (17 bonds); checks V9/V10 not yet defined — 'bonds pass all checks' was 0.  "
-    "Run 2 = full unseen test set (36 bonds, Meta + Broadcom); all checks V1–V10 defined.  "
+    "Run 1 = whole test set (Meta + Broadcom); Meta layout unsupported → 0 bonds extracted; "
+    "Broadcom → 17 bonds.  "
+    "Checks V1–V8 only (V9/V10 not yet defined); 0 of 17 passed all checks mainly due to "
+    "missing fields (ISIN, dates, day count); V1, V3, V5 and V8 passed for all 17.  "
+    "Run 2 = full unseen test set (36 bonds, Meta 16 + Broadcom 20); all checks V1–V10 defined.  "
     "OpenFIGI maturity match improved from 12/17 to 36/36 after fixing the date-pattern parser."
 )
 
