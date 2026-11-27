@@ -211,7 +211,7 @@ view = checks_df if sel_module == "All modules" else checks_df[checks_df["Module
 display_cols = ["Status", "Module", "Check ID", "Name", "Plain English", "Result"]
 st.dataframe(
     view[display_cols],
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     column_config={
         "Plain English": st.column_config.TextColumn("Plain English", width="large"),

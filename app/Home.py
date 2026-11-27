@@ -34,6 +34,11 @@ st.markdown(
     "holdings file, and the OpenFIGI API."
 )
 
+st.markdown(
+    "**Live dashboard:** https://finance-data-quality-reference-platform.streamlit.app/  \n"
+    "**Source code:** https://github.com/Adwait197/-Finance-Reference-Data-Platform"
+)
+
 st.divider()
 
 # ── What it does / Why it was built ──────────────────────────────────────────

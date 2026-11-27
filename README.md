@@ -6,6 +6,8 @@ iShares Core S&P 500 ETF (IVV).
 
 Built with AI-assisted development (Claude Code).
 
+**Live dashboard:** https://finance-data-quality-reference-platform.streamlit.app/
+
 **Data sources:** SEC EDGAR (N-PORT filings, 424B2 final prospectuses, FWP
 free-writing prospectuses), iShares public holdings CSV, OpenFIGI API.
 
@@ -243,19 +245,21 @@ Script: `scripts/ml_anomaly_detection.py`
 
 ### What the dashboards show
 
-**Streamlit app** (`scripts/dashboard.py`) — four panels on one page:
-- **Fund size trend** — total holdings and AUM (USD bn) across 6 quarters.
-- **Open vs expected exceptions** — two-line trend chart: open exceptions (R1–R6
-  + N1, red) and expected exceptions (E1 + D1, grey dotted).
-- **Rule-by-quarter heatmap** — count of exceptions per rule per quarter; steel-
-  grey cells for Expected rows (E1/D1), white/light for open rules.
-- **Flagged-holdings drill-down** — per-row detail for the selected quarter:
-  security name, status, reason, CUSIP, ISIN, assetCat, issuerCat,
-  isCashCollateral, balance, valUSD, pctVal.
+**Streamlit app** (`app/Home.py`) — a 6-page interactive dashboard covering all
+six modules, deployed on Streamlit Community Cloud.  Run locally with
+`streamlit run app/Home.py`.  The app reads only from `app/data/*.parquet`;
+run `scripts/export_reporting_for_app.py` to refresh those files from PostgreSQL.
 
-**Power BI file** (`PowerBI/IVV_Data_Quality.pbix`) — the same views rebuilt as
-an interactive Power BI report with a quarter slicer. A PDF export is included
-as `PowerBI/IVV_Data_Quality.pdf`.
+Pages: **Home** (overview, key numbers, problems log) · **Data Quality**
+(fund size, exception trend, rule heatmap, quarter drill-down) · **Source
+Comparison** (match breakdown, weight breaks, unmatched holdings) · **Bond
+Documents** (bond explorer, V1–V10 results, run-1/run-2 scorecard) · **Cash
+Reconciliation** (cash flows, break types, before/after scorecard) · **Checks
+and Controls** (every automatic check in one registry table).
+
+**Power BI file** (`PowerBI/IVV_Data_Quality.pbix`) — an interactive Power BI
+report with 4 pages (Overview, Checks, Bond Documents, Cash Reconciliation) and
+a quarter slicer.  `PowerBI/IVV_Data_Quality.pdf` is a PDF export of all 4 pages.
 
 ### What the trend revealed
 
@@ -304,7 +308,7 @@ only. It cannot access `public` or any other schema. The password is stored in
 
 ```
 # From the project root, with the venv activated:
-streamlit run scripts/dashboard.py
+streamlit run app/Home.py
 ```
 
 Then open http://localhost:8501 in a browser.

@@ -105,7 +105,7 @@ fig_count.update_layout(
     legend=dict(orientation="h", yanchor="top", y=-0.18, xanchor="center", x=0.5),
     height=360,
 )
-st.plotly_chart(fig_count, use_container_width=True)
+st.plotly_chart(fig_count, width="stretch")
 st.caption(
     "Build set (Alphabet, Apple, Eli Lilly, Johnson & Johnson, Microsoft) in blue/green/orange/purple by currency.  "
     "Test set (Broadcom, Meta) are USD-only.  "
@@ -155,7 +155,7 @@ fig_amt.update_layout(
     margin=dict(t=60, b=20),
     height=240 * nrows,
 )
-st.plotly_chart(fig_amt, use_container_width=True)
+st.plotly_chart(fig_amt, width="stretch")
 st.warning(
     "Each panel shows amounts in a single currency.  "
     "USD billions and EUR billions represent different values.  "
@@ -225,7 +225,7 @@ fig_heat.update_layout(
     legend=dict(orientation="h", yanchor="top", y=-0.18, xanchor="center", x=0.5),
     height=360,
 )
-st.plotly_chart(fig_heat, use_container_width=True)
+st.plotly_chart(fig_heat, width="stretch")
 st.caption(
     "Green = pass.  Light blue = not applicable for this bond type (e.g. V4/V5 for floating-rate bonds).  "
     "Yellow = expected deviation reviewed and accepted.  Orange = field not found in document.  "
@@ -247,7 +247,7 @@ for col in result_labels.values():
     if col in check_tbl.columns:
         check_tbl[col] = check_tbl[col].astype(int)
 
-st.dataframe(check_tbl, use_container_width=True, hide_index=True)
+st.dataframe(check_tbl, width="stretch", hide_index=True)
 
 st.divider()
 
@@ -293,7 +293,7 @@ for key, label in score_display.items():
     })
 
 sc_df = pd.DataFrame(rows_sc)
-st.dataframe(sc_df, use_container_width=True, hide_index=True)
+st.dataframe(sc_df, width="stretch", hide_index=True)
 st.caption(
     "Run 1 = whole test set (Meta + Broadcom); Meta layout unsupported → 0 bonds extracted; "
     "Broadcom → 17 bonds.  "
@@ -341,7 +341,7 @@ bond_list["Coupon %"] = bond_list["Coupon %"].apply(
 
 st.dataframe(
     bond_list,
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     column_config={
         "FWP (source)":       st.column_config.LinkColumn("FWP (source)",       display_text="SEC link"),

@@ -126,7 +126,7 @@ fig_aum.update_layout(
     hovermode="x unified",
     margin=dict(t=20, b=20),
 )
-st.plotly_chart(fig_aum, use_container_width=True)
+st.plotly_chart(fig_aum, width="stretch")
 st.caption(
     "Total USD value of all holdings per quarter.  Axes start at zero.  "
     + DATE_RANGE_CAPTION
@@ -171,7 +171,7 @@ fig_exc.update_layout(
     margin=dict(t=20, b=100),
     legend=dict(orientation="h", yanchor="top", y=-0.18, xanchor="center", x=0.5),
 )
-st.plotly_chart(fig_exc, use_container_width=True)
+st.plotly_chart(fig_exc, width="stretch")
 st.caption(
     "Red = open exceptions (R1–R6 violations + any unreviewed N1 rows) — these need action.  "
     "Grey dotted = reviewed rows with an Expected label (D1 derivatives, E1 cash collateral) — "
@@ -243,7 +243,7 @@ fig_heat.add_shape(
     x0=-0.02, x1=1.02, y0=5.5, y1=5.5,
     line=dict(color="#999999", width=1.5, dash="dot"),
 )
-st.plotly_chart(fig_heat, use_container_width=True)
+st.plotly_chart(fig_heat, width="stretch")
 st.caption(
     "Each cell shows the count for that rule and quarter.  "
     "**White** = zero.  **Grey-blue** = same count every quarter (structural).  "
@@ -286,7 +286,7 @@ else:
     st.markdown(f"**{len(error_df)} open exception{'s' if len(error_df) != 1 else ''} — R1–R6 + N1**")
     avail = [c for c in DISPLAY_COLS if c in error_df.columns]
     st.dataframe(_fmt_display(error_df[avail]).rename(columns=DISPLAY_RENAME),
-                 use_container_width=True, hide_index=True)
+                 width="stretch", hide_index=True)
 
 if len(expected_df) > 0:
     with st.expander(
@@ -296,7 +296,7 @@ if len(expected_df) > 0:
     ):
         avail = [c for c in DISPLAY_COLS if c in expected_df.columns]
         st.dataframe(_fmt_display(expected_df[avail]).rename(columns=DISPLAY_RENAME),
-                     use_container_width=True, hide_index=True)
+                     width="stretch", hide_index=True)
 
 st.divider()
 
@@ -314,11 +314,11 @@ col_r1, col_r2 = st.columns([2, 1])
 with col_r1:
     st.markdown("**Open rules (R1–R6, N1) — trigger action**")
     st.dataframe(open_rules[["Code", "Name", "Description"]],
-                 use_container_width=True, hide_index=True)
+                 width="stretch", hide_index=True)
 with col_r2:
     st.markdown("**Expected labels (E1, D1) — reviewed, not errors**")
     st.dataframe(expected_rules[["Code", "Name", "Description"]],
-                 use_container_width=True, hide_index=True)
+                 width="stretch", hide_index=True)
 
 st.caption(
     "R4 checks for duplicate CUSIPs within the same isCashCollateral bucket (not across buckets).  "
@@ -378,7 +378,7 @@ with col_a:
     eq_show["pctval"]  = eq_show["pctval"].apply(lambda x: f"{x:.2f}%")
     eq_show["valusd"]  = eq_show["valusd"].apply(lambda x: f"${x/1e9:.1f}B")
     eq_show.columns    = ["Name", "CUSIP", "% of fund", "Value (USD)"]
-    st.dataframe(eq_show, use_container_width=True, hide_index=True)
+    st.dataframe(eq_show, width="stretch", hide_index=True)
     st.caption(
         "These 9 holdings are the fund's largest positions.  IsolationForest flags "
         "them because extreme values are rare in the dataset — not because there is "
@@ -390,7 +390,7 @@ with col_b:
     bk_all = pd.concat([anom_rule, second_bk], ignore_index=True)
     bk_show = bk_all[["name", "cusip", "ml_label", "explanation"]].copy()
     bk_show.columns = ["Name", "CUSIP", "Label", "Explanation"]
-    st.dataframe(bk_show, use_container_width=True, hide_index=True)
+    st.dataframe(bk_show, width="stretch", hide_index=True)
     st.caption(
         "One was already flagged by Rule R4 (duplicate CUSIP) and reviewed as E1.  "
         "The other — a new ML find — led to the creation and later narrowing of Rule R6."

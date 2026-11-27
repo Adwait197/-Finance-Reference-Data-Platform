@@ -167,7 +167,7 @@ fig_exp.update_layout(
     legend=dict(orientation="h", yanchor="top", y=-0.25, xanchor="center", x=0.5),
     height=400,
 )
-st.plotly_chart(fig_exp, use_container_width=True)
+st.plotly_chart(fig_exp, width="stretch")
 st.caption(
     f"Schedule covers the {N_USD_FIXED} USD fixed-rate bonds, {N_USD_FIXED_2026} of which "
     f"have at least one coupon or principal payment in 2026.  "
@@ -204,7 +204,7 @@ fig_types.update_layout(
     margin=dict(t=20, b=40, l=200),
     height=max(260, 40 * len(type_counts) + 80),
 )
-st.plotly_chart(fig_types, use_container_width=True)
+st.plotly_chart(fig_types, width="stretch")
 st.caption(
     "Only non-matched rows shown.  "
     "'late_needs_review' and 'large_deduction_needs_review' require analyst follow-up.  "
@@ -248,7 +248,7 @@ else:
     brk_show = brk[["payment_date_fmt","cusip","result","amount_expected_fmt",
                      "amount_received_fmt","difference_fmt","days_late_fmt","needs_review_fmt"]].copy()
     brk_show.columns = ["Payment date","CUSIP","Break type","Expected","Received","Difference","Days late","Needs review"]
-    st.dataframe(brk_show, use_container_width=True, hide_index=True)
+    st.dataframe(brk_show, width="stretch", hide_index=True)
     st.caption(
         "Sorted by expected amount descending — largest payments at stake first.  "
         "Negative difference = shortfall (received less than expected); "
@@ -283,7 +283,7 @@ for _, row in crsc.sort_values(["round_number","reconciler_version"]).iterrows()
     })
 
 sc_df = pd.DataFrame(sc_rows)
-st.dataframe(sc_df, use_container_width=True, hide_index=True,
+st.dataframe(sc_df, width="stretch", hide_index=True,
              column_config={"Notes": st.column_config.TextColumn("Notes", width="large")})
 st.caption(
     "Round 1 = easy (standard breaks: missing, late, short, duplicate, surprise, CUSIP typo).  "
@@ -300,7 +300,7 @@ st.subheader("Reconciliation rules")
 
 rules_show = rules.copy()
 rules_show.columns = ["Rule", "Threshold", "Unit", "Label (within)", "Label (beyond)", "Plain English"]
-st.dataframe(rules_show, use_container_width=True, hide_index=True,
+st.dataframe(rules_show, width="stretch", hide_index=True,
              column_config={"Plain English": st.column_config.TextColumn("Plain English", width="large")})
 st.caption(
     "These two rules are machine-readable and stored in cash_recon_rules.csv.  "

@@ -140,7 +140,7 @@ fig.update_layout(
     legend=dict(orientation="h", yanchor="top", y=-0.25, xanchor="center", x=0.5),
     height=480,
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 st.caption(
     "Top 50 matched pairs by absolute weight difference.  "
     "Red = weight break (> 0.15 pp).  Amber = weight break AND a share ratio close "
@@ -170,7 +170,7 @@ breaks_show["Difference (pp)"]    = breaks_show["Difference (pp)"].apply(lambda 
 breaks_show["Abs diff (pp)"]      = breaks_show["Abs diff (pp)"].apply(lambda x: f"{x:.4f}")
 breaks_show["Split flag"]         = breaks_show["Split flag"].fillna("—")
 
-st.dataframe(breaks_show, use_container_width=True, hide_index=True)
+st.dataframe(breaks_show, width="stretch", hide_index=True)
 
 st.divider()
 
@@ -192,7 +192,7 @@ splits_show.columns = [
     "Name", "N-PORT weight", "iShares weight",
     "N-PORT balance", "iShares quantity", "Share ratio", "Split flag",
 ]
-st.dataframe(splits_show, use_container_width=True, hide_index=True)
+st.dataframe(splits_show, width="stretch", hide_index=True)
 
 st.divider()
 
@@ -219,7 +219,7 @@ with col_u1:
     nport_only["Weight (%)"] = nport_only["Weight (%)"].apply(lambda x: f"{x:.4f}")
     nport_only["Balance (shares)"] = nport_only["Balance (shares)"].apply(
         lambda x: f"{x:,.0f}" if pd.notna(x) else "—")
-    st.dataframe(nport_only, use_container_width=True, hide_index=True)
+    st.dataframe(nport_only, width="stretch", hide_index=True)
 
 with col_u2:
     st.markdown("**In iShares only** (not found in N-PORT)")
@@ -230,7 +230,7 @@ with col_u2:
     ish_only["Weight (%)"] = ish_only["Weight (%)"].apply(lambda x: f"{x:.4f}")
     ish_only["Quantity (shares)"] = ish_only["Quantity (shares)"].apply(
         lambda x: f"{x:,.0f}" if pd.notna(x) else "—")
-    st.dataframe(ish_only, use_container_width=True, hide_index=True)
+    st.dataframe(ish_only, width="stretch", hide_index=True)
 
 st.divider()
 
@@ -261,7 +261,7 @@ if "match_type" in recon.columns:
         fuzzy_show["is_break"]        = fuzzy_show["is_break"].apply(lambda x: "Yes" if x else "—")
         fuzzy_show.columns = ["Score", "N-PORT name", "iShares name",
                                "N-PORT wt (%)", "iShares wt (%)", "Abs diff (pp)", "Break?"]
-        st.dataframe(fuzzy_show, use_container_width=True, hide_index=True)
+        st.dataframe(fuzzy_show, width="stretch", hide_index=True)
         st.caption(
             "Score 100 = perfect token match; lower scores indicate more formatting "
             f"differences.  These {n_fuzzy_total} pairs are listed in "
